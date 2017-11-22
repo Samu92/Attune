@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Attune</string>
+    <string name="title_activity_main">Main</string>
 </resources>
