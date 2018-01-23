@@ -1,14 +1,10 @@
 package es.app.attune.attune.Activity;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -18,40 +14,27 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
-import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.Error;
-import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 import es.app.attune.attune.Classes.SpotifyCom;
-import es.app.attune.attune.Modules.Tools;
 import es.app.attune.attune.R;
-import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.UserPrivate;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, SpotifyPlayer.NotificationCallback, ConnectionStateCallback {
 
-    private SpotifyCom spotifyCom = new SpotifyCom(this);
+    private SpotifyCom spotifyCom;
 
     // Request code that will be used to verify if the result comes from correct activity
     private static final int REQUEST_CODE = 1337;
 
-    private Player mPlayer;
     private SpotifyService service;
 
     @Override
@@ -79,9 +62,35 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        /*** SpotifyCom ***/
-        // Autenticamos al usuario al lanzar el activity
-        spotifyCom.Authenticate(this);
+        /*
+        service = spotifyCom.getService();
+        // Cargamos la cabecera del navigator view con los datos del usuario de spotify
+        service.getMe(new Callback<UserPrivate>() {
+            @Override
+            public void success(UserPrivate userPrivate, Response response) {
+                CircleImageView image  = (CircleImageView) findViewById(R.id.profile_image);
+                TextView nombre = (TextView) findViewById(R.id.username);
+                TextView email = (TextView) findViewById(R.id.email);
+
+                Picasso.with(getApplicationContext())
+                        .load(userPrivate.images.get(0).url)
+                        .placeholder(R.drawable.ic_menu_gallery)
+                        .error(R.drawable.ic_menu_gallery)
+                        .resize(100, 100)
+                        .centerCrop()
+                        .into(image);
+
+                nombre.setText(userPrivate.id);
+                email.setText(userPrivate.email);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d("MainActivity", "GetMe error: " + error.getMessage());
+            }
+        });
+        mPlayer.playUri(null, "spotify:track:2TpxZ7JUBn3uw46aR7qd6V", 0, 0);
+        */
     }
 
     @Override
@@ -170,34 +179,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onLoggedIn() {
         Log.wtf("LoginActivity", "User logged in");
-        service = spotifyCom.getService();
-        // Cargamos la cabecera del navigator view con los datos del usuario de spotify
-        service.getMe(new Callback<UserPrivate>() {
-            @Override
-            public void success(UserPrivate userPrivate, Response response) {
-                CircleImageView image  = (CircleImageView) findViewById(R.id.profile_image);
-                TextView nombre = (TextView) findViewById(R.id.username);
-                TextView email = (TextView) findViewById(R.id.email);
+        /*
 
-                Picasso.with(getApplicationContext())
-                        .load(userPrivate.images.get(0).url)
-                        .placeholder(R.drawable.ic_menu_gallery)
-                        .error(R.drawable.ic_menu_gallery)
-                        .resize(100, 100)
-                        .centerCrop()
-                        .into(image);
-
-                nombre.setText(userPrivate.id);
-                email.setText(userPrivate.email);
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d("MainActivity", "GetMe error: " + error.getMessage());
-            }
-        });
-
-        //mPlayer.playUri(null, "spotify:track:2TpxZ7JUBn3uw46aR7qd6V", 0, 0);
+        */
     }
 
     @Override
@@ -227,22 +211,7 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == REQUEST_CODE) {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
             if (response.getType() == AuthenticationResponse.Type.TOKEN) {
-                // Inicializamos el reproductor de Spotify en la aplicación
-                Config playerConfig = new Config(this, response.getAccessToken(), spotifyCom.getClientID());
-                spotifyCom.setAccessToken(response.getAccessToken());
-                Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver() {
-                    @Override
-                    public void onInitialized(SpotifyPlayer spotifyPlayer) {
-                        mPlayer = spotifyPlayer;
-                        mPlayer.addConnectionStateCallback(MainActivity.this);
-                        mPlayer.addNotificationCallback(MainActivity.this);
-                    }
 
-                    @Override
-                    public void onError(Throwable throwable) {
-                        Log.e("MainActivity", "Could not initialize player: " + throwable.getMessage());
-                    }
-                });
             }
         }
     }
