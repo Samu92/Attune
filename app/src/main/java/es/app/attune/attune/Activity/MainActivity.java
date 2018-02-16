@@ -1,10 +1,11 @@
 package es.app.attune.attune.Activity;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -14,27 +15,43 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
+import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.Error;
 import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
+import es.app.attune.attune.Classes.PlayerApp;
+import es.app.attune.attune.Classes.Song;
 import es.app.attune.attune.Classes.SpotifyCom;
+import es.app.attune.attune.Fragments.NewPlayList;
+import es.app.attune.attune.Fragments.PlayListFragment;
+import es.app.attune.attune.Fragments.dummy.DummyContent;
 import es.app.attune.attune.R;
+import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.Album;
+import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
+import kaaes.spotify.webapi.android.models.SeedsGenres;
+import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.TracksPager;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, SpotifyPlayer.NotificationCallback, ConnectionStateCallback {
-
-    private SpotifyCom spotifyCom;
+        implements NavigationView.OnNavigationItemSelectedListener, SpotifyPlayer.NotificationCallback, ConnectionStateCallback, NewPlayList.OnFragmentInteractionListener, PlayListFragment.OnListFragmentInteractionListener{
 
     // Request code that will be used to verify if the result comes from correct activity
     private static final int REQUEST_CODE = 1337;
 
+    private SpotifyCom spotifyCom = new SpotifyCom(this);
+    private PlayerApp mPlayer = new PlayerApp();
     private SpotifyService service;
 
     @Override
@@ -43,15 +60,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -62,35 +70,32 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        /*
-        service = spotifyCom.getService();
-        // Cargamos la cabecera del navigator view con los datos del usuario de spotify
-        service.getMe(new Callback<UserPrivate>() {
+        /*** SpotifyCom ***/
+        // Autenticamos al usuario al lanzar el activity
+        spotifyCom.Authenticate(this);
+
+        // Begin the transaction
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        // Replace the contents of the container with the new fragment
+        ft.replace(R.id.fragmentView, new PlayListFragment());
+        // or ft.add(R.id.your_placeholder, new FooFragment());
+        // Complete the changes added above
+        ft.commit();
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabNewPlayList);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void success(UserPrivate userPrivate, Response response) {
-                CircleImageView image  = (CircleImageView) findViewById(R.id.profile_image);
-                TextView nombre = (TextView) findViewById(R.id.username);
-                TextView email = (TextView) findViewById(R.id.email);
-
-                Picasso.with(getApplicationContext())
-                        .load(userPrivate.images.get(0).url)
-                        .placeholder(R.drawable.ic_menu_gallery)
-                        .error(R.drawable.ic_menu_gallery)
-                        .resize(100, 100)
-                        .centerCrop()
-                        .into(image);
-
-                nombre.setText(userPrivate.id);
-                email.setText(userPrivate.email);
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d("MainActivity", "GetMe error: " + error.getMessage());
+            public void onClick(View view) {
+                // Begin the transaction
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                // Replace the contents of the container with the new fragment
+                ft.replace(R.id.fragmentView, new NewPlayList());
+                // or ft.add(R.id.your_placeholder, new FooFragment());
+                // Complete the changes added above
+                ft.commit();
             }
         });
-        mPlayer.playUri(null, "spotify:track:2TpxZ7JUBn3uw46aR7qd6V", 0, 0);
-        */
+
     }
 
     @Override
@@ -131,17 +136,15 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
+        if (id == R.id.nav_playlists) {
+            // Begin the transaction
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            // Replace the contents of the container with the new fragment
+            ft.replace(R.id.fragmentView, new PlayListFragment());
+            // or ft.add(R.id.your_placeholder, new FooFragment());
+            // Complete the changes added above
+            ft.commit();
         } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
 
         }
 
@@ -179,9 +182,21 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onLoggedIn() {
         Log.wtf("LoginActivity", "User logged in");
-        /*
+        service = spotifyCom.getService();
 
-        */
+        //mPlayer.play_song();
+        service.getTrackAudioFeatures("6Za3190Sbw39BBC77WSS1C", new Callback<AudioFeaturesTrack>() {
+            @Override
+            public void success(AudioFeaturesTrack audioFeaturesTrack, Response response) {
+
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Toast mensaje = Toast.makeText(getApplicationContext(), "ERROR", Toast.LENGTH_LONG);
+                mensaje.show();
+            }
+        });
     }
 
     @Override
@@ -211,8 +226,34 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == REQUEST_CODE) {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
             if (response.getType() == AuthenticationResponse.Type.TOKEN) {
+                spotifyCom.setAccessToken(response.getAccessToken());
 
+                // Inicializamos el reproductor de Spotify en la aplicación
+                Config playerConfig = new Config(this, response.getAccessToken(), spotifyCom.getClientID());
+                Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver() {
+                    @Override
+                    public void onInitialized(SpotifyPlayer spotifyPlayer) {
+                        mPlayer.setmPlayer(spotifyPlayer);
+                        mPlayer.addConnectionStateCallback(MainActivity.this);
+                        mPlayer.addNotificationCallback(MainActivity.this);
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        Log.e("MainActivity", "Could not initialize player: " + throwable.getMessage());
+                    }
+                });
             }
         }
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
+
+    @Override
+    public void onListFragmentInteraction(DummyContent.DummyItem item) {
+
     }
 }

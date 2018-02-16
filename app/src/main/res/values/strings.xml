@@ -6,4 +6,31 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="Category">Categoría</string>
+
+    <string-array name="Categories">
+        <item>Blues</item>
+        <item>Country</item>
+        <item>Disco</item>
+        <item>Electrónica</item>
+        <item>Folk</item>
+        <item>Funk</item>
+        <item>Gospel</item>
+        <item>Heavy Metal</item>
+        <item>Hip Hop</item>
+        <item>Indie​</item>
+        <item>Jazz​</item>
+        <item>Pop</item>
+        <item>Punk</item>
+        <item>Rap</item>
+        <item>Reggae</item>
+        <item>Reggaeton</item>
+        <item>Rhythm and Blues</item>
+        <item>Rock</item>
+        <item>Rock and Roll</item>
+        <item>Soul</item>
+    </string-array>
 </resources>
