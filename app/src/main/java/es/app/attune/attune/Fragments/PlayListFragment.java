@@ -41,11 +41,8 @@ public class PlayListFragment extends Fragment {
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static PlayListFragment newInstance(int columnCount) {
+    public static PlayListFragment newInstance() {
         PlayListFragment fragment = new PlayListFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
-        fragment.setArguments(args);
         return fragment;
     }
 

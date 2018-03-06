@@ -1,6 +1,8 @@
 package es.app.attune.attune.Fragments;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -10,8 +12,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
+import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
+
+import java.util.ArrayList;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 import es.app.attune.attune.R;
 
 /**
@@ -23,46 +32,51 @@ import es.app.attune.attune.R;
  * create an instance of this fragment.
  */
 public class NewPlayList extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    // UI
+    private CircleImageView image;
+    private EditText name;
+    private DiscreteSeekBar tempo;
+    private Spinner category;
+    private Boolean valid;
 
     public NewPlayList() {
         // Required empty public constructor
     }
 
     /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
      * @return A new instance of fragment NewPlayList.
      */
     // TODO: Rename and change types and number of parameters
-    public static NewPlayList newInstance(String param1, String param2) {
+    public static NewPlayList newInstance() {
         NewPlayList fragment = new NewPlayList();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
+    }
+
+    public Bitmap getImage() {
+        BitmapDrawable drawable = (BitmapDrawable) image.getDrawable();
+        Bitmap bitmap = drawable.getBitmap();
+        return bitmap;
+    }
+
+    public String getName() {
+        return name.getText().toString();
+    }
+
+    public int getTempo() {
+        return tempo.getProgress();
+    }
+
+    public String getCategory() {
+        return category.getSelectedItem().toString();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
@@ -85,6 +99,11 @@ public class NewPlayList extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        image = (CircleImageView) getView().findViewById(R.id.image_playlist);
+        name = (EditText) getView().findViewById(R.id.name_playlist);
+        tempo = (DiscreteSeekBar) getView().findViewById(R.id.bmp_seekbar);
+        category = (Spinner) getView().findViewById(R.id.category_spinner);
 
         Spinner staticSpinner = (Spinner) getView().findViewById(R.id.category_spinner);
 
@@ -138,5 +157,19 @@ public class NewPlayList extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    /*
+        Función que valida el formulario de creación de la playlist
+     */
+    public boolean ValidarFormulario(){
+        valid = true;
+
+        if(name.getText().toString().isEmpty() ){
+            valid = false;
+            name.setError("El nombre de la playlist es obligatorio.");
+            name.requestFocus();
+        }
+        return valid;
     }
 }
