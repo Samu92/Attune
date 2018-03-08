@@ -18,13 +18,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.util.List;
+
+import es.app.attune.attune.Classes.Search;
+import es.app.attune.attune.Classes.SearchPresenter;
 import es.app.attune.attune.Fragments.NewPlayList;
 import es.app.attune.attune.Fragments.PlayListFragment;
 import es.app.attune.attune.Fragments.dummy.DummyContent;
 import es.app.attune.attune.R;
+import kaaes.spotify.webapi.android.models.Track;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, PlayListFragment.OnListFragmentInteractionListener, NewPlayList.OnFragmentInteractionListener {
+        implements NavigationView.OnNavigationItemSelectedListener, PlayListFragment.OnListFragmentInteractionListener, NewPlayList.OnFragmentInteractionListener, Search.ResultPlaylist {
 
     static final String EXTRA_TOKEN = "EXTRA_TOKEN";
     private static final String KEY_CURRENT_QUERY = "CURRENT_QUERY";
@@ -34,6 +39,8 @@ public class MainActivity extends AppCompatActivity
     // Fragments
     private PlayListFragment playListFragment;
     private NewPlayList newPlayListFragment;
+
+    private Search.ActionListener mActionListener;
 
     public static Intent createIntent(Context context) {
         return new Intent(context, MainActivity.class);
@@ -54,6 +61,12 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        Intent intent = getIntent();
+        String token = intent.getStringExtra(EXTRA_TOKEN);
+
+        mActionListener = new SearchPresenter(this, this);
+        mActionListener.init(token);
 
         // Inicializamos los fragmentos
         newPlayListFragment = NewPlayList.newInstance();
@@ -81,6 +94,10 @@ public class MainActivity extends AppCompatActivity
                         String name = newPlayListFragment.getName();
                         int tempo = newPlayListFragment.getTempo();
                         String category = newPlayListFragment.getCategory();
+
+                        String query = name;
+
+                        mActionListener.search(query);
                     }
                 }
             }
@@ -150,6 +167,16 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onListFragmentInteraction(DummyContent.DummyItem item) {
+
+    }
+
+    @Override
+    public void reset() {
+
+    }
+
+    @Override
+    public void addData(List<Track> items) {
 
     }
 }
