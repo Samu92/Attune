@@ -47,8 +47,8 @@
             android:layout_width="340dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            app:dsb_min="10"
-            app:dsb_max="700"
+            app:dsb_min="20"
+            app:dsb_max="200"
             />
 
         <TextView

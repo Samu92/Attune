@@ -13,25 +13,5 @@
     <string name="title_activity_login">Attune</string>
 
     <string-array name="Categories">
-        <item>Blues</item>
-        <item>Country</item>
-        <item>Disco</item>
-        <item>Electrónica</item>
-        <item>Folk</item>
-        <item>Funk</item>
-        <item>Gospel</item>
-        <item>Heavy Metal</item>
-        <item>Hip Hop</item>
-        <item>Indie​</item>
-        <item>Jazz​</item>
-        <item>Pop</item>
-        <item>Punk</item>
-        <item>Rap</item>
-        <item>Reggae</item>
-        <item>Reggaeton</item>
-        <item>Rhythm and Blues</item>
-        <item>Rock</item>
-        <item>Rock and Roll</item>
-        <item>Soul</item>
     </string-array>
 </resources>

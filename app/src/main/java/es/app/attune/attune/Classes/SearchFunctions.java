@@ -5,7 +5,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -19,16 +18,19 @@ import kaaes.spotify.webapi.android.models.Track;
  * Created by Samuel on 08/03/2018.
  */
 
-public class SearchPresenter implements Search.ActionListener {
-    private static final String TAG = SearchPresenter.class.getSimpleName();
-    public static final int PAGE_SIZE = 20;
+public class SearchFunctions implements SearchInterfaces.ActionListener {
+    private static final String TAG = SearchFunctions.class.getSimpleName();
+    public static final int SIZE = 50;
 
     private final Context mContext;
-    private final Search.ResultPlaylist mResultPlaylist;
-    private String mCurrentQuery;
+    private final SearchInterfaces.ResultPlaylist mResultPlaylist;
+    private final SearchInterfaces.ResultGenres mResultGenres;
+    private float mTempo;
+    private String mGenre;
 
-    private SearchPager mSearchPager;
-    private SearchPager.CompleteListener mSearchListener;
+    private SearchSpotify mSearchPager;
+    private SearchSpotify.CompleteListener mSearchListener;
+    private SearchSpotify.GenresListener mGenresListener;
 
     private Player mPlayer;
 
@@ -44,9 +46,10 @@ public class SearchPresenter implements Search.ActionListener {
         }
     };
 
-    public SearchPresenter(Context context, Search.ResultPlaylist result) {
+    public SearchFunctions(Context context, SearchInterfaces.ResultPlaylist result, SearchInterfaces.ResultGenres result_genres) {
         mContext = context;
         mResultPlaylist = result;
+        mResultGenres = result_genres;
     }
 
     @Override
@@ -60,33 +63,10 @@ public class SearchPresenter implements Search.ActionListener {
             logError("No valid access token");
         }
 
-        mSearchPager = new SearchPager(spotifyApi.getService());
+        mSearchPager = new SearchSpotify(spotifyApi.getService());
 
         mContext.bindService(PlayerService.getIntent(mContext), mServiceConnection, Activity.BIND_AUTO_CREATE);
     }
-
-
-    @Override
-    public void search(@Nullable String searchQuery) {
-        if (searchQuery != null && !searchQuery.isEmpty() && !searchQuery.equals(mCurrentQuery)) {
-            logMessage("query text submit " + searchQuery);
-            mCurrentQuery = searchQuery;
-            mResultPlaylist.reset();
-            mSearchListener = new SearchPager.CompleteListener() {
-                @Override
-                public void onComplete(List<Track> items) {
-                   mResultPlaylist.addData(items);
-                }
-
-                @Override
-                public void onError(Throwable error) {
-                    logError(error.getMessage());
-                }
-            };
-            mSearchPager.getFirstPage(searchQuery, PAGE_SIZE, mSearchListener);
-        }
-    }
-
 
     @Override
     public void destroy() {
@@ -94,9 +74,41 @@ public class SearchPresenter implements Search.ActionListener {
     }
 
     @Override
-    @Nullable
-    public String getCurrentQuery() {
-        return mCurrentQuery;
+    public void searchRecomendations(float tempo, String genre) {
+        if (tempo != 0 && !genre.isEmpty()) {
+            mTempo = tempo;
+            mGenre = genre;
+            mResultPlaylist.reset();
+            mSearchListener = new SearchSpotify.CompleteListener() {
+                @Override
+                public void onComplete(List<Track> items) {
+                    mResultPlaylist.addDataPlaylist(items);
+                }
+
+                @Override
+                public void onError(Throwable error) {
+                    logError(error.getMessage());
+                }
+            };
+            mSearchPager.getRecomendationPlaylist(tempo, genre, SIZE, mSearchListener);
+        }
+    }
+
+    @Override
+    public void getAvailableGenreSeeds() {
+        mGenresListener = new SearchSpotify.GenresListener(){
+
+            @Override
+            public void onComplete(List<String> items) {
+                mResultGenres.addDataGenres(items);
+            }
+
+            @Override
+            public void onError(Throwable error) {
+                logError(error.getMessage());
+            }
+        };
+        mSearchPager.getGenres(mGenresListener);
     }
 
     @Override
@@ -107,12 +119,6 @@ public class SearchPresenter implements Search.ActionListener {
     @Override
     public void pause() {
         mContext.startService(PlayerService.getIntent(mContext));
-    }
-
-    @Override
-    public void loadMoreResults() {
-        Log.d(TAG, "Load more...");
-        mSearchPager.getNextPage(mSearchListener);
     }
 
     @Override

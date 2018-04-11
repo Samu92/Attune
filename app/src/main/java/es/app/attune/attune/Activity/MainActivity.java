@@ -7,12 +7,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,8 +18,8 @@ import android.view.View;
 
 import java.util.List;
 
-import es.app.attune.attune.Classes.Search;
-import es.app.attune.attune.Classes.SearchPresenter;
+import es.app.attune.attune.Classes.SearchInterfaces;
+import es.app.attune.attune.Classes.SearchFunctions;
 import es.app.attune.attune.Fragments.NewPlayList;
 import es.app.attune.attune.Fragments.PlayListFragment;
 import es.app.attune.attune.Fragments.dummy.DummyContent;
@@ -29,7 +27,7 @@ import es.app.attune.attune.R;
 import kaaes.spotify.webapi.android.models.Track;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, PlayListFragment.OnListFragmentInteractionListener, NewPlayList.OnFragmentInteractionListener, Search.ResultPlaylist {
+        implements NavigationView.OnNavigationItemSelectedListener, PlayListFragment.OnListFragmentInteractionListener, NewPlayList.OnFragmentInteractionListener, SearchInterfaces.ResultPlaylist, SearchInterfaces.ResultGenres {
 
     static final String EXTRA_TOKEN = "EXTRA_TOKEN";
     private static final String KEY_CURRENT_QUERY = "CURRENT_QUERY";
@@ -40,7 +38,7 @@ public class MainActivity extends AppCompatActivity
     private PlayListFragment playListFragment;
     private NewPlayList newPlayListFragment;
 
-    private Search.ActionListener mActionListener;
+    private SearchInterfaces.ActionListener mActionListener;
 
     public static Intent createIntent(Context context) {
         return new Intent(context, MainActivity.class);
@@ -65,7 +63,7 @@ public class MainActivity extends AppCompatActivity
         Intent intent = getIntent();
         String token = intent.getStringExtra(EXTRA_TOKEN);
 
-        mActionListener = new SearchPresenter(this, this);
+        mActionListener = new SearchFunctions(this, this, this);
         mActionListener.init(token);
 
         // Inicializamos los fragmentos
@@ -93,11 +91,11 @@ public class MainActivity extends AppCompatActivity
                         Bitmap image = newPlayListFragment.getImage();
                         String name = newPlayListFragment.getName();
                         int tempo = newPlayListFragment.getTempo();
-                        String category = newPlayListFragment.getCategory();
+                        String genre = newPlayListFragment.getCategory();
 
-                        String query = name;
+                        mActionListener.searchRecomendations(tempo,genre);
 
-                        mActionListener.search(query);
+                        mActionListener.getAvailableGenreSeeds();
                     }
                 }
             }
@@ -176,7 +174,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void addData(List<Track> items) {
+    public void addDataGenres(List<String> items) {
+
+    }
+
+    @Override
+    public void addDataPlaylist(List<Track> items) {
 
     }
 }

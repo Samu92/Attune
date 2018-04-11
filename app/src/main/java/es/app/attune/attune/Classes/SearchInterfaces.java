@@ -8,23 +8,27 @@ import kaaes.spotify.webapi.android.models.Track;
  * Created by Samuel on 08/03/2018.
  */
 
-public class Search {
+public class SearchInterfaces {
 
     public interface ResultPlaylist {
         void reset();
 
-        void addData(List<Track> items);
+        void addDataPlaylist(List<Track> items);
+    }
+
+    public interface ResultGenres{
+        void reset();
+
+        void addDataGenres(List<String> items);
     }
 
     public interface ActionListener {
 
         void init(String token);
 
-        String getCurrentQuery();
+        void searchRecomendations(float tempo,String genre);
 
-        void search(String searchQuery);
-
-        void loadMoreResults();
+        void getAvailableGenreSeeds();
 
         void selectTrack(Track item);
 
@@ -33,6 +37,5 @@ public class Search {
         void pause();
 
         void destroy();
-
     }
 }
