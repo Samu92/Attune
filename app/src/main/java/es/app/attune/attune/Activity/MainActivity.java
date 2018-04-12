@@ -79,21 +79,21 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 // Begin the transaction
-                if(!newPlayListFragment.isVisible()){
+                if (!newPlayListFragment.isVisible()) {
                     // Si el fragmento no está visible lo mostramos
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragmentView, newPlayListFragment, newPlayListFragment.getClass().getName())
                             .commit();
-                }else{
+                } else {
                     // En caso de que esté visible comenzamos el proceso de creación de la playlist
-                    if(newPlayListFragment.ValidarFormulario()){
+                    if (newPlayListFragment.ValidarFormulario()) {
                         // El formulario es correcto por lo que obtenemos los parámetros y empezamos el proceso
                         Bitmap image = newPlayListFragment.getImage();
                         String name = newPlayListFragment.getName();
                         int tempo = newPlayListFragment.getTempo();
                         String genre = newPlayListFragment.getCategory();
 
-                        mActionListener.searchRecomendations(tempo,genre);
+                        mActionListener.searchRecomendations(tempo, genre);
 
                         mActionListener.getAvailableGenreSeeds();
                     }
@@ -180,6 +180,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void addDataPlaylist(List<Track> items) {
-
+        this.getResources().getStringArray(R.array.Categories);
     }
 }
