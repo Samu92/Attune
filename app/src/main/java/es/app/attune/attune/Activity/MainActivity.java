@@ -12,14 +12,22 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import org.greenrobot.greendao.database.Database;
+
 import java.util.List;
 
+import es.app.attune.attune.Classes.App;
 import es.app.attune.attune.Classes.SearchInterfaces;
 import es.app.attune.attune.Classes.SearchFunctions;
+import es.app.attune.attune.Database.DaoMaster;
+import es.app.attune.attune.Database.DaoSession;
+import es.app.attune.attune.Database.Genre;
+import es.app.attune.attune.Database.GenreDao;
 import es.app.attune.attune.Fragments.NewPlayList;
 import es.app.attune.attune.Fragments.PlayListFragment;
 import es.app.attune.attune.Fragments.dummy.DummyContent;
@@ -74,6 +82,16 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.fragmentView, playListFragment, playListFragment.getClass().getName())
                 .commit();
 
+        // Database
+        DaoSession daoSession = ((App) getApplication()).getDaoSession();
+        GenreDao genreDao = daoSession.getGenreDao();
+
+        Genre test = new Genre();
+        test.setName("Test1");
+        genreDao.insert(test);
+
+        Log.d("DaoExample", "Inserted new note, ID: " + test.getId());
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabNewPlayList);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,11 +106,20 @@ public class MainActivity extends AppCompatActivity
                     // En caso de que esté visible comenzamos el proceso de creación de la playlist
                     if (newPlayListFragment.ValidarFormulario()) {
                         // El formulario es correcto por lo que obtenemos los parámetros y empezamos el proceso
+
+                        // Obtenemos la imagen de la playlist
                         Bitmap image = newPlayListFragment.getImage();
+
+                        // Obtenemos el nombre de la nueva playlist
                         String name = newPlayListFragment.getName();
+
+                        // Obtenemos el tempo seleccionado
                         int tempo = newPlayListFragment.getTempo();
+
+                        // Obtenemos las categorías seleccionadas
                         String genre = newPlayListFragment.getCategory();
 
+                        // Procedemos a llamar a la API
                         mActionListener.searchRecomendations(tempo, genre);
 
                         mActionListener.getAvailableGenreSeeds();

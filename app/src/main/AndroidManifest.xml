@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".Classes.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_logo"
         android:label="@string/app_name"
@@ -36,18 +37,5 @@
         </activity>
 
         <service android:name=".Classes.PlayerService"/>
-
-        <meta-data
-            android:name="DATABASE"
-            android:value="attune.db" />
-        <meta-data
-            android:name="VERSION"
-            android:value="1" />
-        <meta-data
-            android:name="QUERY_LOG"
-            android:value="true" />
-        <meta-data
-            android:name="DOMAIN_PACKAGE_NAME"
-            android:value="es.app.attune.attune" />
     </application>
 </manifest>
