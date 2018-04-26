@@ -97,7 +97,6 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
     @Override
     public void getAvailableGenreSeeds() {
         mGenresListener = new SearchSpotify.GenresListener(){
-
             @Override
             public void onComplete(List<String> items) {
                 mResultGenres.addDataGenres(items);

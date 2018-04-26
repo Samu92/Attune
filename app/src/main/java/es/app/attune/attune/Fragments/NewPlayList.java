@@ -16,11 +16,17 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
+
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
+import org.greenrobot.greendao.database.Database;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import es.app.attune.attune.Classes.DatabaseFunctions;
+import es.app.attune.attune.Database.DaoSession;
 import es.app.attune.attune.R;
 
 /**
@@ -41,6 +47,7 @@ public class NewPlayList extends Fragment {
     private DiscreteSeekBar tempo;
     private Spinner category;
     private Boolean valid;
+    private static DatabaseFunctions db;
 
     public NewPlayList() {
         // Required empty public constructor
@@ -51,8 +58,9 @@ public class NewPlayList extends Fragment {
      * @return A new instance of fragment NewPlayList.
      */
     // TODO: Rename and change types and number of parameters
-    public static NewPlayList newInstance() {
+    public static NewPlayList newInstance(DatabaseFunctions database) {
         NewPlayList fragment = new NewPlayList();
+        db = database;
         return fragment;
     }
 
@@ -105,19 +113,20 @@ public class NewPlayList extends Fragment {
         tempo = (DiscreteSeekBar) getView().findViewById(R.id.bmp_seekbar);
         category = (Spinner) getView().findViewById(R.id.category_spinner);
 
-        Spinner staticSpinner = (Spinner) getView().findViewById(R.id.category_spinner);
+        SearchableSpinner staticSpinner = (SearchableSpinner) getView().findViewById(R.id.category_spinner);
 
-        // Create an ArrayAdapter using the string array and a default spinner
-        ArrayAdapter<CharSequence> staticAdapter = ArrayAdapter
-                .createFromResource(getContext(), R.array.Categories,
-                        android.R.layout.simple_spinner_item);
+        staticSpinner.setTitle("Selecciona una categoría");
+        staticSpinner.setPositiveButton("Aceptar");
+
+
+        List<String> prueba = db.getGenres();
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, db.getGenres());
 
         // Specify the layout to use when the list of choices appears
-        staticAdapter
-                .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         // Apply the adapter to the spinner
-        staticSpinner.setAdapter(staticAdapter);
+        staticSpinner.setAdapter(adapter);
     }
 
     // TODO: Rename method, update argument and hook method into UI event

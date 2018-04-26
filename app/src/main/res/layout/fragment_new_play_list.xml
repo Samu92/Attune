@@ -59,16 +59,11 @@
             android:layout_marginBottom="10dp"
             android:text="@string/Category" />
 
-        <Spinner
+        <com.toptoche.searchablespinnerlibrary.SearchableSpinner
             android:id="@+id/category_spinner"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:spinnerMode="dropdown"/>
-
-        <SearchView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_gravity="center"/>
 
     </LinearLayout>
 </ScrollView>

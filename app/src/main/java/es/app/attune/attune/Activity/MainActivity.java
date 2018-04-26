@@ -12,22 +12,17 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import org.greenrobot.greendao.database.Database;
-
 import java.util.List;
 
 import es.app.attune.attune.Classes.App;
+import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Classes.SearchInterfaces;
 import es.app.attune.attune.Classes.SearchFunctions;
-import es.app.attune.attune.Database.DaoMaster;
 import es.app.attune.attune.Database.DaoSession;
-import es.app.attune.attune.Database.Genre;
-import es.app.attune.attune.Database.GenreDao;
 import es.app.attune.attune.Fragments.NewPlayList;
 import es.app.attune.attune.Fragments.PlayListFragment;
 import es.app.attune.attune.Fragments.dummy.DummyContent;
@@ -46,6 +41,9 @@ public class MainActivity extends AppCompatActivity
     private PlayListFragment playListFragment;
     private NewPlayList newPlayListFragment;
 
+    //GreenDao
+    private DaoSession daoSession;
+    private DatabaseFunctions db;
     private SearchInterfaces.ActionListener mActionListener;
 
     public static Intent createIntent(Context context) {
@@ -74,23 +72,21 @@ public class MainActivity extends AppCompatActivity
         mActionListener = new SearchFunctions(this, this, this);
         mActionListener.init(token);
 
+
+        // Inicializamos la sesión de base de datos
+        daoSession = ((App) getApplication()).getDaoSession();
+        db = new DatabaseFunctions(daoSession);
+
+        // Obtenemos los géneros
+        mActionListener.getAvailableGenreSeeds();
+
         // Inicializamos los fragmentos
-        newPlayListFragment = NewPlayList.newInstance();
+        newPlayListFragment = NewPlayList.newInstance(db);
         playListFragment = PlayListFragment.newInstance();
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragmentView, playListFragment, playListFragment.getClass().getName())
                 .commit();
-
-        // Database
-        DaoSession daoSession = ((App) getApplication()).getDaoSession();
-        GenreDao genreDao = daoSession.getGenreDao();
-
-        Genre test = new Genre();
-        test.setName("Test1");
-        genreDao.insert(test);
-
-        Log.d("DaoExample", "Inserted new note, ID: " + test.getId());
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabNewPlayList);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -119,10 +115,9 @@ public class MainActivity extends AppCompatActivity
                         // Obtenemos las categorías seleccionadas
                         String genre = newPlayListFragment.getCategory();
 
-                        // Procedemos a llamar a la API
+                        // Procedemos a llamar a la API para obtener las canciones
                         mActionListener.searchRecomendations(tempo, genre);
 
-                        mActionListener.getAvailableGenreSeeds();
                     }
                 }
             }
@@ -202,7 +197,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void addDataGenres(List<String> items) {
-
+        // Almacenamos en base de datos la lista de categorías
+        db.insertGenres(items);
     }
 
     @Override
