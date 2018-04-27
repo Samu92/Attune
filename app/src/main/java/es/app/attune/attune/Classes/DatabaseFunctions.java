@@ -36,6 +36,7 @@ public class DatabaseFunctions {
     public List<String> getGenres(){
         List<Genre> genres = genreDao.loadAll();
         List<String> result = new ArrayList<>();
+        result.add("Ninguna categoría seleccionada");
         for(Genre item : genres){
             result.add(item.getName());
         }

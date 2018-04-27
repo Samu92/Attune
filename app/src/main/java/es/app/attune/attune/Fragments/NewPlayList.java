@@ -1,16 +1,20 @@
 package es.app.attune.attune.Fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -21,6 +25,7 @@ import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 import org.greenrobot.greendao.database.Database;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +33,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Database.DaoSession;
 import es.app.attune.attune.R;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -37,7 +44,7 @@ import es.app.attune.attune.R;
  * Use the {@link NewPlayList#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class NewPlayList extends Fragment {
+public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private OnFragmentInteractionListener mListener;
 
@@ -45,9 +52,10 @@ public class NewPlayList extends Fragment {
     private CircleImageView image;
     private EditText name;
     private DiscreteSeekBar tempo;
-    private Spinner category;
+    private SearchableSpinner searchableSpinner;
     private Boolean valid;
     private static DatabaseFunctions db;
+    private static final int PICK_IMAGE_REQUEST = 100;
 
     public NewPlayList() {
         // Required empty public constructor
@@ -79,7 +87,7 @@ public class NewPlayList extends Fragment {
     }
 
     public String getCategory() {
-        return category.getSelectedItem().toString();
+        return searchableSpinner.getSelectedItem().toString();
     }
 
     @Override
@@ -111,23 +119,39 @@ public class NewPlayList extends Fragment {
         image = (CircleImageView) getView().findViewById(R.id.image_playlist);
         name = (EditText) getView().findViewById(R.id.name_playlist);
         tempo = (DiscreteSeekBar) getView().findViewById(R.id.bmp_seekbar);
-        category = (Spinner) getView().findViewById(R.id.category_spinner);
+        searchableSpinner = (SearchableSpinner) getView().findViewById(R.id.category_spinner);
 
-        SearchableSpinner staticSpinner = (SearchableSpinner) getView().findViewById(R.id.category_spinner);
+        image.setOnClickListener(new View.OnClickListener(){
 
-        staticSpinner.setTitle("Selecciona una categoría");
-        staticSpinner.setPositiveButton("Aceptar");
+            /**
+             * Called when a view has been clicked.
+             *
+             * @param v The view that was clicked.
+             */
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Selecciona una imagen"),
+                        PICK_IMAGE_REQUEST);
+            }
+        });
 
+        searchableSpinner.setTitle("Selecciona una categoría");
+        searchableSpinner.setPositiveButton("Aceptar");
 
-        List<String> prueba = db.getGenres();
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, db.getGenres());
 
-        // Specify the layout to use when the list of choices appears
-        //adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
         // Apply the adapter to the spinner
-        staticSpinner.setAdapter(adapter);
+        searchableSpinner.setAdapter(adapter);
+
+        searchableSpinner.setOnItemSelectedListener(this);
+
+        searchableSpinner.setSelection(-1);
     }
+
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -151,6 +175,37 @@ public class NewPlayList extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    /**
+     * <p>Callback method to be invoked when an item in this view has been
+     * selected. This callback is invoked only when the newly selected
+     * position is different from the previously selected position or if
+     * there was no selected item.</p>
+     * <p>
+     * Impelmenters can call getItemAtPosition(position) if they need to access the
+     * data associated with the selected item.
+     *
+     * @param parent   The AdapterView where the selection happened
+     * @param view     The view within the AdapterView that was clicked
+     * @param position The position of the view in the adapter
+     * @param id       The row id of the item that is selected
+     */
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        Toast.makeText(getContext(),searchableSpinner.getSelectedItem().toString(),Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * Callback method to be invoked when the selection disappears from this
+     * view. The selection can disappear for instance when touch is activated
+     * or when the adapter becomes empty.
+     *
+     * @param parent The AdapterView that now contains no selected item.
+     */
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 
     /**
@@ -179,6 +234,41 @@ public class NewPlayList extends Fragment {
             name.setError("El nombre de la playlist es obligatorio.");
             name.requestFocus();
         }
+
+        
         return valid;
+    }
+
+    /**
+     * Receive the result from a previous call to
+     * {@link #startActivityForResult(Intent, int)}.  This follows the
+     * related Activity API as described there in
+     * {@link Activity#onActivityResult(int, int, Intent)}.
+     *
+     * @param requestCode The integer request code originally supplied to
+     *                    startActivityForResult(), allowing you to identify who this
+     *                    result came from.
+     * @param resultCode  The integer result code returned by the child activity
+     *                    through its setResult().
+     * @param data        An Intent, which can return result data to the caller
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode){
+            case PICK_IMAGE_REQUEST:
+                if(resultCode == RESULT_OK){
+                    Uri selectedImage = data.getData();
+
+                    // method 1
+                    try {
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), selectedImage);
+                        image.setImageBitmap(bitmap);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                break;
+        }
     }
 }
