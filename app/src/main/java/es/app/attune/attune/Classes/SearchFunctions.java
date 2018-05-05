@@ -1,6 +1,7 @@
 package es.app.attune.attune.Classes;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
@@ -27,10 +28,12 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
     private final SearchInterfaces.ResultGenres mResultGenres;
     private float mTempo;
     private String mGenre;
+    private float mDuration;
 
     private SearchSpotify mSearchPager;
     private SearchSpotify.CompleteListener mSearchListener;
     private SearchSpotify.GenresListener mGenresListener;
+    private ProgressDialog progressDialog;
 
     private Player mPlayer;
 
@@ -50,6 +53,9 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
         mContext = context;
         mResultPlaylist = result;
         mResultGenres = result_genres;
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(false);
     }
 
     @Override
@@ -74,23 +80,30 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
     }
 
     @Override
-    public void searchRecomendations(float tempo, String genre) {
+    public void searchRecomendations(float tempo, String genre, int duration) {
+        progressDialog.setTitle("Nueva playlist");
+        progressDialog.setMessage("Espere por favor...");
+        progressDialog.show();
         if (tempo != 0 && !genre.isEmpty()) {
             mTempo = tempo;
             mGenre = genre;
+            mDuration = duration;
+
             mResultPlaylist.reset();
             mSearchListener = new SearchSpotify.CompleteListener() {
                 @Override
                 public void onComplete(List<Track> items) {
                     mResultPlaylist.addDataPlaylist(items);
+                    progressDialog.dismiss();
                 }
 
                 @Override
                 public void onError(Throwable error) {
                     logError(error.getMessage());
+                    progressDialog.dismiss();
                 }
             };
-            mSearchPager.getRecomendationPlaylist(tempo, genre, SIZE, mSearchListener);
+            mSearchPager.getRecomendationPlaylist(tempo, genre, duration, SIZE, mSearchListener);
         }
     }
 

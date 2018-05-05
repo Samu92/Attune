@@ -2,6 +2,7 @@ package es.app.attune.attune.Classes;
 
 import com.spotify.sdk.android.player.Spotify;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ public class SearchSpotify {
     private int mCurrentOffset;
     private int mSize;
     private float mTempo;
+    private float mDuration;
 
     public interface CompleteListener {
         void onComplete(List<Track> items);
@@ -42,18 +44,19 @@ public class SearchSpotify {
         mSpotifyApi = spotifyApi;
     }
 
-    public void getRecomendationPlaylist(float tempo, String genre, int size, CompleteListener listener){
+    public void getRecomendationPlaylist(float tempo, String genre, int duration, int size,  CompleteListener listener){
         mCurrentOffset = 0;
         mSize = size;
         mTempo = tempo;
-        getDataPlaylist(tempo, genre, 0, size, listener);
+        mDuration = duration;
+        getDataPlaylist(tempo, genre, duration, 0, size, listener);
     }
 
     public void getGenres(final GenresListener listener){
         getDataGenres(listener);
     }
 
-    private void getDataPlaylist(float tempo, String genre, int offset, final int limit, final CompleteListener listener){
+    private void getDataPlaylist(float tempo, String genre, final int max_duration, int offset, final int limit, final CompleteListener listener){
         Map<String, Object> options = new HashMap<>();
         options.put(SpotifyService.OFFSET, offset);
         options.put(SpotifyService.LIMIT, limit);
@@ -64,7 +67,16 @@ public class SearchSpotify {
         mSpotifyApi.getRecommendations(options, new Callback<Recommendations>() {
             @Override
             public void success(Recommendations recommendations, Response response) {
-                listener.onComplete(recommendations.tracks);
+                List<Track> result = new ArrayList<>();
+                int temp_duration = 0;
+                //listener.onComplete(recommendations.tracks);
+                for (Track track: recommendations.tracks) {
+                    if(temp_duration < (max_duration*60000)){
+                        temp_duration += track.duration_ms;
+                        result.add(track);
+                    }
+                }
+                listener.onComplete(result);
             }
 
             @Override

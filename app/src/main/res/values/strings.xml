@@ -13,6 +13,7 @@
     <string name="title_activity_login">Attune</string>
     <string name="login_app">Iniciar sesión</string>
     <string name="spotifyIcon">Spotify</string>
+    <string name="playlist_duration">Duración total (minutos)</string>
 
     <string-array name="Categories">
     </string-array>

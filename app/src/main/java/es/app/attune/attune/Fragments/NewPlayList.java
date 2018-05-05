@@ -52,6 +52,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     private CircleImageView image;
     private EditText name;
     private DiscreteSeekBar tempo;
+    private DiscreteSeekBar duration;
     private SearchableSpinner searchableSpinner;
     private Boolean valid;
     private static DatabaseFunctions db;
@@ -90,6 +91,8 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
         return searchableSpinner.getSelectedItem().toString();
     }
 
+    public int getDuration(){ return duration.getProgress();}
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,6 +123,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
         name = (EditText) getView().findViewById(R.id.name_playlist);
         tempo = (DiscreteSeekBar) getView().findViewById(R.id.bmp_seekbar);
         searchableSpinner = (SearchableSpinner) getView().findViewById(R.id.category_spinner);
+        duration = (DiscreteSeekBar) getView().findViewById(R.id.duration_seekbar);
 
         image.setOnClickListener(new View.OnClickListener(){
 
@@ -235,7 +239,11 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
             name.requestFocus();
         }
 
-        
+        if(searchableSpinner.getSelectedItemPosition() == 0){
+            valid = false;
+            searchableSpinner.requestFocus();
+        }
+
         return valid;
     }
 

@@ -115,8 +115,11 @@ public class MainActivity extends AppCompatActivity
                         // Obtenemos las categorías seleccionadas
                         String genre = newPlayListFragment.getCategory();
 
+                        // Obtenemos la duración máxima seleccionada
+                        int duration = newPlayListFragment.getDuration();
+
                         // Procedemos a llamar a la API para obtener las canciones
-                        mActionListener.searchRecomendations(tempo, genre);
+                        mActionListener.searchRecomendations(tempo, genre, duration);
 
                     }
                 }

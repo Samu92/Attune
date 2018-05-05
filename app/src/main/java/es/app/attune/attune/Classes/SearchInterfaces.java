@@ -26,7 +26,7 @@ public class SearchInterfaces {
 
         void init(String token);
 
-        void searchRecomendations(float tempo,String genre);
+        void searchRecomendations(float tempo,String genre, int duration);
 
         void getAvailableGenreSeeds();
 
