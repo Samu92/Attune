@@ -14,7 +14,7 @@
     <string name="login_app">Iniciar sesión</string>
     <string name="spotifyIcon">Spotify</string>
     <string name="playlist_duration">Duración total (minutos)</string>
+    <string name="cover_art_description">Cover art</string>
 
-    <string-array name="Categories">
-    </string-array>
+    <string-array name="Categories"></string-array>
 </resources>

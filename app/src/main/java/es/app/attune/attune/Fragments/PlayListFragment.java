@@ -2,9 +2,8 @@ package es.app.attune.attune.Fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,11 +11,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import es.app.attune.attune.Classes.DatabaseFunctions;
+import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.R;
-import es.app.attune.attune.Fragments.dummy.DummyContent;
-import es.app.attune.attune.Fragments.dummy.DummyContent.DummyItem;
-
-import java.util.List;
 
 /**
  * A fragment representing a list of Items.
@@ -31,6 +28,7 @@ public class PlayListFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
+    private static DatabaseFunctions db;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -41,8 +39,9 @@ public class PlayListFragment extends Fragment {
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static PlayListFragment newInstance() {
+    public static PlayListFragment newInstance(DatabaseFunctions database) {
         PlayListFragment fragment = new PlayListFragment();
+        db = database;
         return fragment;
     }
 
@@ -70,7 +69,12 @@ public class PlayListFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new PlayListRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            recyclerView.setAdapter(new PlayListRecyclerViewAdapter(db.getPlaylists(), mListener));
+            DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
+            recyclerView.addItemDecoration(dividerItemDecoration);
+            recyclerView.setHasFixedSize(true);
+            recyclerView.setItemViewCacheSize(20);
+            recyclerView.setDrawingCacheEnabled(true);
         }
         return view;
     }
@@ -105,6 +109,6 @@ public class PlayListFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(AttPlaylist item);
     }
 }

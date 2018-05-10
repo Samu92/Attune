@@ -20,6 +20,9 @@ public class App extends Application {
         DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, ENCRYPTED ? "attune-db-encrypted" : "attune-db");
         Database db = ENCRYPTED ? helper.getEncryptedWritableDb("super-secret") : helper.getWritableDb();
         daoSession = new DaoMaster(db).newSession();
+
+        //DaoMaster.dropAllTables(db,true);
+        //DaoMaster.createAllTables(db,true);
     }
 
     public DaoSession getDaoSession() {

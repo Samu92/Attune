@@ -9,8 +9,13 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+import es.app.attune.attune.Database.AttPlaylist;
+import es.app.attune.attune.Database.DaoSession;
+import es.app.attune.attune.Database.Song;
 import es.app.attune.attune.Interfaces.Player;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.models.Track;
@@ -29,11 +34,15 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
     private float mTempo;
     private String mGenre;
     private float mDuration;
+    private AttPlaylist newPlaylist;
 
     private SearchSpotify mSearchPager;
     private SearchSpotify.CompleteListener mSearchListener;
     private SearchSpotify.GenresListener mGenresListener;
     private ProgressDialog progressDialog;
+
+    private DaoSession daoSession;
+    private DatabaseFunctions db;
 
     private Player mPlayer;
 
@@ -56,6 +65,10 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
         progressDialog = new ProgressDialog(context);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setCancelable(false);
+
+        // Inicializamos la sesión de base de datos
+        daoSession = ((App) context.getApplicationContext()).getDaoSession();
+        db = new DatabaseFunctions(daoSession);
     }
 
     @Override
@@ -80,7 +93,11 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
     }
 
     @Override
-    public void searchRecomendations(float tempo, String genre, int duration) {
+    public void searchRecomendations(final AttPlaylist newPlaylist) {
+        float tempo  = newPlaylist.getTempo();
+        String genre = newPlaylist.getGenre();
+        int duration = newPlaylist.getDuration();
+
         progressDialog.setTitle("Nueva playlist");
         progressDialog.setMessage("Espere por favor...");
         progressDialog.show();
@@ -93,8 +110,16 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
             mSearchListener = new SearchSpotify.CompleteListener() {
                 @Override
                 public void onComplete(List<Track> items) {
-                    mResultPlaylist.addDataPlaylist(items);
+                    UUID newId = java.util.UUID.randomUUID();
+                    List<Song> listaSongs = new ArrayList<>();
+                    for (Track track: items) {
+                        Song song = new Song(newId.toString(), newPlaylist.getId() , track.id, newPlaylist.getGenre(), track.name , ((int) track.duration_ms));
+                        listaSongs.add(song);
+                    }
+                    newPlaylist.setSongs(listaSongs);
+                    db.insertNewPlaylist(newPlaylist);
                     progressDialog.dismiss();
+                    mResultPlaylist.showListPlaylist();
                 }
 
                 @Override
@@ -103,7 +128,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                     progressDialog.dismiss();
                 }
             };
-            mSearchPager.getRecomendationPlaylist(tempo, genre, duration, SIZE, mSearchListener);
+            mSearchPager.getRecomendationPlaylist(newPlaylist, SIZE, mSearchListener);
         }
     }
 

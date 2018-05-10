@@ -15,17 +15,21 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
+import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 
 import es.app.attune.attune.Classes.App;
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Classes.SearchInterfaces;
 import es.app.attune.attune.Classes.SearchFunctions;
+import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.Database.DaoSession;
 import es.app.attune.attune.Fragments.NewPlayList;
 import es.app.attune.attune.Fragments.PlayListFragment;
-import es.app.attune.attune.Fragments.dummy.DummyContent;
+import es.app.attune.attune.Modules.Tools;
 import es.app.attune.attune.R;
 import kaaes.spotify.webapi.android.models.Track;
 
@@ -72,7 +76,6 @@ public class MainActivity extends AppCompatActivity
         mActionListener = new SearchFunctions(this, this, this);
         mActionListener.init(token);
 
-
         // Inicializamos la sesión de base de datos
         daoSession = ((App) getApplication()).getDaoSession();
         db = new DatabaseFunctions(daoSession);
@@ -82,7 +85,7 @@ public class MainActivity extends AppCompatActivity
 
         // Inicializamos los fragmentos
         newPlayListFragment = NewPlayList.newInstance(db);
-        playListFragment = PlayListFragment.newInstance();
+        playListFragment = PlayListFragment.newInstance(db);
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragmentView, playListFragment, playListFragment.getClass().getName())
@@ -119,8 +122,11 @@ public class MainActivity extends AppCompatActivity
                         int duration = newPlayListFragment.getDuration();
 
                         // Procedemos a llamar a la API para obtener las canciones
-                        mActionListener.searchRecomendations(tempo, genre, duration);
-
+                        //Playlist newPlaylist = new Playlist(java.util.UUID.randomUUID().node(),name,tempo,duration, Tools.BitMapToString(image), Calendar.getInstance().getTime());
+                        UUID newId = java.util.UUID.randomUUID();
+                        String str_image = Tools.BitMapToString(image);
+                        AttPlaylist newPlaylist = new AttPlaylist(newId.toString(),name,tempo,duration,str_image,genre,Calendar.getInstance().getTime());
+                        mActionListener.searchRecomendations(newPlaylist);
                     }
                 }
             }
@@ -189,8 +195,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onListFragmentInteraction(DummyContent.DummyItem item) {
+    public void onListFragmentInteraction(AttPlaylist item) {
+        // Hemos recibido un click en una de las playlist
+        Toast.makeText(this,item.getName(),Toast.LENGTH_SHORT).show();
 
+        // Mostramos la lista de canciones
     }
 
     @Override
@@ -205,7 +214,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void addDataPlaylist(List<Track> items) {
-        this.getResources().getStringArray(R.array.Categories);
+    public void showListPlaylist() {
+        if (!playListFragment.isVisible()) {
+            // Si el fragmento no está visible lo mostramos
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentView, playListFragment, playListFragment.getClass().getName())
+                    .commit();
+        }
     }
 }

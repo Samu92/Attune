@@ -3,21 +3,28 @@ package es.app.attune.attune.Database;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.NotNull;
 
 @Entity
 public class Song {
-    @Id(autoincrement = true)
-    private long id;
-
-    @ToOne(joinProperty = "id")
+    @Index(unique = true)
     @NotNull
-    private Playlist playlist;
+    @Id
+    private String id;
+
+    @NotNull
+    private String idPlaylist;
+
+    @ToOne(joinProperty = "idPlaylist")
+    @NotNull
+    private AttPlaylist playlist;
     @NotNull
     private String idSpotify;
-    private long genreId;
+    @NotNull
+    private String genreId;
     @NotNull
     private String name;
     @NotNull
@@ -30,12 +37,11 @@ public class Song {
     /** Used for active entity operations. */
     @Generated(hash = 1369727947)
     private transient SongDao myDao;
-
-    @Generated(hash = 1010486704)
-    private transient Long playlist__resolvedKey;
-    @Generated(hash = 1569558045)
-    public Song(long id, @NotNull String idSpotify, long genreId, @NotNull String name, int duration) {
+    @Generated(hash = 2014409455)
+    public Song(@NotNull String id, @NotNull String idPlaylist, @NotNull String idSpotify,
+            @NotNull String genreId, @NotNull String name, int duration) {
         this.id = id;
+        this.idPlaylist = idPlaylist;
         this.idSpotify = idSpotify;
         this.genreId = genreId;
         this.name = name;
@@ -44,10 +50,10 @@ public class Song {
     @Generated(hash = 87031450)
     public Song() {
     }
-    public long getId() {
+    public String getId() {
         return this.id;
     }
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
     public String getIdSpotify() {
@@ -56,10 +62,10 @@ public class Song {
     public void setIdSpotify(String idSpotify) {
         this.idSpotify = idSpotify;
     }
-    public long getGenreId() {
+    public String getGenreId() {
         return this.genreId;
     }
-    public void setGenreId(long genreId) {
+    public void setGenreId(String genreId) {
         this.genreId = genreId;
     }
     public String getName() {
@@ -74,17 +80,19 @@ public class Song {
     public void setDuration(int duration) {
         this.duration = duration;
     }
+    @Generated(hash = 358583121)
+    private transient String playlist__resolvedKey;
     /** To-one relationship, resolved on first access. */
-    @Generated(hash = 2118004833)
-    public Playlist getPlaylist() {
-        long __key = this.id;
-        if (playlist__resolvedKey == null || !playlist__resolvedKey.equals(__key)) {
+    @Generated(hash = 126767090)
+    public AttPlaylist getPlaylist() {
+        String __key = this.idPlaylist;
+        if (playlist__resolvedKey == null || playlist__resolvedKey != __key) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
-            PlaylistDao targetDao = daoSession.getPlaylistDao();
-            Playlist playlistNew = targetDao.load(__key);
+            AttPlaylistDao targetDao = daoSession.getAttPlaylistDao();
+            AttPlaylist playlistNew = targetDao.load(__key);
             synchronized (this) {
                 playlist = playlistNew;
                 playlist__resolvedKey = __key;
@@ -93,16 +101,16 @@ public class Song {
         return playlist;
     }
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 408682790)
-    public void setPlaylist(@NotNull Playlist playlist) {
+    @Generated(hash = 1321738846)
+    public void setPlaylist(@NotNull AttPlaylist playlist) {
         if (playlist == null) {
             throw new DaoException(
-                    "To-one property 'id' has not-null constraint; cannot set to-one to null");
+                    "To-one property 'idPlaylist' has not-null constraint; cannot set to-one to null");
         }
         synchronized (this) {
             this.playlist = playlist;
-            id = playlist.getId();
-            playlist__resolvedKey = id;
+            idPlaylist = playlist.getId();
+            playlist__resolvedKey = idPlaylist;
         }
     }
     /**
@@ -144,4 +152,13 @@ public class Song {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getSongDao() : null;
     }
+    public String getIdPlaylist() {
+        return this.idPlaylist;
+    }
+    public void setIdPlaylist(String idPlaylist) {
+        this.idPlaylist = idPlaylist;
+    }
+
+
+ 
 }

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import es.app.attune.attune.Database.AttPlaylist;
 import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.SpotifyService;
@@ -44,12 +45,12 @@ public class SearchSpotify {
         mSpotifyApi = spotifyApi;
     }
 
-    public void getRecomendationPlaylist(float tempo, String genre, int duration, int size,  CompleteListener listener){
+    public void getRecomendationPlaylist(AttPlaylist playlist, int size, CompleteListener listener){
         mCurrentOffset = 0;
         mSize = size;
-        mTempo = tempo;
-        mDuration = duration;
-        getDataPlaylist(tempo, genre, duration, 0, size, listener);
+        mTempo = playlist.getTempo();
+        mDuration = playlist.getDuration();
+        getDataPlaylist(playlist.getTempo(), playlist.getGenre(), playlist.getDuration(), 0, size, listener);
     }
 
     public void getGenres(final GenresListener listener){
