@@ -14,26 +14,33 @@ import org.greenrobot.greendao.DaoException;
 
 @Entity
 public class AttPlaylist {
+
     @Index(unique = true)
     @NotNull
     @Id
     private String id;
 
+    @ToMany(referencedJoinProperty = "idPlaylist")
+    @OrderBy("name ASC")
+    private List<Song> songs;
+
     @NotNull
     private String name;
+
     @NotNull
     private float tempo;
+
+    @NotNull
     private int duration;
-    private String image;
+
+    @NotNull
+    private byte[] image;
 
     @NotNull
     private String genre;
 
     @NotNull
     private Date creation_date;
-    @ToMany(referencedJoinProperty = "id")
-    @OrderBy("name ASC")
-    private List<Song> songs;
 
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
@@ -42,9 +49,11 @@ public class AttPlaylist {
     /** Used for active entity operations. */
     @Generated(hash = 1939289955)
     private transient AttPlaylistDao myDao;
-    @Generated(hash = 850861623)
-    public AttPlaylist(@NotNull String id, @NotNull String name, float tempo, int duration,
-            String image, @NotNull String genre, @NotNull Date creation_date) {
+
+    @Generated(hash = 178344028)
+    public AttPlaylist(@NotNull String id, @NotNull String name, float tempo,
+            int duration, @NotNull byte[] image, @NotNull String genre,
+            @NotNull Date creation_date) {
         this.id = id;
         this.name = name;
         this.tempo = tempo;
@@ -53,54 +62,67 @@ public class AttPlaylist {
         this.genre = genre;
         this.creation_date = creation_date;
     }
+
     @Generated(hash = 965684746)
     public AttPlaylist() {
     }
+
     public String getId() {
         return this.id;
     }
+
     public void setId(String id) {
         this.id = id;
     }
+
     public String getName() {
         return this.name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
+
     public float getTempo() {
         return this.tempo;
     }
+
     public void setTempo(float tempo) {
         this.tempo = tempo;
     }
+
     public int getDuration() {
         return this.duration;
     }
+
     public void setDuration(int duration) {
         this.duration = duration;
     }
-    public String getImage() {
+
+    public byte[] getImage() {
         return this.image;
     }
-    public void setImage(String image) {
+
+    public void setImage(byte[] image) {
         this.image = image;
     }
+
     public String getGenre() {
         return this.genre;
     }
+
     public void setGenre(String genre) {
         this.genre = genre;
     }
+
     public Date getCreation_date() {
         return this.creation_date;
     }
+
     public void setCreation_date(Date creation_date) {
         this.creation_date = creation_date;
     }
-    public void setSongs(List<Song> list){
-        this.songs = list;
-    }
+
     /**
      * To-many relationship, resolved on first access (and after reset).
      * Changes to to-many relations are not persisted, make changes to the target entity.
@@ -122,11 +144,13 @@ public class AttPlaylist {
         }
         return songs;
     }
+
     /** Resets a to-many relationship, making the next get call to query for a fresh result. */
     @Generated(hash = 432021166)
     public synchronized void resetSongs() {
         songs = null;
     }
+
     /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
      * Entity must attached to an entity context.
@@ -138,6 +162,7 @@ public class AttPlaylist {
         }
         myDao.delete(this);
     }
+
     /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#refresh(Object)}.
      * Entity must attached to an entity context.
@@ -149,6 +174,7 @@ public class AttPlaylist {
         }
         myDao.refresh(this);
     }
+
     /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#update(Object)}.
      * Entity must attached to an entity context.
@@ -160,6 +186,7 @@ public class AttPlaylist {
         }
         myDao.update(this);
     }
+
     /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 948479795)
     public void __setDaoSession(DaoSession daoSession) {
@@ -167,5 +194,6 @@ public class AttPlaylist {
         myDao = daoSession != null ? daoSession.getAttPlaylistDao() : null;
     }
 
+   
 
 }

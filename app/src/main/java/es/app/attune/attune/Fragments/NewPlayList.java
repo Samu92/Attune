@@ -76,6 +76,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     public Bitmap getImage() {
         BitmapDrawable drawable = (BitmapDrawable) image.getDrawable();
         Bitmap bitmap = drawable.getBitmap();
+        bitmap = bitmap.copy(bitmap.getConfig(),false);
         return bitmap;
     }
 
@@ -197,7 +198,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
      */
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        Toast.makeText(getContext(),searchableSpinner.getSelectedItem().toString(),Toast.LENGTH_LONG).show();
+        //Toast.makeText(getContext(),searchableSpinner.getSelectedItem().toString(),Toast.LENGTH_LONG).show();
     }
 
     /**

@@ -1,8 +1,11 @@
 package es.app.attune.attune.Classes;
 
+import android.app.ProgressDialog;
+
 import java.util.List;
 
 import es.app.attune.attune.Database.AttPlaylist;
+import es.app.attune.attune.Database.Song;
 import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.Track;
 
@@ -16,6 +19,8 @@ public class SearchInterfaces {
         void reset();
 
         void showListPlaylist();
+
+        void showError(String message);
     }
 
     public interface ResultGenres{
@@ -32,7 +37,9 @@ public class SearchInterfaces {
 
         void getAvailableGenreSeeds();
 
-        void selectTrack(Track item);
+        void getUserData();
+
+        void selectTrack(Song item);
 
         void resume();
 

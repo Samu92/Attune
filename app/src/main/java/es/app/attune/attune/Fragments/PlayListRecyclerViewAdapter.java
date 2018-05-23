@@ -1,6 +1,10 @@
 package es.app.attune.attune.Fragments;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.media.Image;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,10 +12,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
+import java.net.URI;
 import java.util.List;
 
+import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.Fragments.PlayListFragment.OnListFragmentInteractionListener;
 import es.app.attune.attune.Modules.Tools;
@@ -26,10 +35,12 @@ public class PlayListRecyclerViewAdapter extends RecyclerView.Adapter<PlayListRe
 
     private final List<AttPlaylist> mValues;
     private final OnListFragmentInteractionListener mListener;
+    private Context context;
 
-    public PlayListRecyclerViewAdapter(List<AttPlaylist> items, OnListFragmentInteractionListener listener) {
+    public PlayListRecyclerViewAdapter(List<AttPlaylist> items, OnListFragmentInteractionListener listener, Context context) {
         mValues = items;
         mListener = listener;
+        this.context = context;
     }
 
     @Override
@@ -44,10 +55,14 @@ public class PlayListRecyclerViewAdapter extends RecyclerView.Adapter<PlayListRe
         holder.mItem = mValues.get(position);
         //holder.mIdView.setText(mValues.get(position).getId());
         holder.mNameView.setText(mValues.get(position).getName());
-        holder.mTempoView.setText(String.valueOf(mValues.get(position).getTempo()));
-        holder.mGenreView.setText(mValues.get(position).getGenre());
-        holder.mSongsView.setText(String.valueOf(mValues.get(position).getSongs().size()));
-        holder.mImagePlaylistView.setImageBitmap(Tools.StringToBitMap(mValues.get(position).getImage()) );
+        holder.mTempoView.setText(context.getResources().getString(R.string.txt_tempo) + String.valueOf(mValues.get(position).getTempo()));
+        holder.mGenreView.setText(context.getResources().getString(R.string.txt_genre) + mValues.get(position).getGenre());
+        holder.mSongsView.setText(context.getResources().getString(R.string.txt_songs) + String.valueOf(mValues.get(position).getSongs().size()));
+        //holder.mImagePlaylistView.setImageBitmap(Tools.StringToBitMap(mValues.get(position).getImage()) );
+
+        Glide.with(context)
+                .load(mValues.get(position).getImage())
+                .into(holder.mImagePlaylistView);
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,6 +74,23 @@ public class PlayListRecyclerViewAdapter extends RecyclerView.Adapter<PlayListRe
                 }
             }
         });
+    }
+
+    void deleteItem(int index, DatabaseFunctions db) {
+        db.removePlaylist(mValues.get(index).getId());
+        notifyDataSetChanged();
+
+        mValues.remove(index);
+        notifyItemRemoved(index);
+    }
+
+    void moveItem(int oldIndex, int newIndex, DatabaseFunctions db){
+        AttPlaylist itemA = mValues.get(oldIndex);
+        AttPlaylist itemB = mValues.get(newIndex);
+        mValues.set(oldIndex, itemB);
+        mValues.set(newIndex, itemA);
+
+        notifyItemMoved(oldIndex,newIndex);
     }
 
     @Override

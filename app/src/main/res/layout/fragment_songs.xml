@@ -1,14 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".Fragments.SongsFragment">
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    android:background="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:padding="5dp"
+    android:orientation="vertical">
 
-    <!-- TODO: Update blank fragment layout -->
+    <ImageView
+        android:id="@+id/image_song"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/cover_art_description"
+        />
+
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:id="@+id/song_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@id/image_song"
+        android:scrollHorizontally="true"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/song_artist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:layout_below="@id/song_name"
+        android:layout_toRightOf="@id/image_song"
+        android:scrollHorizontally="true"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+    <!--
+    <TextView
+        android:id="@+id/song_genre"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:layout_below="@id/song_name"
+        android:layout_marginLeft="5dp"
+        android:layout_toRightOf="@id/song_artist"
+        android:scrollHorizontally="true"
+        android:textAppearance="?android:attr/textAppearanceSmall" />-->
+
+    <TextView
+        android:id="@+id/song_tempo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:layout_below="@id/song_artist"
+        android:layout_toRightOf="@id/image_song"
+        android:scrollHorizontally="true"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+</RelativeLayout>

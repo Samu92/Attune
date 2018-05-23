@@ -26,7 +26,7 @@ public class AttPlaylistDao extends AbstractDao<AttPlaylist, String> {
         public final static Property Name = new Property(1, String.class, "name", false, "NAME");
         public final static Property Tempo = new Property(2, float.class, "tempo", false, "TEMPO");
         public final static Property Duration = new Property(3, int.class, "duration", false, "DURATION");
-        public final static Property Image = new Property(4, String.class, "image", false, "IMAGE");
+        public final static Property Image = new Property(4, byte[].class, "image", false, "IMAGE");
         public final static Property Genre = new Property(5, String.class, "genre", false, "GENRE");
         public final static Property Creation_date = new Property(6, java.util.Date.class, "creation_date", false, "CREATION_DATE");
     }
@@ -51,7 +51,7 @@ public class AttPlaylistDao extends AbstractDao<AttPlaylist, String> {
                 "\"NAME\" TEXT NOT NULL ," + // 1: name
                 "\"TEMPO\" REAL NOT NULL ," + // 2: tempo
                 "\"DURATION\" INTEGER NOT NULL ," + // 3: duration
-                "\"IMAGE\" TEXT," + // 4: image
+                "\"IMAGE\" BLOB NOT NULL ," + // 4: image
                 "\"GENRE\" TEXT NOT NULL ," + // 5: genre
                 "\"CREATION_DATE\" INTEGER NOT NULL );"); // 6: creation_date
         // Add Indexes
@@ -72,11 +72,7 @@ public class AttPlaylistDao extends AbstractDao<AttPlaylist, String> {
         stmt.bindString(2, entity.getName());
         stmt.bindDouble(3, entity.getTempo());
         stmt.bindLong(4, entity.getDuration());
- 
-        String image = entity.getImage();
-        if (image != null) {
-            stmt.bindString(5, image);
-        }
+        stmt.bindBlob(5, entity.getImage());
         stmt.bindString(6, entity.getGenre());
         stmt.bindLong(7, entity.getCreation_date().getTime());
     }
@@ -88,11 +84,7 @@ public class AttPlaylistDao extends AbstractDao<AttPlaylist, String> {
         stmt.bindString(2, entity.getName());
         stmt.bindDouble(3, entity.getTempo());
         stmt.bindLong(4, entity.getDuration());
- 
-        String image = entity.getImage();
-        if (image != null) {
-            stmt.bindString(5, image);
-        }
+        stmt.bindBlob(5, entity.getImage());
         stmt.bindString(6, entity.getGenre());
         stmt.bindLong(7, entity.getCreation_date().getTime());
     }
@@ -115,7 +107,7 @@ public class AttPlaylistDao extends AbstractDao<AttPlaylist, String> {
             cursor.getString(offset + 1), // name
             cursor.getFloat(offset + 2), // tempo
             cursor.getInt(offset + 3), // duration
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // image
+            cursor.getBlob(offset + 4), // image
             cursor.getString(offset + 5), // genre
             new java.util.Date(cursor.getLong(offset + 6)) // creation_date
         );
@@ -128,7 +120,7 @@ public class AttPlaylistDao extends AbstractDao<AttPlaylist, String> {
         entity.setName(cursor.getString(offset + 1));
         entity.setTempo(cursor.getFloat(offset + 2));
         entity.setDuration(cursor.getInt(offset + 3));
-        entity.setImage(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setImage(cursor.getBlob(offset + 4));
         entity.setGenre(cursor.getString(offset + 5));
         entity.setCreation_date(new java.util.Date(cursor.getLong(offset + 6)));
      }

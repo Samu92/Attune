@@ -15,7 +15,7 @@ import es.app.attune.attune.Interfaces.Player;
 
 public class PlayerService extends Service {
     private final IBinder mBinder = new PlayerBinder();
-    private PreviewPlayer mPlayer = new PreviewPlayer();
+    private SpotifyPlayer mPlayer = new SpotifyPlayer();
 
     public static Intent getIntent(Context context) {
         return new Intent(context, PlayerService.class);

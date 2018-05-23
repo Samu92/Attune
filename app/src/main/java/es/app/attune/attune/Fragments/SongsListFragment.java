@@ -1,6 +1,6 @@
 package es.app.attune.attune.Fragments;
 
-import android.content.ClipData;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,41 +12,38 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
+import android.widget.Toast;
 
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Database.AttPlaylist;
+import es.app.attune.attune.Database.Song;
 import es.app.attune.attune.R;
 
 /**
- * A fragment representing a list of Items.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
- * interface.
+ * A simple {@link Fragment} subclass.
  */
-public class PlayListFragment extends Fragment {
+public class SongsListFragment extends Fragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
-    private OnListFragmentInteractionListener mListener;
+    private SongsListFragment.OnListFragmentInteractionListener mListener;
     private static DatabaseFunctions db;
     private RecyclerView recyclerView;
-    private PlayListRecyclerViewAdapter adapter;
+    private SongListRecyclerViewAdapter adapter;
+    private static String playlistId;
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
-    public PlayListFragment() {
+    public SongsListFragment() {
+        // Required empty public constructor
     }
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static PlayListFragment newInstance(DatabaseFunctions database) {
-        PlayListFragment fragment = new PlayListFragment();
+    public static SongsListFragment newInstance(DatabaseFunctions database, String id) {
+        SongsListFragment fragment = new SongsListFragment();
         db = database;
+        playlistId = id;
         return fragment;
     }
 
@@ -57,13 +54,15 @@ public class PlayListFragment extends Fragment {
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
-        adapter = new PlayListRecyclerViewAdapter(db.getPlaylists(), mListener, getContext());
+        adapter = new SongListRecyclerViewAdapter(db.getSongs(playlistId), mListener, getContext());
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_playlist_list, container, false);
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_song_list, container, false);
 
         // Set the adapter
         if (view instanceof RecyclerView) {
@@ -92,7 +91,7 @@ public class PlayListFragment extends Fragment {
                 new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
                     @Override
                     public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                        adapter.moveItem(viewHolder.getAdapterPosition(), target.getAdapterPosition(),db);
+                        adapter.moveItem(viewHolder.getAdapterPosition(), target.getAdapterPosition());
                         return true;
                     }
 
@@ -104,12 +103,11 @@ public class PlayListFragment extends Fragment {
         return simpleCallback;
     }
 
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
+        if (context instanceof SongsListFragment.OnListFragmentInteractionListener) {
+            mListener = (SongsListFragment.OnListFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnListFragmentInteractionListener");
@@ -126,6 +124,7 @@ public class PlayListFragment extends Fragment {
         recyclerView.scrollToPosition(this.recyclerView.getScrollBarSize() - 1);
     }
 
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -138,6 +137,7 @@ public class PlayListFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(AttPlaylist item);
+        void onListFragmentInteraction(Song item);
     }
+
 }

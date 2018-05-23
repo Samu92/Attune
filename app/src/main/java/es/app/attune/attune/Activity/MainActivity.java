@@ -1,12 +1,15 @@
 package es.app.attune.attune.Activity;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -15,7 +18,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import java.util.Calendar;
 import java.util.List;
@@ -23,32 +25,41 @@ import java.util.UUID;
 
 import es.app.attune.attune.Classes.App;
 import es.app.attune.attune.Classes.DatabaseFunctions;
+import es.app.attune.attune.Classes.SpotifyPlayer;
+import es.app.attune.attune.Classes.Progress;
 import es.app.attune.attune.Classes.SearchInterfaces;
 import es.app.attune.attune.Classes.SearchFunctions;
 import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.Database.DaoSession;
+import es.app.attune.attune.Database.Song;
 import es.app.attune.attune.Fragments.NewPlayList;
 import es.app.attune.attune.Fragments.PlayListFragment;
+import es.app.attune.attune.Fragments.SongsListFragment;
 import es.app.attune.attune.Modules.Tools;
 import es.app.attune.attune.R;
-import kaaes.spotify.webapi.android.models.Track;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, PlayListFragment.OnListFragmentInteractionListener, NewPlayList.OnFragmentInteractionListener, SearchInterfaces.ResultPlaylist, SearchInterfaces.ResultGenres {
+        implements NavigationView.OnNavigationItemSelectedListener, PlayListFragment.OnListFragmentInteractionListener, NewPlayList.OnFragmentInteractionListener, SearchInterfaces.ResultPlaylist, SearchInterfaces.ResultGenres, SongsListFragment.OnListFragmentInteractionListener {
 
     static final String EXTRA_TOKEN = "EXTRA_TOKEN";
     private static final String KEY_CURRENT_QUERY = "CURRENT_QUERY";
 
     private static final int REQUEST_CODE = 1337;
+    private static final int MY_PERMISSIONS_REQUEST_READ_MEDIA = 10 ;
 
     // Fragments
     private PlayListFragment playListFragment;
     private NewPlayList newPlayListFragment;
+    private SongsListFragment songsListFragment;
 
     //GreenDao
     private DaoSession daoSession;
     private DatabaseFunctions db;
     private SearchInterfaces.ActionListener mActionListener;
+
+    private Progress progress;
+
+    private SpotifyPlayer player;
 
     public static Intent createIntent(Context context) {
         return new Intent(context, MainActivity.class);
@@ -60,6 +71,10 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        player = new SpotifyPlayer();
+
+        progress = new Progress(this);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -91,6 +106,15 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.fragmentView, playListFragment, playListFragment.getClass().getName())
                 .commit();
 
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_MEDIA);
+        }
+
+        // Datos de la sesion de spotify
+        //mActionListener.
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabNewPlayList);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,28 +129,36 @@ public class MainActivity extends AppCompatActivity
                     // En caso de que esté visible comenzamos el proceso de creación de la playlist
                     if (newPlayListFragment.ValidarFormulario()) {
                         // El formulario es correcto por lo que obtenemos los parámetros y empezamos el proceso
-
                         // Obtenemos la imagen de la playlist
-                        Bitmap image = newPlayListFragment.getImage();
+                        progress.setCancelable(false);
+                        progress.show();
 
-                        // Obtenemos el nombre de la nueva playlist
-                        String name = newPlayListFragment.getName();
+                        //start a new thread to process job
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                byte[] image = Tools.getByteArray(newPlayListFragment.getImage());
 
-                        // Obtenemos el tempo seleccionado
-                        int tempo = newPlayListFragment.getTempo();
+                                // Obtenemos el nombre de la nueva playlist
+                                String name = newPlayListFragment.getName();
 
-                        // Obtenemos las categorías seleccionadas
-                        String genre = newPlayListFragment.getCategory();
+                                // Obtenemos el tempo seleccionado
+                                int tempo = newPlayListFragment.getTempo();
 
-                        // Obtenemos la duración máxima seleccionada
-                        int duration = newPlayListFragment.getDuration();
+                                // Obtenemos las categorías seleccionadas
+                                String genre = newPlayListFragment.getCategory();
 
-                        // Procedemos a llamar a la API para obtener las canciones
-                        //Playlist newPlaylist = new Playlist(java.util.UUID.randomUUID().node(),name,tempo,duration, Tools.BitMapToString(image), Calendar.getInstance().getTime());
-                        UUID newId = java.util.UUID.randomUUID();
-                        String str_image = Tools.BitMapToString(image);
-                        AttPlaylist newPlaylist = new AttPlaylist(newId.toString(),name,tempo,duration,str_image,genre,Calendar.getInstance().getTime());
-                        mActionListener.searchRecomendations(newPlaylist);
+                                // Obtenemos la duración máxima seleccionada
+                                int duration = newPlayListFragment.getDuration();
+
+                                // Procedemos a llamar a la API para obtener las canciones
+                                //Playlist newPlaylist = new Playlist(java.util.UUID.randomUUID().node(),name,tempo,duration, Tools.BitMapToString(image), Calendar.getInstance().getTime());
+                                UUID newId = java.util.UUID.randomUUID();
+                                AttPlaylist newPlaylist = new AttPlaylist(newId.toString(),name,tempo,duration,image,genre,Calendar.getInstance().getTime());
+                                mActionListener.searchRecomendations(newPlaylist);
+                            }
+                        }).start();
+
                     }
                 }
             }
@@ -139,7 +171,10 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            Intent a = new Intent(Intent.ACTION_MAIN);
+            a.addCategory(Intent.CATEGORY_HOME);
+            a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(a);
         }
     }
 
@@ -177,6 +212,8 @@ public class MainActivity extends AppCompatActivity
                     .commit();
         } else if (id == R.id.nav_share) {
 
+        }else{
+            item.setChecked(false);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -186,7 +223,20 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
+        mActionListener.destroy();
         super.onDestroy();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mActionListener.pause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mActionListener.resume();
     }
 
     @Override
@@ -196,10 +246,22 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onListFragmentInteraction(AttPlaylist item) {
-        // Hemos recibido un click en una de las playlist
-        Toast.makeText(this,item.getName(),Toast.LENGTH_SHORT).show();
 
+        // Hemos recibido un click en una de las playlist
+        //Toast.makeText(this,item.getName(),Toast.LENGTH_SHORT).show();
+        songsListFragment = SongsListFragment.newInstance(db,item.getId());
         // Mostramos la lista de canciones
+        if (!songsListFragment.isVisible()) {
+            // Si el fragmento no está visible lo mostramos
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentView, songsListFragment, songsListFragment.getClass().getName())
+                    .commit();
+        }
+    }
+
+    @Override
+    public void onListFragmentInteraction(Song item) {
+        mActionListener.selectTrack(item);
     }
 
     @Override
@@ -215,6 +277,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void showListPlaylist() {
+        progress.dismiss();
         if (!playListFragment.isVisible()) {
             // Si el fragmento no está visible lo mostramos
             getSupportFragmentManager().beginTransaction()
@@ -222,4 +285,11 @@ public class MainActivity extends AppCompatActivity
                     .commit();
         }
     }
+
+    @Override
+    public void showError(String message) {
+        progress.dismiss();
+    }
+
+
 }

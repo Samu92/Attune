@@ -1,20 +1,16 @@
 package es.app.attune.attune.Classes;
 
-import com.spotify.sdk.android.player.Spotify;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import es.app.attune.attune.Database.AttPlaylist;
-import kaaes.spotify.webapi.android.SpotifyCallback;
-import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.AudioFeaturesTracks;
 import kaaes.spotify.webapi.android.models.Recommendations;
 import kaaes.spotify.webapi.android.models.SeedsGenres;
 import kaaes.spotify.webapi.android.models.Track;
-import kaaes.spotify.webapi.android.models.TracksPager;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -31,8 +27,9 @@ public class SearchSpotify {
     private float mTempo;
     private float mDuration;
 
+
     public interface CompleteListener {
-        void onComplete(List<Track> items);
+        void onComplete(List<Track> items, AudioFeaturesTracks audioFeaturesTracks);
         void onError(Throwable error);
     }
 
@@ -77,7 +74,8 @@ public class SearchSpotify {
                         result.add(track);
                     }
                 }
-                listener.onComplete(result);
+                //listener.onComplete(result);
+                getAudioFeaturesTracks(result,listener);
             }
 
             @Override
@@ -99,5 +97,26 @@ public class SearchSpotify {
                 listener.onError(error);
             }
         });
+    }
+
+    private void getAudioFeaturesTracks(final List<Track> tracks, final CompleteListener listener){
+        if(!tracks.isEmpty()) {
+            String ids = "";
+            for (Track track : tracks) {
+                ids = ids.concat(track.id + ",");
+            }
+
+            mSpotifyApi.getTracksAudioFeatures(ids, new Callback<AudioFeaturesTracks>() {
+                @Override
+                public void success(AudioFeaturesTracks audioFeaturesTracks, Response response) {
+                    listener.onComplete(tracks, audioFeaturesTracks);
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    listener.onError(error);
+                }
+            });
+        }
     }
 }

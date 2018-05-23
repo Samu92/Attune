@@ -15,6 +15,10 @@
     <string name="spotifyIcon">Spotify</string>
     <string name="playlist_duration">Duración total (minutos)</string>
     <string name="cover_art_description">Cover art</string>
+    <string name="txt_songs">Canciones: \u0020</string>
+    <string name="txt_genre">Género: \u0020</string>
+    <string name="txt_tempo">Bpm: \u0020</string>
+    <string name="txt_artist">Artista: \u0020</string>
 
     <string-array name="Categories"></string-array>
 </resources>

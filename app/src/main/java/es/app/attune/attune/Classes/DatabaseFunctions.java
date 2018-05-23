@@ -9,6 +9,7 @@ import es.app.attune.attune.Database.AttPlaylistDao;
 import es.app.attune.attune.Database.DaoSession;
 import es.app.attune.attune.Database.Genre;
 import es.app.attune.attune.Database.GenreDao;
+import es.app.attune.attune.Database.Song;
 import es.app.attune.attune.Database.SongDao;
 
 public class DatabaseFunctions {
@@ -51,5 +52,23 @@ public class DatabaseFunctions {
 
     public List<AttPlaylist> getPlaylists(){
         return attplaylistDao.loadAll();
+    }
+
+    public void insertSong(Song song) {
+        songDao.insertInTx(song);
+    }
+
+    public void removePlaylist(String id) {
+        attplaylistDao.deleteByKey(id);
+    }
+
+    public void removeSong(String id) {
+        songDao.deleteByKey(id);
+    }
+
+    public List<Song> getSongs(String playlistId) {
+        List<Song> songs = new ArrayList<>();
+        songs = songDao._queryAttPlaylist_Songs(playlistId);
+        return songs;
     }
 }

@@ -1,13 +1,11 @@
 package es.app.attune.attune.Database;
 
 import java.util.List;
-import java.util.ArrayList;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 
 import org.greenrobot.greendao.AbstractDao;
 import org.greenrobot.greendao.Property;
-import org.greenrobot.greendao.internal.SqlUtils;
 import org.greenrobot.greendao.internal.DaoConfig;
 import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.database.DatabaseStatement;
@@ -30,12 +28,14 @@ public class SongDao extends AbstractDao<Song, String> {
         public final static Property Id = new Property(0, String.class, "id", true, "ID");
         public final static Property IdPlaylist = new Property(1, String.class, "idPlaylist", false, "ID_PLAYLIST");
         public final static Property IdSpotify = new Property(2, String.class, "idSpotify", false, "ID_SPOTIFY");
-        public final static Property GenreId = new Property(3, String.class, "genreId", false, "GENRE_ID");
-        public final static Property Name = new Property(4, String.class, "name", false, "NAME");
-        public final static Property Duration = new Property(5, int.class, "duration", false, "DURATION");
+        public final static Property UrlSpotify = new Property(3, String.class, "urlSpotify", false, "URL_SPOTIFY");
+        public final static Property GenreId = new Property(4, String.class, "genreId", false, "GENRE_ID");
+        public final static Property Name = new Property(5, String.class, "name", false, "NAME");
+        public final static Property Duration = new Property(6, long.class, "duration", false, "DURATION");
+        public final static Property Tempo = new Property(7, float.class, "tempo", false, "TEMPO");
+        public final static Property Artist = new Property(8, String.class, "artist", false, "ARTIST");
+        public final static Property Image = new Property(9, String.class, "image", false, "IMAGE");
     }
-
-    private DaoSession daoSession;
 
     private Query<Song> attPlaylist_SongsQuery;
 
@@ -45,7 +45,6 @@ public class SongDao extends AbstractDao<Song, String> {
     
     public SongDao(DaoConfig config, DaoSession daoSession) {
         super(config, daoSession);
-        this.daoSession = daoSession;
     }
 
     /** Creates the underlying database table. */
@@ -55,9 +54,13 @@ public class SongDao extends AbstractDao<Song, String> {
                 "\"ID\" TEXT PRIMARY KEY NOT NULL ," + // 0: id
                 "\"ID_PLAYLIST\" TEXT NOT NULL ," + // 1: idPlaylist
                 "\"ID_SPOTIFY\" TEXT NOT NULL ," + // 2: idSpotify
-                "\"GENRE_ID\" TEXT NOT NULL ," + // 3: genreId
-                "\"NAME\" TEXT NOT NULL ," + // 4: name
-                "\"DURATION\" INTEGER NOT NULL );"); // 5: duration
+                "\"URL_SPOTIFY\" TEXT NOT NULL ," + // 3: urlSpotify
+                "\"GENRE_ID\" TEXT NOT NULL ," + // 4: genreId
+                "\"NAME\" TEXT NOT NULL ," + // 5: name
+                "\"DURATION\" INTEGER NOT NULL ," + // 6: duration
+                "\"TEMPO\" REAL NOT NULL ," + // 7: tempo
+                "\"ARTIST\" TEXT NOT NULL ," + // 8: artist
+                "\"IMAGE\" TEXT NOT NULL );"); // 9: image
         // Add Indexes
         db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_SONG_ID ON \"SONG\"" +
                 " (\"ID\" ASC);");
@@ -75,9 +78,13 @@ public class SongDao extends AbstractDao<Song, String> {
         stmt.bindString(1, entity.getId());
         stmt.bindString(2, entity.getIdPlaylist());
         stmt.bindString(3, entity.getIdSpotify());
-        stmt.bindString(4, entity.getGenreId());
-        stmt.bindString(5, entity.getName());
-        stmt.bindLong(6, entity.getDuration());
+        stmt.bindString(4, entity.getUrlSpotify());
+        stmt.bindString(5, entity.getGenreId());
+        stmt.bindString(6, entity.getName());
+        stmt.bindLong(7, entity.getDuration());
+        stmt.bindDouble(8, entity.getTempo());
+        stmt.bindString(9, entity.getArtist());
+        stmt.bindString(10, entity.getImage());
     }
 
     @Override
@@ -86,15 +93,13 @@ public class SongDao extends AbstractDao<Song, String> {
         stmt.bindString(1, entity.getId());
         stmt.bindString(2, entity.getIdPlaylist());
         stmt.bindString(3, entity.getIdSpotify());
-        stmt.bindString(4, entity.getGenreId());
-        stmt.bindString(5, entity.getName());
-        stmt.bindLong(6, entity.getDuration());
-    }
-
-    @Override
-    protected final void attachEntity(Song entity) {
-        super.attachEntity(entity);
-        entity.__setDaoSession(daoSession);
+        stmt.bindString(4, entity.getUrlSpotify());
+        stmt.bindString(5, entity.getGenreId());
+        stmt.bindString(6, entity.getName());
+        stmt.bindLong(7, entity.getDuration());
+        stmt.bindDouble(8, entity.getTempo());
+        stmt.bindString(9, entity.getArtist());
+        stmt.bindString(10, entity.getImage());
     }
 
     @Override
@@ -108,9 +113,13 @@ public class SongDao extends AbstractDao<Song, String> {
             cursor.getString(offset + 0), // id
             cursor.getString(offset + 1), // idPlaylist
             cursor.getString(offset + 2), // idSpotify
-            cursor.getString(offset + 3), // genreId
-            cursor.getString(offset + 4), // name
-            cursor.getInt(offset + 5) // duration
+            cursor.getString(offset + 3), // urlSpotify
+            cursor.getString(offset + 4), // genreId
+            cursor.getString(offset + 5), // name
+            cursor.getLong(offset + 6), // duration
+            cursor.getFloat(offset + 7), // tempo
+            cursor.getString(offset + 8), // artist
+            cursor.getString(offset + 9) // image
         );
         return entity;
     }
@@ -120,9 +129,13 @@ public class SongDao extends AbstractDao<Song, String> {
         entity.setId(cursor.getString(offset + 0));
         entity.setIdPlaylist(cursor.getString(offset + 1));
         entity.setIdSpotify(cursor.getString(offset + 2));
-        entity.setGenreId(cursor.getString(offset + 3));
-        entity.setName(cursor.getString(offset + 4));
-        entity.setDuration(cursor.getInt(offset + 5));
+        entity.setUrlSpotify(cursor.getString(offset + 3));
+        entity.setGenreId(cursor.getString(offset + 4));
+        entity.setName(cursor.getString(offset + 5));
+        entity.setDuration(cursor.getLong(offset + 6));
+        entity.setTempo(cursor.getFloat(offset + 7));
+        entity.setArtist(cursor.getString(offset + 8));
+        entity.setImage(cursor.getString(offset + 9));
      }
     
     @Override
@@ -150,111 +163,18 @@ public class SongDao extends AbstractDao<Song, String> {
     }
     
     /** Internal query to resolve the "songs" to-many relationship of AttPlaylist. */
-    public List<Song> _queryAttPlaylist_Songs(String id) {
+    public List<Song> _queryAttPlaylist_Songs(String idPlaylist) {
         synchronized (this) {
             if (attPlaylist_SongsQuery == null) {
                 QueryBuilder<Song> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.Id.eq(null));
+                queryBuilder.where(Properties.IdPlaylist.eq(null));
                 queryBuilder.orderRaw("T.'NAME' ASC");
                 attPlaylist_SongsQuery = queryBuilder.build();
             }
         }
         Query<Song> query = attPlaylist_SongsQuery.forCurrentThread();
-        query.setParameter(0, id);
+        query.setParameter(0, idPlaylist);
         return query.list();
     }
 
-    private String selectDeep;
-
-    protected String getSelectDeep() {
-        if (selectDeep == null) {
-            StringBuilder builder = new StringBuilder("SELECT ");
-            SqlUtils.appendColumns(builder, "T", getAllColumns());
-            builder.append(',');
-            SqlUtils.appendColumns(builder, "T0", daoSession.getAttPlaylistDao().getAllColumns());
-            builder.append(" FROM SONG T");
-            builder.append(" LEFT JOIN ATT_PLAYLIST T0 ON T.\"ID_PLAYLIST\"=T0.\"ID\"");
-            builder.append(' ');
-            selectDeep = builder.toString();
-        }
-        return selectDeep;
-    }
-    
-    protected Song loadCurrentDeep(Cursor cursor, boolean lock) {
-        Song entity = loadCurrent(cursor, 0, lock);
-        int offset = getAllColumns().length;
-
-        AttPlaylist playlist = loadCurrentOther(daoSession.getAttPlaylistDao(), cursor, offset);
-         if(playlist != null) {
-            entity.setPlaylist(playlist);
-        }
-
-        return entity;    
-    }
-
-    public Song loadDeep(Long key) {
-        assertSinglePk();
-        if (key == null) {
-            return null;
-        }
-
-        StringBuilder builder = new StringBuilder(getSelectDeep());
-        builder.append("WHERE ");
-        SqlUtils.appendColumnsEqValue(builder, "T", getPkColumns());
-        String sql = builder.toString();
-        
-        String[] keyArray = new String[] { key.toString() };
-        Cursor cursor = db.rawQuery(sql, keyArray);
-        
-        try {
-            boolean available = cursor.moveToFirst();
-            if (!available) {
-                return null;
-            } else if (!cursor.isLast()) {
-                throw new IllegalStateException("Expected unique result, but count was " + cursor.getCount());
-            }
-            return loadCurrentDeep(cursor, true);
-        } finally {
-            cursor.close();
-        }
-    }
-    
-    /** Reads all available rows from the given cursor and returns a list of new ImageTO objects. */
-    public List<Song> loadAllDeepFromCursor(Cursor cursor) {
-        int count = cursor.getCount();
-        List<Song> list = new ArrayList<Song>(count);
-        
-        if (cursor.moveToFirst()) {
-            if (identityScope != null) {
-                identityScope.lock();
-                identityScope.reserveRoom(count);
-            }
-            try {
-                do {
-                    list.add(loadCurrentDeep(cursor, false));
-                } while (cursor.moveToNext());
-            } finally {
-                if (identityScope != null) {
-                    identityScope.unlock();
-                }
-            }
-        }
-        return list;
-    }
-    
-    protected List<Song> loadDeepAllAndCloseCursor(Cursor cursor) {
-        try {
-            return loadAllDeepFromCursor(cursor);
-        } finally {
-            cursor.close();
-        }
-    }
-    
-
-    /** A raw-style query where you can pass any WHERE clause and arguments. */
-    public List<Song> queryDeep(String where, String... selectionArg) {
-        Cursor cursor = db.rawQuery(getSelectDeep() + where, selectionArg);
-        return loadDeepAllAndCloseCursor(cursor);
-    }
- 
 }

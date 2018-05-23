@@ -13,8 +13,8 @@ import es.app.attune.attune.Interfaces.Player;
  * Created by Samuel on 08/03/2018.
  */
 
-public class PreviewPlayer implements Player, MediaPlayer.OnCompletionListener {
-    private static final String TAG = PreviewPlayer.class.getSimpleName();
+public class SpotifyPlayer implements Player, MediaPlayer.OnCompletionListener {
+    private static final String TAG = SpotifyPlayer.class.getSimpleName();
 
     private MediaPlayer mMediaPlayer;
     private String mCurrentTrack;

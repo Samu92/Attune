@@ -1,7 +1,6 @@
 package es.app.attune.attune.Classes;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
@@ -9,7 +8,6 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,6 +16,8 @@ import es.app.attune.attune.Database.DaoSession;
 import es.app.attune.attune.Database.Song;
 import es.app.attune.attune.Interfaces.Player;
 import kaaes.spotify.webapi.android.SpotifyApi;
+import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
+import kaaes.spotify.webapi.android.models.AudioFeaturesTracks;
 import kaaes.spotify.webapi.android.models.Track;
 
 /**
@@ -39,12 +39,12 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
     private SearchSpotify mSearchPager;
     private SearchSpotify.CompleteListener mSearchListener;
     private SearchSpotify.GenresListener mGenresListener;
-    private ProgressDialog progressDialog;
 
     private DaoSession daoSession;
     private DatabaseFunctions db;
 
     private Player mPlayer;
+
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
@@ -62,9 +62,6 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
         mContext = context;
         mResultPlaylist = result;
         mResultGenres = result_genres;
-        progressDialog = new ProgressDialog(context);
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.setCancelable(false);
 
         // Inicializamos la sesión de base de datos
         daoSession = ((App) context.getApplicationContext()).getDaoSession();
@@ -94,13 +91,10 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
 
     @Override
     public void searchRecomendations(final AttPlaylist newPlaylist) {
-        float tempo  = newPlaylist.getTempo();
+        final float tempo  = newPlaylist.getTempo();
         String genre = newPlaylist.getGenre();
         int duration = newPlaylist.getDuration();
 
-        progressDialog.setTitle("Nueva playlist");
-        progressDialog.setMessage("Espere por favor...");
-        progressDialog.show();
         if (tempo != 0 && !genre.isEmpty()) {
             mTempo = tempo;
             mGenre = genre;
@@ -109,23 +103,36 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
             mResultPlaylist.reset();
             mSearchListener = new SearchSpotify.CompleteListener() {
                 @Override
-                public void onComplete(List<Track> items) {
-                    UUID newId = java.util.UUID.randomUUID();
-                    List<Song> listaSongs = new ArrayList<>();
+                public void onComplete(List<Track> items, AudioFeaturesTracks audioFeaturesTracks) {
                     for (Track track: items) {
-                        Song song = new Song(newId.toString(), newPlaylist.getId() , track.id, newPlaylist.getGenre(), track.name , ((int) track.duration_ms));
-                        listaSongs.add(song);
+                        UUID newUUID = java.util.UUID.randomUUID();
+                        String newId = newUUID.toString();
+                        String playlistId = newPlaylist.getId();
+                        String trackId = track.id;
+                        String spotifyId = track.uri;
+                        String genreId = newPlaylist.getGenre();
+                        String name = track.name;
+                        long duration = track.duration_ms;
+                        String artist = track.artists.get(0).name;
+                        String imageUri = "";
+                        float tempo = 0;
+                        for (AudioFeaturesTrack feature: audioFeaturesTracks.audio_features) {
+                            if(track.id.equals(feature.id)){
+                                tempo = feature.tempo;
+                            }
+                        }
+
+                        Song song = new Song(newId,playlistId,trackId,spotifyId,genreId,name,duration,tempo,artist,imageUri);
+                        db.insertSong(song);
                     }
-                    newPlaylist.setSongs(listaSongs);
                     db.insertNewPlaylist(newPlaylist);
-                    progressDialog.dismiss();
                     mResultPlaylist.showListPlaylist();
                 }
 
                 @Override
                 public void onError(Throwable error) {
                     logError(error.getMessage());
-                    progressDialog.dismiss();
+                    mResultPlaylist.showError(error.getMessage());
                 }
             };
             mSearchPager.getRecomendationPlaylist(newPlaylist, SIZE, mSearchListener);
@@ -149,6 +156,11 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
     }
 
     @Override
+    public void getUserData() {
+
+    }
+
+    @Override
     public void resume() {
         mContext.stopService(PlayerService.getIntent(mContext));
     }
@@ -159,8 +171,8 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
     }
 
     @Override
-    public void selectTrack(Track item) {
-        String previewUrl = item.preview_url;
+    public void selectTrack(Song item) {
+        String previewUrl = item.getUrlSpotify();
 
         if (previewUrl == null) {
             logMessage("Track doesn't have a preview");

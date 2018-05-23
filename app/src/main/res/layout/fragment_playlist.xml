@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="10dp"
-    android:orientation="horizontal">
+    android:background="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:padding="5dp"
+    android:orientation="vertical">
 
     <ImageView
         android:id="@+id/image_playlist"
@@ -16,56 +19,46 @@
         android:contentDescription="@string/cover_art_description"
         />
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:ellipsize="marquee"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@id/image_playlist"
+        android:scrollHorizontally="true"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <TextView
-            android:id="@+id/name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ellipsize="marquee"
-            android:gravity="top"
-            android:scrollHorizontally="true"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:singleLine="true"
-            android:layout_marginBottom="5dp"/>
+    <TextView
+        android:id="@+id/genre"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:layout_below="@id/name"
+        android:layout_toRightOf="@id/image_playlist"
+        android:scrollHorizontally="true"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
-        <TextView
-            android:id="@+id/genre"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ellipsize="marquee"
-            android:gravity="bottom"
-            android:scrollHorizontally="true"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:singleLine="true" />
+    <TextView
+        android:id="@+id/tempo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:layout_below="@id/genre"
+        android:layout_toRightOf="@id/image_playlist"
+        android:scrollHorizontally="true"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
-        <TextView
-            android:id="@+id/tempo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ellipsize="marquee"
-            android:gravity="right"
-            android:scrollHorizontally="true"
-            android:textAppearance="?android:attr/textAppearanceListItem"
-            android:singleLine="true" />
-
-        <TextView
-            android:id="@+id/songs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ellipsize="marquee"
-            android:gravity="right"
-            android:scrollHorizontally="true"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:singleLine="true" />
-    </LinearLayout>
-</LinearLayout>
+    <TextView
+        android:id="@+id/songs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:layout_toRightOf="@id/tempo"
+        android:layout_below="@id/genre"
+        android:layout_marginLeft="5dp"
+        android:scrollHorizontally="true"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+</RelativeLayout>
 
 
