@@ -6,11 +6,11 @@ Playlists are mainly classified by BPM (Beats per minute) and can be played in a
 
 ## Getting Started
 
-Attune is still under development and a first public version has not been provided.
+The app is still under development and a first public version has not been provided.
 
 ### Prerequisites
 
-Attune requires a premium Spotify account for its full use.
+The app requires a premium Spotify account for its full use.
 
 An internet connection is required for Spotify API calls.
 
