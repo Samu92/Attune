@@ -23,7 +23,7 @@ When there is a first version of the app, it will indicate how to install it.
 * [Android Studio](https://developer.android.com/studio/) - IDE used.
 * [Maven](https://maven.apache.org/) - Dependency Management
 * [Spotify API](https://beta.developer.spotify.com/documentation/android-sdk/) - Used to search songs.
-* [Green Dao] (http://greenrobot.org/greendao/) - SqlLite ORM
+* [GreenDao] (http://greenrobot.org/greendao/) - SqlLite ORM
 
 ## Contributing
 
