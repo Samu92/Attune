@@ -7,22 +7,18 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
-import es.app.attune.attune.Interfaces.Player;
-
-/**
- * Created by Samuel on 08/03/2018.
- */
-
 public class PlayerService extends Service {
+
     private final IBinder mBinder = new PlayerBinder();
-    private SpotifyPlayer mPlayer = new SpotifyPlayer();
+    private AttunePlayer mPlayer = new AttunePlayer();
+
 
     public static Intent getIntent(Context context) {
         return new Intent(context, PlayerService.class);
     }
 
     public class PlayerBinder extends Binder {
-        public Player getService() {
+        public AttunePlayer getService() {
             return mPlayer;
         }
     }

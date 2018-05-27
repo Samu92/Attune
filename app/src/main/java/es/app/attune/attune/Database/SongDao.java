@@ -35,6 +35,7 @@ public class SongDao extends AbstractDao<Song, String> {
         public final static Property Tempo = new Property(7, float.class, "tempo", false, "TEMPO");
         public final static Property Artist = new Property(8, String.class, "artist", false, "ARTIST");
         public final static Property Image = new Property(9, String.class, "image", false, "IMAGE");
+        public final static Property PreviewUrl = new Property(10, String.class, "previewUrl", false, "PREVIEW_URL");
     }
 
     private Query<Song> attPlaylist_SongsQuery;
@@ -60,7 +61,8 @@ public class SongDao extends AbstractDao<Song, String> {
                 "\"DURATION\" INTEGER NOT NULL ," + // 6: duration
                 "\"TEMPO\" REAL NOT NULL ," + // 7: tempo
                 "\"ARTIST\" TEXT NOT NULL ," + // 8: artist
-                "\"IMAGE\" TEXT NOT NULL );"); // 9: image
+                "\"IMAGE\" TEXT NOT NULL ," + // 9: image
+                "\"PREVIEW_URL\" TEXT);"); // 10: previewUrl
         // Add Indexes
         db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_SONG_ID ON \"SONG\"" +
                 " (\"ID\" ASC);");
@@ -85,6 +87,11 @@ public class SongDao extends AbstractDao<Song, String> {
         stmt.bindDouble(8, entity.getTempo());
         stmt.bindString(9, entity.getArtist());
         stmt.bindString(10, entity.getImage());
+ 
+        String previewUrl = entity.getPreviewUrl();
+        if (previewUrl != null) {
+            stmt.bindString(11, previewUrl);
+        }
     }
 
     @Override
@@ -100,6 +107,11 @@ public class SongDao extends AbstractDao<Song, String> {
         stmt.bindDouble(8, entity.getTempo());
         stmt.bindString(9, entity.getArtist());
         stmt.bindString(10, entity.getImage());
+ 
+        String previewUrl = entity.getPreviewUrl();
+        if (previewUrl != null) {
+            stmt.bindString(11, previewUrl);
+        }
     }
 
     @Override
@@ -119,7 +131,8 @@ public class SongDao extends AbstractDao<Song, String> {
             cursor.getLong(offset + 6), // duration
             cursor.getFloat(offset + 7), // tempo
             cursor.getString(offset + 8), // artist
-            cursor.getString(offset + 9) // image
+            cursor.getString(offset + 9), // image
+            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10) // previewUrl
         );
         return entity;
     }
@@ -136,6 +149,7 @@ public class SongDao extends AbstractDao<Song, String> {
         entity.setTempo(cursor.getFloat(offset + 7));
         entity.setArtist(cursor.getString(offset + 8));
         entity.setImage(cursor.getString(offset + 9));
+        entity.setPreviewUrl(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
      }
     
     @Override

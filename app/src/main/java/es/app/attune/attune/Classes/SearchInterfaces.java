@@ -2,12 +2,14 @@ package es.app.attune.attune.Classes;
 
 import android.app.ProgressDialog;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.Database.Song;
 import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.UserPrivate;
 
 /**
  * Created by Samuel on 08/03/2018.
@@ -29,6 +31,10 @@ public class SearchInterfaces {
         void addDataGenres(List<String> items);
     }
 
+    public interface ResultUserData{
+        void setUserData(UserPrivate user);
+    }
+
     public interface ActionListener {
 
         void init(String token);
@@ -36,6 +42,8 @@ public class SearchInterfaces {
         void searchRecomendations(AttPlaylist newPlaylist);
 
         void getAvailableGenreSeeds();
+
+        void createPlayer();
 
         void getUserData();
 

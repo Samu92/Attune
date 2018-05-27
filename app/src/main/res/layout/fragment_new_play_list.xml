@@ -7,82 +7,79 @@
     android:orientation="vertical"
     tools:context="es.app.attune.attune.Fragments.NewPlayList">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="20dp"
         android:orientation="vertical">
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            xmlns:app="http://schemas.android.com/apk/res-auto"
+        <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/image_playlist"
-            android:layout_width="140dp"
-            android:layout_height="140dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
             android:src="@drawable/no_image"
-            android:layout_gravity="center"
-            android:layout_marginTop="40dp"
-            app:civ_border_width="2dp"
-            app:civ_border_color="#FF000000"/>
+            app:civ_border_color="#FF000000"
+            app:civ_border_width="2dp" />
 
         <EditText
             android:id="@+id/name_playlist"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_below="@id/image_playlist"
             android:ems="15"
             android:inputType="text"
-            android:layout_marginTop="20dp"
+            android:layout_marginBottom="15dp"
             android:hint="Nombre de la playlist"
             />
 
         <TextView
+            android:id="@+id/txt_genre"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="20dp"
-            android:text="Tempo" />
-
-        <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
-            android:id="@+id/bmp_seekbar"
-            android:layout_marginTop="10dp"
-            android:layout_width="340dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            app:dsb_min="20"
-            app:dsb_max="200"
-            />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginBottom="10dp"
-            android:text="@string/playlist_duration" />
-
-        <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
-            android:id="@+id/duration_seekbar"
-            android:layout_marginTop="10dp"
-            android:layout_width="340dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            app:dsb_min="1"
-            app:dsb_max="120"
-            />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginBottom="10dp"
+            android:layout_below="@id/name_playlist"
             android:text="@string/Category" />
 
         <com.toptoche.searchablespinnerlibrary.SearchableSpinner
             android:id="@+id/category_spinner"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="150dp"
-            android:layout_gravity="center"/>
+            android:layout_marginBottom="30dp"
+            android:layout_below="@id/txt_genre"/>
 
-    </LinearLayout>
+        <TextView
+            android:id="@+id/txt_tempo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/category_spinner"
+            android:text="Tempo" />
+
+        <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+            android:id="@+id/bmp_seekbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txt_tempo"
+            android:layout_marginBottom="15dp"
+            app:dsb_min="20"
+            app:dsb_max="200"
+            />
+
+        <TextView
+            android:id="@+id/txt_duration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/bmp_seekbar"
+            android:text="@string/playlist_duration" />
+
+        <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+            android:id="@+id/duration_seekbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txt_duration"
+            app:dsb_min="1"
+            app:dsb_max="120"
+            />
+
+    </RelativeLayout>
 </ScrollView>

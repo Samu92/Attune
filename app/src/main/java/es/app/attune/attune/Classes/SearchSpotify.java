@@ -11,6 +11,8 @@ import kaaes.spotify.webapi.android.models.AudioFeaturesTracks;
 import kaaes.spotify.webapi.android.models.Recommendations;
 import kaaes.spotify.webapi.android.models.SeedsGenres;
 import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.UserPrivate;
+import kaaes.spotify.webapi.android.models.UserPublic;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -38,6 +40,11 @@ public class SearchSpotify {
         void onError(Throwable error);
     }
 
+    public interface UserDataListener{
+        void onComplete(UserPrivate user);
+        void onError(Throwable error);
+    }
+
     public SearchSpotify(SpotifyService spotifyApi) {
         mSpotifyApi = spotifyApi;
     }
@@ -52,6 +59,10 @@ public class SearchSpotify {
 
     public void getGenres(final GenresListener listener){
         getDataGenres(listener);
+    }
+
+    public void getUserDataCall(final UserDataListener listener){
+        getUserData(listener);
     }
 
     private void getDataPlaylist(float tempo, String genre, final int max_duration, int offset, final int limit, final CompleteListener listener){
@@ -83,6 +94,22 @@ public class SearchSpotify {
                 listener.onError(error);
             }
         });
+    }
+
+    private void getUserData(final UserDataListener listener){
+        mSpotifyApi.getMe(new Callback<UserPrivate>() {
+            @Override
+            public void success(UserPrivate userPrivate, Response response) {
+                listener.onComplete(userPrivate);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                listener.onError(error);
+            }
+        });
+
+
     }
 
     private void getDataGenres(final GenresListener listener){

@@ -18,28 +18,38 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.spotify.sdk.android.player.Spotify;
 
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import es.app.attune.attune.Classes.App;
+import es.app.attune.attune.Classes.AttunePlayer;
 import es.app.attune.attune.Classes.DatabaseFunctions;
-import es.app.attune.attune.Classes.SpotifyPlayer;
 import es.app.attune.attune.Classes.Progress;
-import es.app.attune.attune.Classes.SearchInterfaces;
 import es.app.attune.attune.Classes.SearchFunctions;
+import es.app.attune.attune.Classes.SearchInterfaces;
 import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.Database.DaoSession;
 import es.app.attune.attune.Database.Song;
 import es.app.attune.attune.Fragments.NewPlayList;
+import es.app.attune.attune.Fragments.NewPlayListTabs;
 import es.app.attune.attune.Fragments.PlayListFragment;
 import es.app.attune.attune.Fragments.SongsListFragment;
 import es.app.attune.attune.Modules.Tools;
 import es.app.attune.attune.R;
+import kaaes.spotify.webapi.android.models.UserPrivate;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, PlayListFragment.OnListFragmentInteractionListener, NewPlayList.OnFragmentInteractionListener, SearchInterfaces.ResultPlaylist, SearchInterfaces.ResultGenres, SongsListFragment.OnListFragmentInteractionListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        PlayListFragment.OnListFragmentInteractionListener, NewPlayList.OnFragmentInteractionListener,
+        SearchInterfaces.ResultPlaylist, SearchInterfaces.ResultGenres, SearchInterfaces.ResultUserData,
+        SongsListFragment.OnListFragmentInteractionListener, NewPlayListTabs.OnFragmentInteractionListener{
 
     static final String EXTRA_TOKEN = "EXTRA_TOKEN";
     private static final String KEY_CURRENT_QUERY = "CURRENT_QUERY";
@@ -49,7 +59,7 @@ public class MainActivity extends AppCompatActivity
 
     // Fragments
     private PlayListFragment playListFragment;
-    private NewPlayList newPlayListFragment;
+    private NewPlayListTabs newPlayListFragmentTabs;
     private SongsListFragment songsListFragment;
 
     //GreenDao
@@ -59,7 +69,11 @@ public class MainActivity extends AppCompatActivity
 
     private Progress progress;
 
-    private SpotifyPlayer player;
+    private AttunePlayer mPlayer;
+
+    TextView navEmail;
+    TextView navUserName;
+    CircleImageView navImageView;
 
     public static Intent createIntent(Context context) {
         return new Intent(context, MainActivity.class);
@@ -71,8 +85,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        player = new SpotifyPlayer();
 
         progress = new Progress(this);
 
@@ -88,8 +100,21 @@ public class MainActivity extends AppCompatActivity
         Intent intent = getIntent();
         String token = intent.getStringExtra(EXTRA_TOKEN);
 
-        mActionListener = new SearchFunctions(this, this, this);
+        mActionListener = new SearchFunctions(this, this, this, this );
         mActionListener.init(token);
+
+        // Initialize player
+        mPlayer = new AttunePlayer();
+        mPlayer.createMediaPlayer(token,this);
+
+        mActionListener.getUserData();
+
+        View headerView = navigationView.getHeaderView(0);
+        navEmail = (TextView) headerView.findViewById(R.id.email);
+        navUserName = (TextView) headerView.findViewById(R.id.username);
+        navImageView = (CircleImageView) headerView.findViewById(R.id.profile_image);
+
+        Glide.with(this).load(R.drawable.default_profile).into(navImageView);
 
         // Inicializamos la sesión de base de datos
         daoSession = ((App) getApplication()).getDaoSession();
@@ -99,7 +124,7 @@ public class MainActivity extends AppCompatActivity
         mActionListener.getAvailableGenreSeeds();
 
         // Inicializamos los fragmentos
-        newPlayListFragment = NewPlayList.newInstance(db);
+        newPlayListFragmentTabs = NewPlayListTabs.newInstance(db);
         playListFragment = PlayListFragment.newInstance(db);
 
         getSupportFragmentManager().beginTransaction()
@@ -120,14 +145,13 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 // Begin the transaction
-                if (!newPlayListFragment.isVisible()) {
+                if (!newPlayListFragmentTabs.isVisible()) {
                     // Si el fragmento no está visible lo mostramos
                     getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragmentView, newPlayListFragment, newPlayListFragment.getClass().getName())
+                            .replace(R.id.fragmentView, newPlayListFragmentTabs, newPlayListFragmentTabs.getClass().getName())
                             .commit();
-                } else {
-                    // En caso de que esté visible comenzamos el proceso de creación de la playlist
-                    if (newPlayListFragment.ValidarFormulario()) {
+                }else{
+                    if(newPlayListFragmentTabs.validarFormulario()){
                         // El formulario es correcto por lo que obtenemos los parámetros y empezamos el proceso
                         // Obtenemos la imagen de la playlist
                         progress.setCancelable(false);
@@ -137,19 +161,19 @@ public class MainActivity extends AppCompatActivity
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                byte[] image = Tools.getByteArray(newPlayListFragment.getImage());
+                                byte[] image = Tools.getByteArray(newPlayListFragmentTabs.getImage());
 
                                 // Obtenemos el nombre de la nueva playlist
-                                String name = newPlayListFragment.getName();
+                                String name = newPlayListFragmentTabs.getName();
 
                                 // Obtenemos el tempo seleccionado
-                                int tempo = newPlayListFragment.getTempo();
+                                int tempo = newPlayListFragmentTabs.getTempo();
 
                                 // Obtenemos las categorías seleccionadas
-                                String genre = newPlayListFragment.getCategory();
+                                String genre = newPlayListFragmentTabs.getCategory();
 
                                 // Obtenemos la duración máxima seleccionada
-                                int duration = newPlayListFragment.getDuration();
+                                int duration = newPlayListFragmentTabs.getDuration();
 
                                 // Procedemos a llamar a la API para obtener las canciones
                                 //Playlist newPlaylist = new Playlist(java.util.UUID.randomUUID().node(),name,tempo,duration, Tools.BitMapToString(image), Calendar.getInstance().getTime());
@@ -158,7 +182,6 @@ public class MainActivity extends AppCompatActivity
                                 mActionListener.searchRecomendations(newPlaylist);
                             }
                         }).start();
-
                     }
                 }
             }
@@ -224,6 +247,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         mActionListener.destroy();
+        Spotify.destroyPlayer(this);
         super.onDestroy();
     }
 
@@ -248,7 +272,6 @@ public class MainActivity extends AppCompatActivity
     public void onListFragmentInteraction(AttPlaylist item) {
 
         // Hemos recibido un click en una de las playlist
-        //Toast.makeText(this,item.getName(),Toast.LENGTH_SHORT).show();
         songsListFragment = SongsListFragment.newInstance(db,item.getId());
         // Mostramos la lista de canciones
         if (!songsListFragment.isVisible()) {
@@ -261,7 +284,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onListFragmentInteraction(Song item) {
-        mActionListener.selectTrack(item);
+        mPlayer.play(item.getUrlSpotify());
     }
 
     @Override
@@ -292,4 +315,8 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+    @Override
+    public void setUserData(UserPrivate user) {
+
+    }
 }

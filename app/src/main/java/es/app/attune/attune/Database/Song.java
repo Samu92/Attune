@@ -45,12 +45,15 @@ public class Song {
 
     @NotNull
     private String image;
+    
+    private String previewUrl;
 
-    @Generated(hash = 848953273)
+    @Generated(hash = 1677807930)
     public Song(@NotNull String id, @NotNull String idPlaylist,
             @NotNull String idSpotify, @NotNull String urlSpotify,
             @NotNull String genreId, @NotNull String name, long duration,
-            float tempo, @NotNull String artist, @NotNull String image) {
+            float tempo, @NotNull String artist, @NotNull String image,
+            String previewUrl) {
         this.id = id;
         this.idPlaylist = idPlaylist;
         this.idSpotify = idSpotify;
@@ -61,6 +64,7 @@ public class Song {
         this.tempo = tempo;
         this.artist = artist;
         this.image = image;
+        this.previewUrl = previewUrl;
     }
 
     @Generated(hash = 87031450)
@@ -147,5 +151,12 @@ public class Song {
         this.image = image;
     }
 
-  
+    public String getPreviewUrl() {
+        return this.previewUrl;
+    }
+
+    public void setPreviewUrl(String previewUrl) {
+        this.previewUrl = previewUrl;
+    }
+
 }

@@ -1,8 +1,9 @@
 package es.app.attune.attune.Activity;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -31,12 +32,19 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
+
         String token = CredentialsHandler.getToken(this);
         if (token == null) {
             setContentView(R.layout.activity_login);
         } else {
             startMainActivity(token);
         }
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
     }
 
     public void onLoginButtonClicked(View view) {

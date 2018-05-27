@@ -8,6 +8,10 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.spotify.sdk.android.player.Config;
+import com.spotify.sdk.android.player.ConnectionStateCallback;
+import com.spotify.sdk.android.player.Spotify;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -19,6 +23,7 @@ import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTracks;
 import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.UserPrivate;
 
 /**
  * Created by Samuel on 08/03/2018.
@@ -27,10 +32,12 @@ import kaaes.spotify.webapi.android.models.Track;
 public class SearchFunctions implements SearchInterfaces.ActionListener {
     private static final String TAG = SearchFunctions.class.getSimpleName();
     public static final int SIZE = 50;
+    private static final String CLIENT_ID = "";
 
     private final Context mContext;
     private final SearchInterfaces.ResultPlaylist mResultPlaylist;
     private final SearchInterfaces.ResultGenres mResultGenres;
+    private final SearchInterfaces.ResultUserData mResultUserData;
     private float mTempo;
     private String mGenre;
     private float mDuration;
@@ -39,6 +46,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
     private SearchSpotify mSearchPager;
     private SearchSpotify.CompleteListener mSearchListener;
     private SearchSpotify.GenresListener mGenresListener;
+    private SearchSpotify.UserDataListener mUserDataListener;
 
     private DaoSession daoSession;
     private DatabaseFunctions db;
@@ -58,10 +66,11 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
         }
     };
 
-    public SearchFunctions(Context context, SearchInterfaces.ResultPlaylist result, SearchInterfaces.ResultGenres result_genres) {
+    public SearchFunctions(Context context, SearchInterfaces.ResultPlaylist result, SearchInterfaces.ResultGenres result_genres, SearchInterfaces.ResultUserData result_userdata) {
         mContext = context;
         mResultPlaylist = result;
         mResultGenres = result_genres;
+        mResultUserData = result_userdata;
 
         // Inicializamos la sesión de base de datos
         daoSession = ((App) context.getApplicationContext()).getDaoSession();
@@ -82,6 +91,11 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
         mSearchPager = new SearchSpotify(spotifyApi.getService());
 
         mContext.bindService(PlayerService.getIntent(mContext), mServiceConnection, Activity.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void createPlayer() {
+
     }
 
     @Override
@@ -115,6 +129,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                         long duration = track.duration_ms;
                         String artist = track.artists.get(0).name;
                         String imageUri = "";
+                        String previewUrl = track.preview_url;
                         float tempo = 0;
                         for (AudioFeaturesTrack feature: audioFeaturesTracks.audio_features) {
                             if(track.id.equals(feature.id)){
@@ -122,7 +137,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                             }
                         }
 
-                        Song song = new Song(newId,playlistId,trackId,spotifyId,genreId,name,duration,tempo,artist,imageUri);
+                        Song song = new Song(newId,playlistId,trackId,spotifyId,genreId,name,duration,tempo,artist,imageUri,previewUrl);
                         db.insertSong(song);
                     }
                     db.insertNewPlaylist(newPlaylist);
@@ -157,7 +172,19 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
 
     @Override
     public void getUserData() {
+        mUserDataListener = new SearchSpotify.UserDataListener(){
 
+            @Override
+            public void onComplete(UserPrivate user) {
+                mResultUserData.setUserData(user);
+            }
+
+            @Override
+            public void onError(Throwable error) {
+                logError(error.getMessage());
+            }
+        };
+        mSearchPager.getUserDataCall(mUserDataListener);
     }
 
     @Override
@@ -172,7 +199,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
 
     @Override
     public void selectTrack(Song item) {
-        String previewUrl = item.getUrlSpotify();
+        String previewUrl = item.getPreviewUrl();
 
         if (previewUrl == null) {
             logMessage("Track doesn't have a preview");

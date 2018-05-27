@@ -34,7 +34,6 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
         return new ViewHolder(view);
     }
 
-
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
@@ -44,8 +43,6 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
         holder.mArtistView.setText(context.getResources().getString(R.string.txt_artist) + mValues.get(position).getArtist());
 
         holder.mTempoView.setText(context.getResources().getString(R.string.txt_tempo) + String.valueOf(mValues.get(position).getTempo()));
-
-        //holder.mGenreView.setText(context.getResources().getString(R.string.txt_genre) + mValues.get(position).getGenreId());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,7 +64,6 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
     void deleteItem(int index, DatabaseFunctions db) {
         db.removeSong(mValues.get(index).getId());
         notifyDataSetChanged();
-
         mValues.remove(index);
         notifyItemRemoved(index);
     }
@@ -86,7 +82,6 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
         public final TextView mNameView;
         public final TextView mArtistView;
         public final TextView mTempoView;
-        //public final TextView mGenreView;
         public Song mItem;
 
         public ViewHolder(View view) {
@@ -95,7 +90,6 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
             mNameView = (TextView) view.findViewById(R.id.song_name);
             mArtistView = (TextView) view.findViewById(R.id.song_artist);
             mTempoView = (TextView) view.findViewById(R.id.song_tempo);
-            //mGenreView = (TextView) view.findViewById(R.id.song_genre);
         }
 
         @Override

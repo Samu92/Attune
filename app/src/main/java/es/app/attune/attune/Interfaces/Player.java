@@ -1,5 +1,6 @@
 package es.app.attune.attune.Interfaces;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
 
 /**
@@ -19,4 +20,6 @@ public interface Player {
     String getCurrentTrack();
 
     void release();
+
+    void createMediaPlayer(String token, Context context);
 }
