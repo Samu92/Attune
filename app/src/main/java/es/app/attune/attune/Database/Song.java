@@ -4,13 +4,7 @@ import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Index;
-import org.greenrobot.greendao.annotation.ToOne;
-import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.NotNull;
-
-import java.util.List;
-
-import kaaes.spotify.webapi.android.models.ArtistSimple;
 
 @Entity
 public class Song {
@@ -48,12 +42,41 @@ public class Song {
     
     private String previewUrl;
 
-    @Generated(hash = 1677807930)
+    @NotNull
+    private float acousticness;
+
+    @NotNull
+    private float danceability;
+
+    @NotNull
+    private float energy;
+
+    @NotNull
+    private float instrumentalness;
+
+    @NotNull
+    private float liveness;
+
+    @NotNull
+    private float loudness;
+
+    @NotNull
+    private int popularity;
+
+    @NotNull
+    private float speechiness;
+
+    @NotNull
+    private float valence;
+
+    @Generated(hash = 1333558738)
     public Song(@NotNull String id, @NotNull String idPlaylist,
             @NotNull String idSpotify, @NotNull String urlSpotify,
             @NotNull String genreId, @NotNull String name, long duration,
             float tempo, @NotNull String artist, @NotNull String image,
-            String previewUrl) {
+            String previewUrl, float acousticness, float danceability, float energy,
+            float instrumentalness, float liveness, float loudness, int popularity,
+            float speechiness, float valence) {
         this.id = id;
         this.idPlaylist = idPlaylist;
         this.idSpotify = idSpotify;
@@ -65,6 +88,15 @@ public class Song {
         this.artist = artist;
         this.image = image;
         this.previewUrl = previewUrl;
+        this.acousticness = acousticness;
+        this.danceability = danceability;
+        this.energy = energy;
+        this.instrumentalness = instrumentalness;
+        this.liveness = liveness;
+        this.loudness = loudness;
+        this.popularity = popularity;
+        this.speechiness = speechiness;
+        this.valence = valence;
     }
 
     @Generated(hash = 87031450)
@@ -159,4 +191,77 @@ public class Song {
         this.previewUrl = previewUrl;
     }
 
+    public float getAcousticness() {
+        return this.acousticness;
+    }
+
+    public void setAcousticness(float acousticness) {
+        this.acousticness = acousticness;
+    }
+
+    public float getDanceability() {
+        return this.danceability;
+    }
+
+    public void setDanceability(float danceability) {
+        this.danceability = danceability;
+    }
+
+    public float getEnergy() {
+        return this.energy;
+    }
+
+    public void setEnergy(float energy) {
+        this.energy = energy;
+    }
+
+    public float getInstrumentalness() {
+        return this.instrumentalness;
+    }
+
+    public void setInstrumentalness(float instrumentalness) {
+        this.instrumentalness = instrumentalness;
+    }
+
+    public float getLiveness() {
+        return this.liveness;
+    }
+
+    public void setLiveness(float liveness) {
+        this.liveness = liveness;
+    }
+
+    public float getLoudness() {
+        return this.loudness;
+    }
+
+    public void setLoudness(float loudness) {
+        this.loudness = loudness;
+    }
+
+    public int getPopularity() {
+        return this.popularity;
+    }
+
+    public void setPopularity(int popularity) {
+        this.popularity = popularity;
+    }
+
+    public float getSpeechiness() {
+        return this.speechiness;
+    }
+
+    public void setSpeechiness(float speechiness) {
+        this.speechiness = speechiness;
+    }
+
+    public float getValence() {
+        return this.valence;
+    }
+
+    public void setValence(float valence) {
+        this.valence = valence;
+    }
+
+  
 }

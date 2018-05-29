@@ -9,4 +9,9 @@
     <color name="divider">#4da6ff</color>
     <color name="accent_material_light">#2a8dff</color>
     <color name="primary_material_light">#15aaf4</color>
+    <color name="white">#FFFFFF</color>
+    <color name="aliceblue">#F0F8FF</color>
+    <color name="gray">#D3D3D3</color>
+    <color name="color_blue">#87CEFA</color>
+    <color name="transparent">#80000000</color>
 </resources>

@@ -59,6 +59,17 @@
         android:layout_marginLeft="5dp"
         android:scrollHorizontally="true"
         android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <ImageView
+        android:id="@+id/image_playbutton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="13dp"
+        android:clickable="true"
+        android:src="@drawable/baseline_play_arrow_black_18dp" />
+
 </RelativeLayout>
 
 

@@ -2,7 +2,10 @@ package es.app.attune.attune.Fragments;
 
 import android.content.ClipData;
 import android.content.Context;
+import android.media.Image;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.GridLayoutManager;
@@ -13,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
+import android.widget.ImageView;
 
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Database.AttPlaylist;
@@ -34,6 +38,7 @@ public class PlayListFragment extends Fragment {
     private static DatabaseFunctions db;
     private RecyclerView recyclerView;
     private PlayListRecyclerViewAdapter adapter;
+    private ImageView playButton;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -87,6 +92,11 @@ public class PlayListFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+    }
+
     private ItemTouchHelper.Callback createHelperCallback() {
         ItemTouchHelper.SimpleCallback simpleCallback =
                 new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -138,6 +148,6 @@ public class PlayListFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(AttPlaylist item);
+        void onListFragmentInteraction(AttPlaylist item, boolean reproducir);
     }
 }

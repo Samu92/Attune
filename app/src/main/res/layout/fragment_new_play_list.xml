@@ -13,15 +13,27 @@
         android:padding="20dp"
         android:orientation="vertical">
 
-        <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+        <ImageView
             android:id="@+id/image_playlist"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="130dp"
+            android:layout_height="130dp"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:src="@drawable/no_image"
-            app:civ_border_color="#FF000000"
-            app:civ_border_width="2dp" />
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/border_shape" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/image_playlist_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/image_playlist"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="80dp"
+            android:clickable="true"
+            app:backgroundTint="@android:color/holo_blue_light"
+            app:srcCompat="@drawable/baseline_perm_media_white_18dp" />
 
         <EditText
             android:id="@+id/name_playlist"
@@ -55,15 +67,23 @@
             android:layout_below="@id/category_spinner"
             android:text="Tempo" />
 
-        <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+        <com.xw.repo.BubbleSeekBar
             android:id="@+id/bmp_seekbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_tempo"
             android:layout_marginBottom="15dp"
-            app:dsb_min="20"
-            app:dsb_max="200"
-            />
+            app:bsb_second_track_color="@color/color_blue"
+            app:bsb_section_count="5"
+            app:bsb_section_text_position="below_section_mark"
+            app:bsb_show_section_mark="true"
+            app:bsb_show_section_text="true"
+            app:bsb_show_thumb_text="true"
+            app:bsb_thumb_text_size="18sp"
+            app:bsb_touch_to_seek="true"
+            app:bsb_min="20"
+            app:bsb_max="200"
+            app:bsb_progress="1"/>
 
         <TextView
             android:id="@+id/txt_duration"
@@ -72,14 +92,22 @@
             android:layout_below="@id/bmp_seekbar"
             android:text="@string/playlist_duration" />
 
-        <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+        <com.xw.repo.BubbleSeekBar
             android:id="@+id/duration_seekbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_duration"
-            app:dsb_min="1"
-            app:dsb_max="120"
-            />
-
+            android:layout_marginBottom="50dp"
+            app:bsb_second_track_color="@color/color_blue"
+            app:bsb_section_count="5"
+            app:bsb_section_text_position="below_section_mark"
+            app:bsb_show_section_mark="true"
+            app:bsb_show_section_text="true"
+            app:bsb_show_thumb_text="true"
+            app:bsb_thumb_text_size="18sp"
+            app:bsb_touch_to_seek="true"
+            app:bsb_min="1"
+            app:bsb_max="120"
+            app:bsb_progress="1"/>
     </RelativeLayout>
 </ScrollView>

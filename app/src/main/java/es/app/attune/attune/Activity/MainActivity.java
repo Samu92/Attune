@@ -175,10 +175,30 @@ public class MainActivity extends AppCompatActivity
                                 // Obtenemos la duración máxima seleccionada
                                 int duration = newPlayListFragmentTabs.getDuration();
 
+                                float acoustiness = newPlayListFragmentTabs.getAcousticness();
+
+                                float danceability = newPlayListFragmentTabs.getDanceability();
+
+                                float energy = newPlayListFragmentTabs.getEnergy();
+
+                                float instrumentalness = newPlayListFragmentTabs.getInstrumentalness();
+
+                                float liveness = newPlayListFragmentTabs.getLiveness();
+
+                                float loudness = newPlayListFragmentTabs.getLoudness();
+
+                                int popularity = newPlayListFragmentTabs.getPopularity();
+
+                                float speechiness = newPlayListFragmentTabs.getSpeechiness();
+
+                                float valence = newPlayListFragmentTabs.getValence();
+
                                 // Procedemos a llamar a la API para obtener las canciones
-                                //Playlist newPlaylist = new Playlist(java.util.UUID.randomUUID().node(),name,tempo,duration, Tools.BitMapToString(image), Calendar.getInstance().getTime());
                                 UUID newId = java.util.UUID.randomUUID();
-                                AttPlaylist newPlaylist = new AttPlaylist(newId.toString(),name,tempo,duration,image,genre,Calendar.getInstance().getTime());
+                                AttPlaylist newPlaylist = new AttPlaylist(newId.toString(),
+                                        name,tempo,duration,image,genre,Calendar.getInstance().getTime(),
+                                        acoustiness,danceability,energy,instrumentalness,liveness,
+                                        loudness,popularity,speechiness,valence);
                                 mActionListener.searchRecomendations(newPlaylist);
                             }
                         }).start();
@@ -218,6 +238,14 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        }
+
+        if(id == R.id.close_session){
+            //mActionListener.destroy();
+            /*Spotify.destroyPlayer(this);
+            Intent intent = LoginActivity.createIntent(this);
+            startActivity(intent);
+            finish();*/
         }
 
         return super.onOptionsItemSelected(item);
@@ -269,16 +297,19 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onListFragmentInteraction(AttPlaylist item) {
+    public void onListFragmentInteraction(AttPlaylist item, boolean reproducir) {
+        if(reproducir){
 
-        // Hemos recibido un click en una de las playlist
-        songsListFragment = SongsListFragment.newInstance(db,item.getId());
-        // Mostramos la lista de canciones
-        if (!songsListFragment.isVisible()) {
-            // Si el fragmento no está visible lo mostramos
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragmentView, songsListFragment, songsListFragment.getClass().getName())
-                    .commit();
+        }else{
+            // Hemos recibido un click en una de las playlist
+            songsListFragment = SongsListFragment.newInstance(db,item.getId());
+            // Mostramos la lista de canciones
+            if (!songsListFragment.isVisible()) {
+                // Si el fragmento no está visible lo mostramos
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentView, songsListFragment, songsListFragment.getClass().getName())
+                        .commit();
+            }
         }
     }
 
@@ -317,6 +348,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void setUserData(UserPrivate user) {
-
+        navUserName.setText("Usuario de Atunne");
+        navEmail.setText("anónimo@attune.es");
     }
 }

@@ -4,6 +4,11 @@
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:title="Ajustes"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/close_session"
+        android:orderInCategory="100"
+        android:title="Cerrar sesión"
         app:showAsAction="never" />
 </menu>

@@ -27,6 +27,7 @@ public class NewPlayListTabs extends Fragment {
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
+    private ViewPager image_viewPager;
     private static DatabaseFunctions db;
     private ViewPagerAdapter adapter;
 
@@ -75,6 +76,7 @@ public class NewPlayListTabs extends Fragment {
         boolean correcto_avanzado = true;
         // Validamos la pestaña General
         correcto_general = fragmentNewPlaylist.ValidarFormulario();
+        correcto_avanzado = fragmentAdvancedParameters.ValidarFormulario();
 
         return (correcto_general && correcto_avanzado);
     }
@@ -97,6 +99,42 @@ public class NewPlayListTabs extends Fragment {
 
     public int getDuration() {
         return fragmentNewPlaylist.getDuration();
+    }
+
+    public float getAcousticness() {
+        return fragmentAdvancedParameters.getAcousticness();
+    }
+
+    public float getDanceability() {
+        return fragmentAdvancedParameters.getDanceability();
+    }
+
+    public float getEnergy() {
+        return fragmentAdvancedParameters.getEnergy();
+    }
+
+    public float getInstrumentalness() {
+        return fragmentAdvancedParameters.getInstrumentalness();
+    }
+
+    public float getLiveness() {
+        return fragmentAdvancedParameters.getLiveness();
+    }
+
+    public float getLoudness() {
+        return fragmentAdvancedParameters.getLoudness();
+    }
+
+    public int getPopularity() {
+        return fragmentAdvancedParameters.getPopularity();
+    }
+
+    public float getSpeechiness() {
+        return fragmentAdvancedParameters.getSpeechiness();
+    }
+
+    public float getValence() {
+        return fragmentAdvancedParameters.getValence();
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {

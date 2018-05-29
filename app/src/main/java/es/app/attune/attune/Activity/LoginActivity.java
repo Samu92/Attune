@@ -1,5 +1,6 @@
 package es.app.attune.attune.Activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -32,8 +33,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-
         String token = CredentialsHandler.getToken(this);
         if (token == null) {
             setContentView(R.layout.activity_login);
@@ -46,6 +45,12 @@ public class LoginActivity extends AppCompatActivity {
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
     }
+
+
+    public static Intent createIntent(Context context) {
+        return new Intent(context, LoginActivity.class);
+    }
+
 
     public void onLoginButtonClicked(View view) {
         final AuthenticationRequest request = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI)

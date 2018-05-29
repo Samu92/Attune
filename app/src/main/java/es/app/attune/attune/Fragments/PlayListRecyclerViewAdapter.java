@@ -70,8 +70,15 @@ public class PlayListRecyclerViewAdapter extends RecyclerView.Adapter<PlayListRe
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(holder.mItem);
+                    mListener.onListFragmentInteraction(holder.mItem, false);
                 }
+            }
+        });
+
+        holder.mPlayButtonView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mListener.onListFragmentInteraction(holder.mItem, true);
             }
         });
     }
@@ -106,6 +113,7 @@ public class PlayListRecyclerViewAdapter extends RecyclerView.Adapter<PlayListRe
         public final TextView mGenreView;
         public final TextView mSongsView;
         public final ImageView mImagePlaylistView;
+        public final ImageView mPlayButtonView;
         public AttPlaylist mItem;
 
         public ViewHolder(View view) {
@@ -117,6 +125,7 @@ public class PlayListRecyclerViewAdapter extends RecyclerView.Adapter<PlayListRe
             mGenreView = (TextView) view.findViewById(R.id.genre);
             mSongsView = (TextView) view.findViewById(R.id.songs);
             mImagePlaylistView = (ImageView) view.findViewById(R.id.image_playlist);
+            mPlayButtonView = (ImageView) view.findViewById(R.id.image_playbutton);
         }
 
         @Override

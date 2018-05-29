@@ -1,14 +1,242 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     tools:context=".Fragments.AdvancedParameters">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="" />
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:orientation="vertical">
 
-</FrameLayout>
+        <TextView
+            android:id="@+id/txt_acousticness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Acústica" />
+
+        <com.xw.repo.BubbleSeekBar
+            android:id="@+id/acousticness"
+            style="@style/Widget.AppCompat.SeekBar.Discrete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txt_acousticness"
+            app:bsb_second_track_color="@color/color_blue"
+            app:bsb_section_count="5"
+            app:bsb_section_text_position="below_section_mark"
+            app:bsb_show_section_mark="true"
+            app:bsb_show_section_text="true"
+            app:bsb_show_thumb_text="true"
+            app:bsb_thumb_text_size="18sp"
+            app:bsb_touch_to_seek="true"
+            app:bsb_min="0"
+            app:bsb_max="1"
+            app:bsb_progress="0.1"/>
+
+        <TextView
+            android:id="@+id/txt_danceability"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/acousticness"
+            android:text="Bailabilidad" />
+
+        <com.xw.repo.BubbleSeekBar
+            android:id="@+id/danceability"
+            style="@style/Widget.AppCompat.SeekBar.Discrete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txt_danceability"
+            app:bsb_second_track_color="@color/color_blue"
+            app:bsb_section_count="5"
+            app:bsb_section_text_position="below_section_mark"
+            app:bsb_show_section_mark="true"
+            app:bsb_show_section_text="true"
+            app:bsb_show_thumb_text="true"
+            app:bsb_thumb_text_size="18sp"
+            app:bsb_touch_to_seek="true"
+            app:bsb_min="0"
+            app:bsb_max="1"
+            app:bsb_progress="0.1"/>
+
+        <TextView
+            android:id="@+id/txt_energy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/danceability"
+            android:text="Energía" />
+
+        <com.xw.repo.BubbleSeekBar
+            android:id="@+id/energy"
+            style="@style/Widget.AppCompat.SeekBar.Discrete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txt_energy"
+            app:bsb_second_track_color="@color/color_blue"
+            app:bsb_section_count="5"
+            app:bsb_section_text_position="below_section_mark"
+            app:bsb_show_section_mark="true"
+            app:bsb_show_section_text="true"
+            app:bsb_show_thumb_text="true"
+            app:bsb_thumb_text_size="18sp"
+            app:bsb_touch_to_seek="true"
+            app:bsb_min="0"
+            app:bsb_max="1"
+            app:bsb_progress="0.1"/>
+
+        <TextView
+            android:id="@+id/txt_instrumentalness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/energy"
+            android:text="Instrumentalidad" />
+
+        <com.xw.repo.BubbleSeekBar
+            android:id="@+id/instrumentalness"
+            style="@style/Widget.AppCompat.SeekBar.Discrete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txt_instrumentalness"
+            app:bsb_second_track_color="@color/color_blue"
+            app:bsb_section_count="5"
+            app:bsb_section_text_position="below_section_mark"
+            app:bsb_show_section_mark="true"
+            app:bsb_show_section_text="true"
+            app:bsb_show_thumb_text="true"
+            app:bsb_thumb_text_size="18sp"
+            app:bsb_touch_to_seek="true"
+            app:bsb_min="0"
+            app:bsb_max="1"
+            app:bsb_progress="0.1"/>
+
+        <TextView
+            android:id="@+id/txt_liveness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/instrumentalness"
+            android:text="Viveza" />
+
+        <com.xw.repo.BubbleSeekBar
+            android:id="@+id/liveness"
+            style="@style/Widget.AppCompat.SeekBar.Discrete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txt_liveness"
+            app:bsb_second_track_color="@color/color_blue"
+            app:bsb_section_count="5"
+            app:bsb_section_text_position="below_section_mark"
+            app:bsb_show_section_mark="true"
+            app:bsb_show_section_text="true"
+            app:bsb_show_thumb_text="true"
+            app:bsb_thumb_text_size="18sp"
+            app:bsb_touch_to_seek="true"
+            app:bsb_min="0"
+            app:bsb_max="1"
+            app:bsb_progress="0.1"/>
+
+        <TextView
+            android:id="@+id/txt_loudness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/liveness"
+            android:text="Intensidad" />
+
+        <com.xw.repo.BubbleSeekBar
+            android:id="@+id/loudness"
+            style="@style/Widget.AppCompat.SeekBar.Discrete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txt_loudness"
+            app:bsb_second_track_color="@color/color_blue"
+            app:bsb_section_count="5"
+            app:bsb_section_text_position="below_section_mark"
+            app:bsb_show_section_mark="true"
+            app:bsb_show_section_text="true"
+            app:bsb_show_thumb_text="true"
+            app:bsb_thumb_text_size="18sp"
+            app:bsb_touch_to_seek="true"
+            app:bsb_min="0"
+            app:bsb_max="1"
+            app:bsb_progress="0.1"/>
+
+        <TextView
+            android:id="@+id/txt_popularity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/loudness"
+            android:text="Popularidad" />
+
+        <com.xw.repo.BubbleSeekBar
+            android:id="@+id/popularity"
+            style="@style/Widget.AppCompat.SeekBar.Discrete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txt_popularity"
+            app:bsb_second_track_color="@color/color_blue"
+            app:bsb_section_count="5"
+            app:bsb_section_text_position="below_section_mark"
+            app:bsb_show_section_mark="true"
+            app:bsb_show_section_text="true"
+            app:bsb_show_thumb_text="true"
+            app:bsb_thumb_text_size="18sp"
+            app:bsb_touch_to_seek="true"
+            app:bsb_min="0"
+            app:bsb_max="100"
+            app:bsb_progress="1"/>
+
+        <TextView
+            android:id="@+id/txt_speachiness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/popularity"
+            android:text="Voz" />
+
+        <com.xw.repo.BubbleSeekBar
+            android:id="@+id/speachiness"
+            style="@style/Widget.AppCompat.SeekBar.Discrete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txt_speachiness"
+            app:bsb_second_track_color="@color/color_blue"
+            app:bsb_section_count="5"
+            app:bsb_section_text_position="below_section_mark"
+            app:bsb_show_section_mark="true"
+            app:bsb_show_section_text="true"
+            app:bsb_show_thumb_text="true"
+            app:bsb_thumb_text_size="18sp"
+            app:bsb_touch_to_seek="true"
+            app:bsb_min="0"
+            app:bsb_max="1"
+            app:bsb_progress="0.1"/>
+
+        <TextView
+            android:id="@+id/txt_valence"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/speachiness"
+            android:text="Positivismo" />
+
+        <com.xw.repo.BubbleSeekBar
+            android:id="@+id/valence"
+            style="@style/Widget.AppCompat.SeekBar.Discrete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txt_valence"
+            android:layout_marginBottom="50dp"
+            app:bsb_second_track_color="@color/color_blue"
+            app:bsb_section_count="5"
+            app:bsb_section_text_position="below_section_mark"
+            app:bsb_show_section_mark="true"
+            app:bsb_show_section_text="true"
+            app:bsb_show_thumb_text="true"
+            app:bsb_thumb_text_size="18sp"
+            app:bsb_touch_to_seek="true"
+            app:bsb_min="0"
+            app:bsb_max="1"
+            app:bsb_progress="0.1"/>
+
+    </RelativeLayout>
+</ScrollView>

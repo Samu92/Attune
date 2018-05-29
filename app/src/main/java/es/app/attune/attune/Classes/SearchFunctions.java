@@ -130,14 +130,35 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                         String artist = track.artists.get(0).name;
                         String imageUri = "";
                         String previewUrl = track.preview_url;
+                        float acousticness = 0;
+                        float danceability = 0;
+                        float energy = 0;
+                        float instrumentalness = 0;
+                        float liveness = 0;
+                        float loudness = 0;
+                        int popularity = 0;
+                        float speechiness = 0;
+                        float valence = 0;
                         float tempo = 0;
                         for (AudioFeaturesTrack feature: audioFeaturesTracks.audio_features) {
                             if(track.id.equals(feature.id)){
                                 tempo = feature.tempo;
+                                acousticness = feature.acousticness;
+                                danceability = feature.danceability;
+                                energy = feature.energy;
+                                instrumentalness = feature.instrumentalness;
+                                liveness = feature.liveness;
+                                loudness = feature.loudness;
+                                popularity = track.popularity;
+                                speechiness = feature.speechiness;
+                                valence = feature.valence;
                             }
                         }
 
-                        Song song = new Song(newId,playlistId,trackId,spotifyId,genreId,name,duration,tempo,artist,imageUri,previewUrl);
+                        Song song = new Song(newId,playlistId,trackId,spotifyId,
+                                genreId,name,duration,tempo,artist,imageUri,previewUrl,
+                                acousticness,danceability,energy,instrumentalness,liveness,
+                                loudness,popularity,speechiness,valence);
                         db.insertSong(song);
                     }
                     db.insertNewPlaylist(newPlaylist);

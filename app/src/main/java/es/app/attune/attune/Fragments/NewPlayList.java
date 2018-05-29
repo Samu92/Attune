@@ -25,8 +25,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.spotify.sdk.android.authentication.SpotifyNativeAuthUtil;
 import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
+import com.xw.repo.BubbleSeekBar;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 import org.greenrobot.greendao.database.Database;
@@ -48,11 +51,12 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     private OnFragmentInteractionListener mListener;
 
     // UI
-    private CircleImageView image;
+    private ImageView image;
     private EditText name;
-    private DiscreteSeekBar tempo;
-    private DiscreteSeekBar duration;
+    private BubbleSeekBar tempo;
+    private BubbleSeekBar duration;
     private SearchableSpinner searchableSpinner;
+    private FloatingActionButton imageButton;
     private Boolean valid;
     private static DatabaseFunctions db;
     private static final int PICK_IMAGE_REQUEST = 100;
@@ -107,11 +111,16 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        image = (CircleImageView) getView().findViewById(R.id.image_playlist);
+        image = (ImageView) getView().findViewById(R.id.image_playlist);
+        Glide.with(getContext())
+                .load(R.drawable.music_note)
+                .apply(new RequestOptions()
+                )
+                .into(image);
         name = (EditText) getView().findViewById(R.id.name_playlist);
-        tempo = (DiscreteSeekBar) getView().findViewById(R.id.bmp_seekbar);
+        tempo = (BubbleSeekBar) getView().findViewById(R.id.bmp_seekbar);
         searchableSpinner = (SearchableSpinner) getView().findViewById(R.id.category_spinner);
-        duration = (DiscreteSeekBar) getView().findViewById(R.id.duration_seekbar);
+        duration = (BubbleSeekBar) getView().findViewById(R.id.duration_seekbar);
 
         image.setOnClickListener(new View.OnClickListener(){
 
@@ -129,6 +138,19 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
                         PICK_IMAGE_REQUEST);
             }
         });
+
+        imageButton = (FloatingActionButton) getView().findViewById(R.id.image_playlist_button);
+        imageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Selecciona una imagen"),
+                        PICK_IMAGE_REQUEST);
+            }
+        });
+
 
         searchableSpinner.setTitle("Selecciona una categoría");
         searchableSpinner.setPositiveButton("Aceptar");
@@ -191,7 +213,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
 
         if(name.getText().toString().isEmpty() ){
             valid = false;
-            snackbar.setSnackBarText("Por favor, póngale un nombre a tu nueva playlist");
+            snackbar.setSnackBarText("Por favor, póngale un nombre a su nueva playlist");
             snackbar.showSnackBar();
             name.requestFocus();
             return valid;
@@ -219,7 +241,13 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
                     // method 1
                     try {
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), selectedImage);
-                        image.setImageBitmap(bitmap);
+                        Glide.with(getContext())
+                                .load(bitmap)
+                                .apply(new RequestOptions()
+                                .placeholder(R.drawable.music_note)
+                                .centerCrop())
+                                .into(image);
+                        //image.setImageBitmap(bitmap);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

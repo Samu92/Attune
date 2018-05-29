@@ -42,6 +42,33 @@ public class AttPlaylist {
     @NotNull
     private Date creation_date;
 
+    @NotNull
+    private float acousticness;
+
+    @NotNull
+    private float danceability;
+
+    @NotNull
+    private float energy;
+
+    @NotNull
+    private float instrumentalness;
+
+    @NotNull
+    private float liveness;
+
+    @NotNull
+    private float loudness;
+
+    @NotNull
+    private int popularity;
+
+    @NotNull
+    private float speechiness;
+
+    @NotNull
+    private float valence;
+
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
@@ -50,10 +77,12 @@ public class AttPlaylist {
     @Generated(hash = 1939289955)
     private transient AttPlaylistDao myDao;
 
-    @Generated(hash = 178344028)
+    @Generated(hash = 1283953616)
     public AttPlaylist(@NotNull String id, @NotNull String name, float tempo,
             int duration, @NotNull byte[] image, @NotNull String genre,
-            @NotNull Date creation_date) {
+            @NotNull Date creation_date, float acousticness, float danceability,
+            float energy, float instrumentalness, float liveness, float loudness,
+            int popularity, float speechiness, float valence) {
         this.id = id;
         this.name = name;
         this.tempo = tempo;
@@ -61,6 +90,15 @@ public class AttPlaylist {
         this.image = image;
         this.genre = genre;
         this.creation_date = creation_date;
+        this.acousticness = acousticness;
+        this.danceability = danceability;
+        this.energy = energy;
+        this.instrumentalness = instrumentalness;
+        this.liveness = liveness;
+        this.loudness = loudness;
+        this.popularity = popularity;
+        this.speechiness = speechiness;
+        this.valence = valence;
     }
 
     @Generated(hash = 965684746)
@@ -121,6 +159,78 @@ public class AttPlaylist {
 
     public void setCreation_date(Date creation_date) {
         this.creation_date = creation_date;
+    }
+
+    public float getAcousticness() {
+        return this.acousticness;
+    }
+
+    public void setAcousticness(float acousticness) {
+        this.acousticness = acousticness;
+    }
+
+    public float getDanceability() {
+        return this.danceability;
+    }
+
+    public void setDanceability(float danceability) {
+        this.danceability = danceability;
+    }
+
+    public float getEnergy() {
+        return this.energy;
+    }
+
+    public void setEnergy(float energy) {
+        this.energy = energy;
+    }
+
+    public float getInstrumentalness() {
+        return this.instrumentalness;
+    }
+
+    public void setInstrumentalness(float instrumentalness) {
+        this.instrumentalness = instrumentalness;
+    }
+
+    public float getLiveness() {
+        return this.liveness;
+    }
+
+    public void setLiveness(float liveness) {
+        this.liveness = liveness;
+    }
+
+    public float getLoudness() {
+        return this.loudness;
+    }
+
+    public void setLoudness(float loudness) {
+        this.loudness = loudness;
+    }
+
+    public int getPopularity() {
+        return this.popularity;
+    }
+
+    public void setPopularity(int popularity) {
+        this.popularity = popularity;
+    }
+
+    public float getSpeechiness() {
+        return this.speechiness;
+    }
+
+    public void setSpeechiness(float speechiness) {
+        this.speechiness = speechiness;
+    }
+
+    public float getValence() {
+        return this.valence;
+    }
+
+    public void setValence(float valence) {
+        this.valence = valence;
     }
 
     /**
@@ -194,6 +304,5 @@ public class AttPlaylist {
         myDao = daoSession != null ? daoSession.getAttPlaylistDao() : null;
     }
 
-   
-
+ 
 }

@@ -36,6 +36,15 @@ public class SongDao extends AbstractDao<Song, String> {
         public final static Property Artist = new Property(8, String.class, "artist", false, "ARTIST");
         public final static Property Image = new Property(9, String.class, "image", false, "IMAGE");
         public final static Property PreviewUrl = new Property(10, String.class, "previewUrl", false, "PREVIEW_URL");
+        public final static Property Acousticness = new Property(11, float.class, "acousticness", false, "ACOUSTICNESS");
+        public final static Property Danceability = new Property(12, float.class, "danceability", false, "DANCEABILITY");
+        public final static Property Energy = new Property(13, float.class, "energy", false, "ENERGY");
+        public final static Property Instrumentalness = new Property(14, float.class, "instrumentalness", false, "INSTRUMENTALNESS");
+        public final static Property Liveness = new Property(15, float.class, "liveness", false, "LIVENESS");
+        public final static Property Loudness = new Property(16, float.class, "loudness", false, "LOUDNESS");
+        public final static Property Popularity = new Property(17, int.class, "popularity", false, "POPULARITY");
+        public final static Property Speechiness = new Property(18, float.class, "speechiness", false, "SPEECHINESS");
+        public final static Property Valence = new Property(19, float.class, "valence", false, "VALENCE");
     }
 
     private Query<Song> attPlaylist_SongsQuery;
@@ -62,7 +71,16 @@ public class SongDao extends AbstractDao<Song, String> {
                 "\"TEMPO\" REAL NOT NULL ," + // 7: tempo
                 "\"ARTIST\" TEXT NOT NULL ," + // 8: artist
                 "\"IMAGE\" TEXT NOT NULL ," + // 9: image
-                "\"PREVIEW_URL\" TEXT);"); // 10: previewUrl
+                "\"PREVIEW_URL\" TEXT," + // 10: previewUrl
+                "\"ACOUSTICNESS\" REAL NOT NULL ," + // 11: acousticness
+                "\"DANCEABILITY\" REAL NOT NULL ," + // 12: danceability
+                "\"ENERGY\" REAL NOT NULL ," + // 13: energy
+                "\"INSTRUMENTALNESS\" REAL NOT NULL ," + // 14: instrumentalness
+                "\"LIVENESS\" REAL NOT NULL ," + // 15: liveness
+                "\"LOUDNESS\" REAL NOT NULL ," + // 16: loudness
+                "\"POPULARITY\" INTEGER NOT NULL ," + // 17: popularity
+                "\"SPEECHINESS\" REAL NOT NULL ," + // 18: speechiness
+                "\"VALENCE\" REAL NOT NULL );"); // 19: valence
         // Add Indexes
         db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_SONG_ID ON \"SONG\"" +
                 " (\"ID\" ASC);");
@@ -92,6 +110,15 @@ public class SongDao extends AbstractDao<Song, String> {
         if (previewUrl != null) {
             stmt.bindString(11, previewUrl);
         }
+        stmt.bindDouble(12, entity.getAcousticness());
+        stmt.bindDouble(13, entity.getDanceability());
+        stmt.bindDouble(14, entity.getEnergy());
+        stmt.bindDouble(15, entity.getInstrumentalness());
+        stmt.bindDouble(16, entity.getLiveness());
+        stmt.bindDouble(17, entity.getLoudness());
+        stmt.bindLong(18, entity.getPopularity());
+        stmt.bindDouble(19, entity.getSpeechiness());
+        stmt.bindDouble(20, entity.getValence());
     }
 
     @Override
@@ -112,6 +139,15 @@ public class SongDao extends AbstractDao<Song, String> {
         if (previewUrl != null) {
             stmt.bindString(11, previewUrl);
         }
+        stmt.bindDouble(12, entity.getAcousticness());
+        stmt.bindDouble(13, entity.getDanceability());
+        stmt.bindDouble(14, entity.getEnergy());
+        stmt.bindDouble(15, entity.getInstrumentalness());
+        stmt.bindDouble(16, entity.getLiveness());
+        stmt.bindDouble(17, entity.getLoudness());
+        stmt.bindLong(18, entity.getPopularity());
+        stmt.bindDouble(19, entity.getSpeechiness());
+        stmt.bindDouble(20, entity.getValence());
     }
 
     @Override
@@ -132,7 +168,16 @@ public class SongDao extends AbstractDao<Song, String> {
             cursor.getFloat(offset + 7), // tempo
             cursor.getString(offset + 8), // artist
             cursor.getString(offset + 9), // image
-            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10) // previewUrl
+            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10), // previewUrl
+            cursor.getFloat(offset + 11), // acousticness
+            cursor.getFloat(offset + 12), // danceability
+            cursor.getFloat(offset + 13), // energy
+            cursor.getFloat(offset + 14), // instrumentalness
+            cursor.getFloat(offset + 15), // liveness
+            cursor.getFloat(offset + 16), // loudness
+            cursor.getInt(offset + 17), // popularity
+            cursor.getFloat(offset + 18), // speechiness
+            cursor.getFloat(offset + 19) // valence
         );
         return entity;
     }
@@ -150,6 +195,15 @@ public class SongDao extends AbstractDao<Song, String> {
         entity.setArtist(cursor.getString(offset + 8));
         entity.setImage(cursor.getString(offset + 9));
         entity.setPreviewUrl(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
+        entity.setAcousticness(cursor.getFloat(offset + 11));
+        entity.setDanceability(cursor.getFloat(offset + 12));
+        entity.setEnergy(cursor.getFloat(offset + 13));
+        entity.setInstrumentalness(cursor.getFloat(offset + 14));
+        entity.setLiveness(cursor.getFloat(offset + 15));
+        entity.setLoudness(cursor.getFloat(offset + 16));
+        entity.setPopularity(cursor.getInt(offset + 17));
+        entity.setSpeechiness(cursor.getFloat(offset + 18));
+        entity.setValence(cursor.getFloat(offset + 19));
      }
     
     @Override

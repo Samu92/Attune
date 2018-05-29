@@ -54,7 +54,9 @@ public class SearchSpotify {
         mSize = size;
         mTempo = playlist.getTempo();
         mDuration = playlist.getDuration();
-        getDataPlaylist(playlist.getTempo(), playlist.getGenre(), playlist.getDuration(), 0, size, listener);
+        getDataPlaylist(playlist.getTempo(), playlist.getGenre(), playlist.getDuration(),
+                playlist.getAcousticness(),playlist.getDanceability(),playlist.getEnergy(),playlist.getInstrumentalness(),playlist.getLiveness(),playlist.getLoudness(),playlist.getPopularity(),playlist.getSpeechiness(),playlist.getValence(),
+                0, size, listener);
     }
 
     public void getGenres(final GenresListener listener){
@@ -65,13 +67,24 @@ public class SearchSpotify {
         getUserData(listener);
     }
 
-    private void getDataPlaylist(float tempo, String genre, final int max_duration, int offset, final int limit, final CompleteListener listener){
+    private void getDataPlaylist(float tempo, String genre, final int max_duration,
+                                 float acousticness, float danceability, float energy, float instrumentalness, float liveness, float loudness, int popularity, float speechiness, float valence,
+                                 int offset, final int limit, final CompleteListener listener){
         Map<String, Object> options = new HashMap<>();
         options.put(SpotifyService.OFFSET, offset);
         options.put(SpotifyService.LIMIT, limit);
         options.put(SpotifyService.MARKET, "ES");
         options.put("seed_genres",genre);
         options.put("target_tempo",tempo);
+        options.put("target_acousticness",acousticness);
+        options.put("target_danceability",danceability);
+        options.put("target_energy",energy);
+        options.put("target_instrumentalness",instrumentalness);
+        options.put("target_liveness",liveness);
+        options.put("target_loudness",loudness);
+        options.put("target_popularity",popularity);
+        options.put("target_speechiness",speechiness);
+        options.put("target_valence",valence);
 
         mSpotifyApi.getRecommendations(options, new Callback<Recommendations>() {
             @Override
@@ -85,7 +98,6 @@ public class SearchSpotify {
                         result.add(track);
                     }
                 }
-                //listener.onComplete(result);
                 getAudioFeaturesTracks(result,listener);
             }
 
