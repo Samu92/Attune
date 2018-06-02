@@ -3,16 +3,11 @@ package es.app.attune.attune.Fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,27 +16,16 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.spotify.sdk.android.authentication.SpotifyNativeAuthUtil;
 import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
 import com.xw.repo.BubbleSeekBar;
 
-import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
-import org.greenrobot.greendao.database.Database;
-
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Classes.ErrorSnackbar;
-import es.app.attune.attune.Database.DaoSession;
 import es.app.attune.attune.R;
 
 import static android.app.Activity.RESULT_OK;
@@ -56,7 +40,6 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     private BubbleSeekBar tempo;
     private BubbleSeekBar duration;
     private SearchableSpinner searchableSpinner;
-    private FloatingActionButton imageButton;
     private Boolean valid;
     private static DatabaseFunctions db;
     private static final int PICK_IMAGE_REQUEST = 100;
@@ -103,19 +86,17 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        snackbar = new ErrorSnackbar(container.getRootView());
         return inflater.inflate(R.layout.fragment_new_play_list, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        snackbar = new ErrorSnackbar(view.getRootView());
 
         image = (ImageView) getView().findViewById(R.id.image_playlist);
         Glide.with(getContext())
-                .load(R.drawable.music_note)
-                .apply(new RequestOptions()
-                )
+                .load(R.drawable.baseline_add_photo_alternate_white_48)
                 .into(image);
         name = (EditText) getView().findViewById(R.id.name_playlist);
         tempo = (BubbleSeekBar) getView().findViewById(R.id.bmp_seekbar);
@@ -138,19 +119,6 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
                         PICK_IMAGE_REQUEST);
             }
         });
-
-        imageButton = (FloatingActionButton) getView().findViewById(R.id.image_playlist_button);
-        imageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Selecciona una imagen"),
-                        PICK_IMAGE_REQUEST);
-            }
-        });
-
 
         searchableSpinner.setTitle("Selecciona una categoría");
         searchableSpinner.setPositiveButton("Aceptar");
@@ -247,7 +215,6 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
                                 .placeholder(R.drawable.music_note)
                                 .centerCrop())
                                 .into(image);
-                        //image.setImageBitmap(bitmap);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

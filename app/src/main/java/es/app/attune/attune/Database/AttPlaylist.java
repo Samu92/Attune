@@ -42,31 +42,22 @@ public class AttPlaylist {
     @NotNull
     private Date creation_date;
 
-    @NotNull
     private float acousticness;
 
-    @NotNull
     private float danceability;
 
-    @NotNull
     private float energy;
 
-    @NotNull
     private float instrumentalness;
 
-    @NotNull
     private float liveness;
 
-    @NotNull
     private float loudness;
 
-    @NotNull
     private int popularity;
 
-    @NotNull
     private float speechiness;
 
-    @NotNull
     private float valence;
 
     /** Used to resolve relations */
@@ -303,6 +294,5 @@ public class AttPlaylist {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getAttPlaylistDao() : null;
     }
-
  
 }

@@ -11,13 +11,12 @@
 
     <ImageView
         android:id="@+id/image_playlist"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:scaleType="centerCrop"
         android:contentDescription="@string/cover_art_description"
-        />
+        android:scaleType="centerCrop" />
 
     <TextView
         android:id="@+id/name"
@@ -60,15 +59,15 @@
         android:scrollHorizontally="true"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
-    <ImageView
-        android:id="@+id/image_playbutton"
+    <TextView
+        android:id="@+id/duration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:layout_marginEnd="13dp"
-        android:clickable="true"
-        android:src="@drawable/baseline_play_arrow_black_18dp" />
+        android:ellipsize="marquee"
+        android:layout_toRightOf="@id/image_playlist"
+        android:layout_below="@id/songs"
+        android:scrollHorizontally="true"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </RelativeLayout>
 

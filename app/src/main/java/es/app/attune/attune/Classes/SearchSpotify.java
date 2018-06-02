@@ -7,12 +7,12 @@ import java.util.Map;
 
 import es.app.attune.attune.Database.AttPlaylist;
 import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTracks;
 import kaaes.spotify.webapi.android.models.Recommendations;
 import kaaes.spotify.webapi.android.models.SeedsGenres;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.UserPrivate;
-import kaaes.spotify.webapi.android.models.UserPublic;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -54,8 +54,7 @@ public class SearchSpotify {
         mSize = size;
         mTempo = playlist.getTempo();
         mDuration = playlist.getDuration();
-        getDataPlaylist(playlist.getTempo(), playlist.getGenre(), playlist.getDuration(),
-                playlist.getAcousticness(),playlist.getDanceability(),playlist.getEnergy(),playlist.getInstrumentalness(),playlist.getLiveness(),playlist.getLoudness(),playlist.getPopularity(),playlist.getSpeechiness(),playlist.getValence(),
+        getDataPlaylist(playlist,
                 0, size, listener);
     }
 
@@ -67,38 +66,28 @@ public class SearchSpotify {
         getUserData(listener);
     }
 
-    private void getDataPlaylist(float tempo, String genre, final int max_duration,
-                                 float acousticness, float danceability, float energy, float instrumentalness, float liveness, float loudness, int popularity, float speechiness, float valence,
+    private void getDataPlaylist(AttPlaylist playlist,
                                  int offset, final int limit, final CompleteListener listener){
         Map<String, Object> options = new HashMap<>();
         options.put(SpotifyService.OFFSET, offset);
         options.put(SpotifyService.LIMIT, limit);
         options.put(SpotifyService.MARKET, "ES");
-        options.put("seed_genres",genre);
-        options.put("target_tempo",tempo);
-        options.put("target_acousticness",acousticness);
-        options.put("target_danceability",danceability);
-        options.put("target_energy",energy);
-        options.put("target_instrumentalness",instrumentalness);
-        options.put("target_liveness",liveness);
-        options.put("target_loudness",loudness);
-        options.put("target_popularity",popularity);
-        options.put("target_speechiness",speechiness);
-        options.put("target_valence",valence);
+        options.put("seed_genres",playlist.getGenre());
+        options.put("target_tempo",playlist.getTempo());
+        if(playlist.getAcousticness() != -1) options.put("target_acousticness",playlist.getAcousticness());
+        if(playlist.getDanceability() != -1) options.put("target_danceability",playlist.getDanceability());
+        if(playlist.getEnergy() != -1) options.put("target_energy",playlist.getEnergy());
+        if(playlist.getInstrumentalness() != -1) options.put("target_instrumentalness", playlist.getInstrumentalness());
+        if(playlist.getLiveness() != -1) options.put("target_liveness",playlist.getLiveness());
+        if(playlist.getLoudness() != -1) options.put("target_loudness",playlist.getLoudness());
+        if(playlist.getPopularity() != -1) options.put("target_popularity",playlist.getPopularity());
+        if(playlist.getSpeechiness() != -1) options.put("target_speechiness",playlist.getSpeechiness());
+        if(playlist.getValence() != -1) options.put("target_valence",playlist.getValence());
 
         mSpotifyApi.getRecommendations(options, new Callback<Recommendations>() {
             @Override
             public void success(Recommendations recommendations, Response response) {
-                List<Track> result = new ArrayList<>();
-                int temp_duration = 0;
-                //listener.onComplete(recommendations.tracks);
-                for (Track track: recommendations.tracks) {
-                    if(temp_duration < (max_duration*60000)){
-                        temp_duration += track.duration_ms;
-                        result.add(track);
-                    }
-                }
-                getAudioFeaturesTracks(result,listener);
+                getAudioFeaturesTracks(recommendations.tracks,listener);
             }
 
             @Override
@@ -144,11 +133,33 @@ public class SearchSpotify {
             for (Track track : tracks) {
                 ids = ids.concat(track.id + ",");
             }
-
             mSpotifyApi.getTracksAudioFeatures(ids, new Callback<AudioFeaturesTracks>() {
                 @Override
                 public void success(AudioFeaturesTracks audioFeaturesTracks, Response response) {
-                    listener.onComplete(tracks, audioFeaturesTracks);
+
+                    // Eliminamos aquellas canciones que no cumplan el rango de BPM
+                    for (AudioFeaturesTrack feature: audioFeaturesTracks.audio_features) {
+                        if (!((feature.tempo > mTempo - 10.0) && (feature.tempo < mTempo + 10.0))){
+                            for(int i = 0; i < tracks.size(); i++){
+                                if(tracks.get(i).id.equals(feature.id)){
+                                    tracks.remove(i);
+                                }
+                            }
+                        }
+                    }
+
+                    // Como tenemos una duración fijada de la playlist no podemos pasarnos de ella
+                    // seleccionaremos canciones hasta que se llegue al límite establecido en milisegundos.
+                    List<Track> result = new ArrayList<>();
+                    int temp_duration = 0;
+                    for (Track track: tracks) {
+                        if(temp_duration <= (mDuration*60000)){
+                            temp_duration += track.duration_ms;
+                            result.add(track);
+                        }
+                    }
+
+                    listener.onComplete(result, audioFeaturesTracks);
                 }
 
                 @Override

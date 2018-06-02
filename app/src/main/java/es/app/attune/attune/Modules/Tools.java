@@ -4,27 +4,15 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Debug;
 import android.provider.MediaStore;
 import android.util.Base64;
-import android.util.Log;
-
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.Formatter;
 
 /**
  * Created by Samuel on 28/12/2017.
@@ -91,5 +79,24 @@ public class Tools {
         byte[] byteArray = stream.toByteArray();
         bmp.recycle();
         return  byteArray;
+    }
+
+    public static String timeConversion(int seconds) {
+
+        final int MINUTES_IN_AN_HOUR = 60;
+        final int SECONDS_IN_A_MINUTE = 60;
+
+        int minutes = seconds / SECONDS_IN_A_MINUTE;
+        seconds -= minutes * SECONDS_IN_A_MINUTE;
+
+        int hours = minutes / MINUTES_IN_AN_HOUR;
+        minutes -= hours * MINUTES_IN_AN_HOUR;
+
+        Formatter hours_fmt = new Formatter();
+        Formatter minutes_fmt = new Formatter();
+        Formatter seconds_fmt = new Formatter();
+
+
+        return hours_fmt.format("%02d",hours) + ":" + minutes_fmt.format("%02d",minutes) + ":" + seconds_fmt.format("%02d",seconds);
     }
 }

@@ -1,14 +1,9 @@
 package es.app.attune.attune.Classes;
 
-import android.app.ProgressDialog;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.Database.Song;
-import kaaes.spotify.webapi.android.models.Playlist;
-import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.UserPrivate;
 
 /**

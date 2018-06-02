@@ -13,10 +13,19 @@
         android:padding="20dp"
         android:orientation="vertical">
 
+        <CheckBox
+            android:id="@+id/check_acousticness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/txt_acousticness"
+            />
+
         <TextView
             android:id="@+id/txt_acousticness"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/check_acousticness"
+            android:layout_marginBottom="5dp"
             android:text="Acústica" />
 
         <com.xw.repo.BubbleSeekBar
@@ -25,6 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_acousticness"
+            android:layout_marginBottom="10dp"
             app:bsb_second_track_color="@color/color_blue"
             app:bsb_section_count="5"
             app:bsb_section_text_position="below_section_mark"
@@ -35,13 +45,22 @@
             app:bsb_touch_to_seek="true"
             app:bsb_min="0"
             app:bsb_max="1"
-            app:bsb_progress="0.1"/>
+            app:bsb_progress="0"/>
+
+        <CheckBox
+            android:id="@+id/check_danceability"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/txt_danceability"
+            />
 
         <TextView
             android:id="@+id/txt_danceability"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/acousticness"
+            android:layout_toRightOf="@id/check_danceability"
+            android:layout_marginBottom="5dp"
             android:text="Bailabilidad" />
 
         <com.xw.repo.BubbleSeekBar
@@ -50,6 +69,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_danceability"
+            android:layout_marginBottom="10dp"
             app:bsb_second_track_color="@color/color_blue"
             app:bsb_section_count="5"
             app:bsb_section_text_position="below_section_mark"
@@ -60,13 +80,21 @@
             app:bsb_touch_to_seek="true"
             app:bsb_min="0"
             app:bsb_max="1"
-            app:bsb_progress="0.1"/>
+            app:bsb_progress="0"/>
+
+        <CheckBox
+            android:id="@+id/check_energy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/txt_energy"
+            />
 
         <TextView
             android:id="@+id/txt_energy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/danceability"
+            android:layout_toRightOf="@id/check_energy"
             android:text="Energía" />
 
         <com.xw.repo.BubbleSeekBar
@@ -75,6 +103,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_energy"
+            android:layout_marginBottom="10dp"
             app:bsb_second_track_color="@color/color_blue"
             app:bsb_section_count="5"
             app:bsb_section_text_position="below_section_mark"
@@ -85,13 +114,21 @@
             app:bsb_touch_to_seek="true"
             app:bsb_min="0"
             app:bsb_max="1"
-            app:bsb_progress="0.1"/>
+            app:bsb_progress="0"/>
+
+        <CheckBox
+            android:id="@+id/check_instrumentalness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/txt_instrumentalness"
+            />
 
         <TextView
             android:id="@+id/txt_instrumentalness"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/energy"
+            android:layout_toRightOf="@id/check_instrumentalness"
             android:text="Instrumentalidad" />
 
         <com.xw.repo.BubbleSeekBar
@@ -100,6 +137,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_instrumentalness"
+            android:layout_marginBottom="10dp"
             app:bsb_second_track_color="@color/color_blue"
             app:bsb_section_count="5"
             app:bsb_section_text_position="below_section_mark"
@@ -110,14 +148,22 @@
             app:bsb_touch_to_seek="true"
             app:bsb_min="0"
             app:bsb_max="1"
-            app:bsb_progress="0.1"/>
+            app:bsb_progress="0"/>
+
+        <CheckBox
+            android:id="@+id/check_liveness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/txt_liveness"
+            />
 
         <TextView
             android:id="@+id/txt_liveness"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/instrumentalness"
-            android:text="Viveza" />
+            android:layout_toRightOf="@id/check_liveness"
+            android:text="En vivo" />
 
         <com.xw.repo.BubbleSeekBar
             android:id="@+id/liveness"
@@ -125,6 +171,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_liveness"
+            android:layout_marginBottom="10dp"
             app:bsb_second_track_color="@color/color_blue"
             app:bsb_section_count="5"
             app:bsb_section_text_position="below_section_mark"
@@ -135,14 +182,22 @@
             app:bsb_touch_to_seek="true"
             app:bsb_min="0"
             app:bsb_max="1"
-            app:bsb_progress="0.1"/>
+            app:bsb_progress="0"/>
+
+        <CheckBox
+            android:id="@+id/check_loudness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/txt_loudness"
+            />
 
         <TextView
             android:id="@+id/txt_loudness"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/liveness"
-            android:text="Intensidad" />
+            android:layout_toRightOf="@id/check_loudness"
+            android:text="Intensidad (db)" />
 
         <com.xw.repo.BubbleSeekBar
             android:id="@+id/loudness"
@@ -150,6 +205,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_loudness"
+            android:layout_marginBottom="10dp"
             app:bsb_second_track_color="@color/color_blue"
             app:bsb_section_count="5"
             app:bsb_section_text_position="below_section_mark"
@@ -158,15 +214,23 @@
             app:bsb_show_thumb_text="true"
             app:bsb_thumb_text_size="18sp"
             app:bsb_touch_to_seek="true"
-            app:bsb_min="0"
-            app:bsb_max="1"
-            app:bsb_progress="0.1"/>
+            app:bsb_min="-60"
+            app:bsb_max="0"
+            app:bsb_progress="0"/>
+
+        <CheckBox
+            android:id="@+id/check_popularity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/txt_popularity"
+            />
 
         <TextView
             android:id="@+id/txt_popularity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/loudness"
+            android:layout_toRightOf="@id/check_popularity"
             android:text="Popularidad" />
 
         <com.xw.repo.BubbleSeekBar
@@ -175,6 +239,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_popularity"
+            android:layout_marginBottom="10dp"
             app:bsb_second_track_color="@color/color_blue"
             app:bsb_section_count="5"
             app:bsb_section_text_position="below_section_mark"
@@ -185,13 +250,21 @@
             app:bsb_touch_to_seek="true"
             app:bsb_min="0"
             app:bsb_max="100"
-            app:bsb_progress="1"/>
+            app:bsb_progress="0"/>
+
+        <CheckBox
+            android:id="@+id/check_speachiness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/txt_speachiness"
+            />
 
         <TextView
             android:id="@+id/txt_speachiness"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/popularity"
+            android:layout_toRightOf="@id/check_speachiness"
             android:text="Voz" />
 
         <com.xw.repo.BubbleSeekBar
@@ -200,6 +273,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_speachiness"
+            android:layout_marginBottom="10dp"
             app:bsb_second_track_color="@color/color_blue"
             app:bsb_section_count="5"
             app:bsb_section_text_position="below_section_mark"
@@ -210,13 +284,21 @@
             app:bsb_touch_to_seek="true"
             app:bsb_min="0"
             app:bsb_max="1"
-            app:bsb_progress="0.1"/>
+            app:bsb_progress="0"/>
+
+        <CheckBox
+            android:id="@+id/check_valence"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/txt_valence"
+            />
 
         <TextView
             android:id="@+id/txt_valence"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/speachiness"
+            android:layout_toRightOf="@id/check_valence"
             android:text="Positivismo" />
 
         <com.xw.repo.BubbleSeekBar
@@ -236,7 +318,7 @@
             app:bsb_touch_to_seek="true"
             app:bsb_min="0"
             app:bsb_max="1"
-            app:bsb_progress="0.1"/>
+            app:bsb_progress="0"/>
 
     </RelativeLayout>
 </ScrollView>

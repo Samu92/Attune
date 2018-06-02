@@ -1,10 +1,6 @@
 package es.app.attune.attune.Fragments;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
-import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,11 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.squareup.picasso.MemoryPolicy;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
-import java.net.URI;
 import java.util.List;
 
 import es.app.attune.attune.Classes.DatabaseFunctions;
@@ -58,7 +50,8 @@ public class PlayListRecyclerViewAdapter extends RecyclerView.Adapter<PlayListRe
         holder.mTempoView.setText(context.getResources().getString(R.string.txt_tempo) + String.valueOf(mValues.get(position).getTempo()));
         holder.mGenreView.setText(context.getResources().getString(R.string.txt_genre) + mValues.get(position).getGenre());
         holder.mSongsView.setText(context.getResources().getString(R.string.txt_songs) + String.valueOf(mValues.get(position).getSongs().size()));
-        //holder.mImagePlaylistView.setImageBitmap(Tools.StringToBitMap(mValues.get(position).getImage()) );
+        int duration = mValues.get(position).getDuration()/1000;
+        holder.mDurationView.setText("Duración: " + Tools.timeConversion(duration));
 
         Glide.with(context)
                 .load(mValues.get(position).getImage())
@@ -72,13 +65,6 @@ public class PlayListRecyclerViewAdapter extends RecyclerView.Adapter<PlayListRe
                     // fragment is attached to one) that an item has been selected.
                     mListener.onListFragmentInteraction(holder.mItem, false);
                 }
-            }
-        });
-
-        holder.mPlayButtonView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mListener.onListFragmentInteraction(holder.mItem, true);
             }
         });
     }
@@ -113,7 +99,7 @@ public class PlayListRecyclerViewAdapter extends RecyclerView.Adapter<PlayListRe
         public final TextView mGenreView;
         public final TextView mSongsView;
         public final ImageView mImagePlaylistView;
-        public final ImageView mPlayButtonView;
+        public final TextView mDurationView;
         public AttPlaylist mItem;
 
         public ViewHolder(View view) {
@@ -125,7 +111,7 @@ public class PlayListRecyclerViewAdapter extends RecyclerView.Adapter<PlayListRe
             mGenreView = (TextView) view.findViewById(R.id.genre);
             mSongsView = (TextView) view.findViewById(R.id.songs);
             mImagePlaylistView = (ImageView) view.findViewById(R.id.image_playlist);
-            mPlayButtonView = (ImageView) view.findViewById(R.id.image_playbutton);
+            mDurationView = (TextView) view.findViewById(R.id.duration);
         }
 
         @Override

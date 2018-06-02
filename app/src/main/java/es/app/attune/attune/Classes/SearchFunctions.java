@@ -8,10 +8,6 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.spotify.sdk.android.player.Config;
-import com.spotify.sdk.android.player.ConnectionStateCallback;
-import com.spotify.sdk.android.player.Spotify;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -107,17 +103,16 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
     public void searchRecomendations(final AttPlaylist newPlaylist) {
         final float tempo  = newPlaylist.getTempo();
         String genre = newPlaylist.getGenre();
-        int duration = newPlaylist.getDuration();
 
         if (tempo != 0 && !genre.isEmpty()) {
             mTempo = tempo;
             mGenre = genre;
-            mDuration = duration;
 
             mResultPlaylist.reset();
             mSearchListener = new SearchSpotify.CompleteListener() {
                 @Override
                 public void onComplete(List<Track> items, AudioFeaturesTracks audioFeaturesTracks) {
+                    long playlist_duration = 0;
                     for (Track track: items) {
                         UUID newUUID = java.util.UUID.randomUUID();
                         String newId = newUUID.toString();
@@ -155,12 +150,15 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                             }
                         }
 
+                        playlist_duration += track.duration_ms;
+
                         Song song = new Song(newId,playlistId,trackId,spotifyId,
-                                genreId,name,duration,tempo,artist,imageUri,previewUrl,
+                                genreId,name,track.duration_ms,tempo,artist,imageUri,previewUrl,
                                 acousticness,danceability,energy,instrumentalness,liveness,
                                 loudness,popularity,speechiness,valence);
                         db.insertSong(song);
                     }
+                    newPlaylist.setDuration((int) playlist_duration);
                     db.insertNewPlaylist(newPlaylist);
                     mResultPlaylist.showListPlaylist();
                 }

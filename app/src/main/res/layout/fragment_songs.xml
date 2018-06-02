@@ -35,4 +35,13 @@
         android:layout_below="@id/song_artist"
         android:scrollHorizontally="true"
         android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/song_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:layout_below="@id/song_tempo"
+        android:scrollHorizontally="true"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 </RelativeLayout>

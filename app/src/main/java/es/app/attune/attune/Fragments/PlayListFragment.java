@@ -1,8 +1,6 @@
 package es.app.attune.attune.Fragments;
 
-import android.content.ClipData;
 import android.content.Context;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,7 +13,6 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.ImageView;
 
 import es.app.attune.attune.Classes.DatabaseFunctions;
@@ -38,7 +35,6 @@ public class PlayListFragment extends Fragment {
     private static DatabaseFunctions db;
     private RecyclerView recyclerView;
     private PlayListRecyclerViewAdapter adapter;
-    private ImageView playButton;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -58,17 +54,22 @@ public class PlayListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-        }
-        adapter = new PlayListRecyclerViewAdapter(db.getPlaylists(), mListener, getContext());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_playlist_list, container, false);
+        return inflater.inflate(R.layout.fragment_playlist_list, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        if (getArguments() != null) {
+            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+        }
+        adapter = new PlayListRecyclerViewAdapter(db.getPlaylists(), mListener, getContext());
 
         // Set the adapter
         if (view instanceof RecyclerView) {
@@ -89,12 +90,6 @@ public class PlayListFragment extends Fragment {
             ItemTouchHelper itemTouchHelper = new ItemTouchHelper(createHelperCallback());
             itemTouchHelper.attachToRecyclerView(recyclerView);
         }
-        return view;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
     }
 
     private ItemTouchHelper.Callback createHelperCallback() {
@@ -131,6 +126,7 @@ public class PlayListFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+
 
     public void scrollToLastPosition() {
         recyclerView.scrollToPosition(this.recyclerView.getScrollBarSize() - 1);

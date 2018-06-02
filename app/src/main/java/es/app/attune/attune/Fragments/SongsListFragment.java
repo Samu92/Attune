@@ -12,10 +12,8 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import es.app.attune.attune.Classes.DatabaseFunctions;
-import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.Database.Song;
 import es.app.attune.attune.R;
 
@@ -50,11 +48,6 @@ public class SongsListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-        }
-        adapter = new SongListRecyclerViewAdapter(db.getSongs(playlistId), mListener, getContext());
     }
 
 
@@ -63,6 +56,11 @@ public class SongsListFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_song_list, container, false);
+
+        if (getArguments() != null) {
+            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+        }
+        adapter = new SongListRecyclerViewAdapter(db.getSongs(playlistId), mListener, getContext());
 
         // Set the adapter
         if (view instanceof RecyclerView) {

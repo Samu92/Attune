@@ -19,6 +19,7 @@
     <string name="txt_genre">Género: \u0020</string>
     <string name="txt_tempo">Bpm: \u0020</string>
     <string name="txt_artist">Artista: \u0020</string>
+    <string name="playlist_name">Nombre</string>
 
     <string-array name="Categories"></string-array>
 </resources>

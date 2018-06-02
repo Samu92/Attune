@@ -9,7 +9,6 @@ import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 /**
  * Created by Manohar on 28/9/17.

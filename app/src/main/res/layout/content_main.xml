@@ -17,8 +17,8 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_margin="15dp"
-        app:backgroundTint="@android:color/holo_blue_light"
-        app:srcCompat="@drawable/ic_playlist_add_white_24px" />
+        android:src="@drawable/ic_playlist_add_white_24px"
+        app:backgroundTint="@android:color/holo_blue_light"/>
 
     <FrameLayout
         android:id="@+id/fragmentView"

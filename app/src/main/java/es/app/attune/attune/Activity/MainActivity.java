@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -128,6 +129,7 @@ public class MainActivity extends AppCompatActivity
         playListFragment = PlayListFragment.newInstance(db);
 
         getSupportFragmentManager().beginTransaction()
+                .addToBackStack(playListFragment.getClass().getName())
                 .replace(R.id.fragmentView, playListFragment, playListFragment.getClass().getName())
                 .commit();
 
@@ -137,9 +139,6 @@ public class MainActivity extends AppCompatActivity
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_MEDIA);
         }
 
-        // Datos de la sesion de spotify
-        //mActionListener.
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabNewPlayList);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,6 +147,7 @@ public class MainActivity extends AppCompatActivity
                 if (!newPlayListFragmentTabs.isVisible()) {
                     // Si el fragmento no está visible lo mostramos
                     getSupportFragmentManager().beginTransaction()
+                            .addToBackStack(newPlayListFragmentTabs.getClass().getName())
                             .replace(R.id.fragmentView, newPlayListFragmentTabs, newPlayListFragmentTabs.getClass().getName())
                             .commit();
                 }else{
@@ -211,13 +211,18 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
-            Intent a = new Intent(Intent.ACTION_MAIN);
-            a.addCategory(Intent.CATEGORY_HOME);
-            a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(a);
+        }else{
+            if(playListFragment.isVisible()){
+                Intent a = new Intent(Intent.ACTION_MAIN);
+                a.addCategory(Intent.CATEGORY_HOME);
+                a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(a);
+            }else{
+                super.onBackPressed();
+            }
         }
     }
 
@@ -259,6 +264,7 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_playlists) {
             getSupportFragmentManager().beginTransaction()
+                    .addToBackStack(playListFragment.getClass().getName())
                     .replace(R.id.fragmentView, playListFragment, playListFragment.getClass().getName())
                     .commit();
         } else if (id == R.id.nav_share) {
@@ -307,6 +313,7 @@ public class MainActivity extends AppCompatActivity
             if (!songsListFragment.isVisible()) {
                 // Si el fragmento no está visible lo mostramos
                 getSupportFragmentManager().beginTransaction()
+                        .addToBackStack(songsListFragment.getClass().getName())
                         .replace(R.id.fragmentView, songsListFragment, songsListFragment.getClass().getName())
                         .commit();
             }
@@ -335,6 +342,7 @@ public class MainActivity extends AppCompatActivity
         if (!playListFragment.isVisible()) {
             // Si el fragmento no está visible lo mostramos
             getSupportFragmentManager().beginTransaction()
+                    .addToBackStack(playListFragment.getClass().getName())
                     .replace(R.id.fragmentView, playListFragment, playListFragment.getClass().getName())
                     .commit();
         }

@@ -14,6 +14,7 @@ import java.util.List;
 
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Database.Song;
+import es.app.attune.attune.Modules.Tools;
 import es.app.attune.attune.R;
 
 public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRecyclerViewAdapter.ViewHolder> {
@@ -43,6 +44,9 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
         holder.mArtistView.setText(context.getResources().getString(R.string.txt_artist) + mValues.get(position).getArtist());
 
         holder.mTempoView.setText(context.getResources().getString(R.string.txt_tempo) + String.valueOf(mValues.get(position).getTempo()));
+
+        int duration = (int) (mValues.get(position).getDuration()/1000);
+        holder.mDurationView.setText("Duración: " + Tools.timeConversion(duration));
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,6 +86,7 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
         public final TextView mNameView;
         public final TextView mArtistView;
         public final TextView mTempoView;
+        public final TextView mDurationView;
         public Song mItem;
 
         public ViewHolder(View view) {
@@ -90,6 +95,7 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
             mNameView = (TextView) view.findViewById(R.id.song_name);
             mArtistView = (TextView) view.findViewById(R.id.song_artist);
             mTempoView = (TextView) view.findViewById(R.id.song_tempo);
+            mDurationView = (TextView) view.findViewById(R.id.song_duration);
         }
 
         @Override
