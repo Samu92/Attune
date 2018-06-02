@@ -6,7 +6,5 @@ android:id="@+id/list"
 android:name="es.app.attune.attune.Fragments.PlayListFragment"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
-android:layout_marginLeft="16dp"
-android:layout_marginRight="16dp"
 tools:context="es.app.attune.attune.Fragments.PlayListFragment"
 tools:listitem="@layout/fragment_playlist" />
