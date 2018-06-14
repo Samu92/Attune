@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -135,37 +136,125 @@ public class AdvancedParameters extends Fragment {
         return inflater.inflate(R.layout.fragment_advanced_parameters, container, false);
     }
 
-    /**
-     * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
-     * has returned, but before any saved state has been restored in to the view.
-     * This gives subclasses a chance to initialize themselves once
-     * they know their view hierarchy has been completely created.  The fragment's
-     * view hierarchy is not however attached to its parent at this point.
-     *
-     * @param view               The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
-     * @param savedInstanceState If non-null, this fragment is being re-constructed
-     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         acousticness = (BubbleSeekBar) getView().findViewById(R.id.acousticness);
         acousticness.setEnabled(false);
+        acousticness.setCustomSectionTextArray(new BubbleSeekBar.CustomSectionTextArray() {
+            @NonNull
+            @Override
+            public SparseArray<String> onCustomize(int sectionCount, @NonNull SparseArray<String> array) {
+                array.clear();
+                array.put(0, getString(R.string.low_fem));
+                array.put(sectionCount, getString(R.string.high_fem));
+                return array;
+            }
+        });
+
         danceability = (BubbleSeekBar) getView().findViewById(R.id.danceability);
         danceability.setEnabled(false);
+        danceability.setCustomSectionTextArray(new BubbleSeekBar.CustomSectionTextArray() {
+            @NonNull
+            @Override
+            public SparseArray<String> onCustomize(int sectionCount, @NonNull SparseArray<String> array) {
+                array.clear();
+                array.put(0,getString(R.string.low_fem));
+                array.put(sectionCount,getString(R.string.high_fem));
+                return array;
+            }
+        });
+
         energy = (BubbleSeekBar) getView().findViewById(R.id.energy);
         energy.setEnabled(false);
+        energy.setCustomSectionTextArray(new BubbleSeekBar.CustomSectionTextArray() {
+            @NonNull
+            @Override
+            public SparseArray<String> onCustomize(int sectionCount, @NonNull SparseArray<String> array) {
+                array.clear();
+                array.put(0,getString(R.string.low_fem));
+                array.put(sectionCount,getString(R.string.high_fem));
+                return array;
+            }
+        });
+
         instrumentalness = (BubbleSeekBar) getView().findViewById(R.id.instrumentalness);
         instrumentalness.setEnabled(false);
+        instrumentalness.setCustomSectionTextArray(new BubbleSeekBar.CustomSectionTextArray() {
+            @NonNull
+            @Override
+            public SparseArray<String> onCustomize(int sectionCount, @NonNull SparseArray<String> array) {
+                array.clear();
+                array.put(0,getString(R.string.low_fem));
+                array.put(sectionCount,getString(R.string.high_fem));
+                return array;
+            }
+        });
+
         liveness = (BubbleSeekBar) getView().findViewById(R.id.liveness);
         liveness.setEnabled(false);
+        liveness.setCustomSectionTextArray(new BubbleSeekBar.CustomSectionTextArray() {
+            @NonNull
+            @Override
+            public SparseArray<String> onCustomize(int sectionCount, @NonNull SparseArray<String> array) {
+                array.clear();
+                array.put(0,getString(R.string.low_fem));
+                array.put(sectionCount,getString(R.string.high_fem));
+                return array;
+            }
+        });
+
         loudness = (BubbleSeekBar) getView().findViewById(R.id.loudness);
         loudness.setEnabled(false);
+        loudness.setCustomSectionTextArray(new BubbleSeekBar.CustomSectionTextArray() {
+            @NonNull
+            @Override
+            public SparseArray<String> onCustomize(int sectionCount, @NonNull SparseArray<String> array) {
+                array.clear();
+                array.put(0,getString(R.string.low_fem));
+                array.put(sectionCount,getString(R.string.high_fem));
+                return array;
+            }
+        });
+
         popularity = (BubbleSeekBar) getView().findViewById(R.id.popularity);
         popularity.setEnabled(false);
+        popularity.setCustomSectionTextArray(new BubbleSeekBar.CustomSectionTextArray() {
+            @NonNull
+            @Override
+            public SparseArray<String> onCustomize(int sectionCount, @NonNull SparseArray<String> array) {
+                array.clear();
+                array.put(0,getString(R.string.low_fem));
+                array.put(sectionCount,getString(R.string.high_fem));
+                return array;
+            }
+        });
+
         speechiness = (BubbleSeekBar) getView().findViewById(R.id.speachiness);
         speechiness.setEnabled(false);
+        speechiness.setCustomSectionTextArray(new BubbleSeekBar.CustomSectionTextArray() {
+            @NonNull
+            @Override
+            public SparseArray<String> onCustomize(int sectionCount, @NonNull SparseArray<String> array) {
+                array.clear();
+                array.put(0,getString(R.string.low_fem));
+                array.put(sectionCount,getString(R.string.high_fem));
+                return array;
+            }
+        });
+
         valence = (BubbleSeekBar) getView().findViewById(R.id.valence);
         valence.setEnabled(false);
+        valence.setCustomSectionTextArray(new BubbleSeekBar.CustomSectionTextArray() {
+            @NonNull
+            @Override
+            public SparseArray<String> onCustomize(int sectionCount, @NonNull SparseArray<String> array) {
+                array.clear();
+                array.put(0,getString(R.string.low_masc));
+                array.put(sectionCount,getString(R.string.high_masc));
+                return array;
+            }
+        });
 
         check_acoustiness = (CheckBox) getView().findViewById(R.id.check_acousticness);
         check_acoustiness.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

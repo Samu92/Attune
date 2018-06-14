@@ -115,13 +115,13 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
                 Intent intent = new Intent();
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Selecciona una imagen"),
+                startActivityForResult(Intent.createChooser(intent, getString(R.string.select_image)),
                         PICK_IMAGE_REQUEST);
             }
         });
 
-        searchableSpinner.setTitle("Selecciona una categoría");
-        searchableSpinner.setPositiveButton("Aceptar");
+        searchableSpinner.setTitle(getString(R.string.select_genre));
+        searchableSpinner.setPositiveButton(getString(R.string.accept));
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, db.getGenres());
 
@@ -181,7 +181,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
 
         if(name.getText().toString().isEmpty() ){
             valid = false;
-            snackbar.setSnackBarText("Por favor, póngale un nombre a su nueva playlist");
+            snackbar.setSnackBarText(getString(R.string.please_set_name));
             snackbar.showSnackBar();
             name.requestFocus();
             return valid;
@@ -189,7 +189,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
 
         if(searchableSpinner.getSelectedItemPosition() == 0){
             valid = false;
-            snackbar.setSnackBarText("Por favor, seleccione una categoría");
+            snackbar.setSnackBarText(getString(R.string.please_select_genre));
             snackbar.showSnackBar();
             searchableSpinner.requestFocus();
             return valid;

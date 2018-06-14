@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="Reproducir" android:id="@+id/context_play"></item>
+    <item android:title="Cambiar imagen" android:id="@+id/context_changeimage"></item>
+    <item android:title="Eliminar" android:id="@+id/context_delete"></item>
+</menu>

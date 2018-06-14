@@ -1,13 +1,9 @@
 <resources>
     <string name="app_name">Attune</string>
     <string name="title_activity_main">Attune</string>
-
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-
     <string name="action_settings">Settings</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="Category">Categoría</string>
     <string name="title_activity_login">Attune</string>
@@ -20,6 +16,24 @@
     <string name="txt_tempo">Bpm: \u0020</string>
     <string name="txt_artist">Artista: \u0020</string>
     <string name="playlist_name">Nombre</string>
-
+    <string name="low_fem">Baja</string>
+    <string name="high_fem">Alta</string>
+    <string name="low_masc">Bajo</string>
+    <string name="high_masc">Alto</string>
+    <string name="valence">Positivismo</string>
+    <string name="speachiness">Presencia de voz en las canciones</string>
+    <string name="popularity">Popularidad</string>
+    <string name="loudness">Sonoridad (db)</string>
+    <string name="liveness">Posibilidad de música en directo</string>
+    <string name="instrumentalness">Instrumentalidad</string>
+    <string name="energy">Energía</string>
+    <string name="danceability">Bailabilidad</string>
+    <string name="acousticness">Acústica</string>
+    <string name="select_genre">Selecciona una categoría</string>
+    <string name="accept">Aceptar</string>
+    <string name="select_image">Selecciona una imagen</string>
+    <string name="please_set_name">Por favor, póngale un nombre a su nueva playlist</string>
+    <string name="please_select_genre">Por favor, seleccione una categoría</string>
+    <string name="creating_playlist">Creando playlist...</string>
     <string-array name="Categories"></string-array>
 </resources>

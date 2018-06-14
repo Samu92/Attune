@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/check_acousticness"
             android:layout_marginBottom="5dp"
-            android:text="Acústica" />
+            android:text="@string/acousticness" />
 
         <com.xw.repo.BubbleSeekBar
             android:id="@+id/acousticness"
@@ -34,7 +34,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_acousticness"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="15dp"
+            app:bsb_track_color="@color/gray"
+            app:bsb_section_text_color="@color/colorPrimary"
             app:bsb_second_track_color="@color/color_blue"
             app:bsb_section_count="5"
             app:bsb_section_text_position="below_section_mark"
@@ -61,7 +63,7 @@
             android:layout_below="@id/acousticness"
             android:layout_toRightOf="@id/check_danceability"
             android:layout_marginBottom="5dp"
-            android:text="Bailabilidad" />
+            android:text="@string/danceability" />
 
         <com.xw.repo.BubbleSeekBar
             android:id="@+id/danceability"
@@ -69,7 +71,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_danceability"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="15dp"
+            app:bsb_track_color="@color/gray"
+            app:bsb_section_text_color="@color/colorPrimary"
             app:bsb_second_track_color="@color/color_blue"
             app:bsb_section_count="5"
             app:bsb_section_text_position="below_section_mark"
@@ -95,7 +99,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/danceability"
             android:layout_toRightOf="@id/check_energy"
-            android:text="Energía" />
+            android:text="@string/energy" />
 
         <com.xw.repo.BubbleSeekBar
             android:id="@+id/energy"
@@ -103,7 +107,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_energy"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="15dp"
+            app:bsb_track_color="@color/gray"
+            app:bsb_section_text_color="@color/colorPrimary"
             app:bsb_second_track_color="@color/color_blue"
             app:bsb_section_count="5"
             app:bsb_section_text_position="below_section_mark"
@@ -129,7 +135,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/energy"
             android:layout_toRightOf="@id/check_instrumentalness"
-            android:text="Instrumentalidad" />
+            android:text="@string/instrumentalness" />
 
         <com.xw.repo.BubbleSeekBar
             android:id="@+id/instrumentalness"
@@ -137,7 +143,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_instrumentalness"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="15dp"
+            app:bsb_track_color="@color/gray"
+            app:bsb_section_text_color="@color/colorPrimary"
             app:bsb_second_track_color="@color/color_blue"
             app:bsb_section_count="5"
             app:bsb_section_text_position="below_section_mark"
@@ -163,7 +171,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/instrumentalness"
             android:layout_toRightOf="@id/check_liveness"
-            android:text="En vivo" />
+            android:text="@string/liveness" />
 
         <com.xw.repo.BubbleSeekBar
             android:id="@+id/liveness"
@@ -171,7 +179,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_liveness"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="15dp"
+            app:bsb_track_color="@color/gray"
+            app:bsb_section_text_color="@color/colorPrimary"
             app:bsb_second_track_color="@color/color_blue"
             app:bsb_section_count="5"
             app:bsb_section_text_position="below_section_mark"
@@ -197,7 +207,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/liveness"
             android:layout_toRightOf="@id/check_loudness"
-            android:text="Intensidad (db)" />
+            android:text="@string/loudness" />
 
         <com.xw.repo.BubbleSeekBar
             android:id="@+id/loudness"
@@ -205,7 +215,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_loudness"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="15dp"
+            app:bsb_track_color="@color/gray"
+            app:bsb_section_text_color="@color/colorPrimary"
             app:bsb_second_track_color="@color/color_blue"
             app:bsb_section_count="5"
             app:bsb_section_text_position="below_section_mark"
@@ -231,7 +243,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/loudness"
             android:layout_toRightOf="@id/check_popularity"
-            android:text="Popularidad" />
+            android:text="@string/popularity" />
 
         <com.xw.repo.BubbleSeekBar
             android:id="@+id/popularity"
@@ -239,7 +251,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_popularity"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="15dp"
+            app:bsb_track_color="@color/gray"
+            app:bsb_section_text_color="@color/colorPrimary"
             app:bsb_second_track_color="@color/color_blue"
             app:bsb_section_count="5"
             app:bsb_section_text_position="below_section_mark"
@@ -265,7 +279,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/popularity"
             android:layout_toRightOf="@id/check_speachiness"
-            android:text="Voz" />
+            android:text="@string/speachiness" />
 
         <com.xw.repo.BubbleSeekBar
             android:id="@+id/speachiness"
@@ -273,7 +287,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_speachiness"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="15dp"
+            app:bsb_track_color="@color/gray"
+            app:bsb_section_text_color="@color/colorPrimary"
             app:bsb_second_track_color="@color/color_blue"
             app:bsb_section_count="5"
             app:bsb_section_text_position="below_section_mark"
@@ -299,7 +315,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/speachiness"
             android:layout_toRightOf="@id/check_valence"
-            android:text="Positivismo" />
+            android:text="@string/valence" />
 
         <com.xw.repo.BubbleSeekBar
             android:id="@+id/valence"
@@ -307,7 +323,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_valence"
-            android:layout_marginBottom="50dp"
+            android:layout_marginBottom="60dp"
+            app:bsb_track_color="@color/gray"
+            app:bsb_section_text_color="@color/colorPrimary"
             app:bsb_second_track_color="@color/color_blue"
             app:bsb_section_count="5"
             app:bsb_section_text_position="below_section_mark"
@@ -319,6 +337,5 @@
             app:bsb_min="0"
             app:bsb_max="1"
             app:bsb_progress="0"/>
-
     </RelativeLayout>
 </ScrollView>

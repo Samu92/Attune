@@ -29,15 +29,27 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE = 1337;
 
+    private static final String[] scopes = new String[]{"user-read-private","user-read-email","playlist-read","streaming","user-read-playback-state","user-read-currently-playing",
+            "user-modify-playback-state","user-library-read","playlist-read-private",
+            "user-library-modify","playlist-modify-public","playlist-modify-private"};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Intent intent = getIntent();
+        boolean logout =  intent.getBooleanExtra("logout", false);
 
         String token = CredentialsHandler.getToken(this);
         if (token == null) {
             setContentView(R.layout.activity_login);
         } else {
-            startMainActivity(token);
+            if(!logout){
+                startMainActivity(token);
+            }else{
+                setContentView(R.layout.activity_login);
+                CredentialsHandler.setToken(this,"",1, TimeUnit.SECONDS);
+            }
         }
     }
 
@@ -54,7 +66,8 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onLoginButtonClicked(View view) {
         final AuthenticationRequest request = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI)
-                .setScopes(new String[]{"playlist-read"})
+                .setShowDialog(true)
+                .setScopes(scopes)
                 .build();
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);

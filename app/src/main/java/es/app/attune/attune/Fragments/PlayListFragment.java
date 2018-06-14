@@ -10,10 +10,15 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Database.AttPlaylist;
@@ -36,10 +41,6 @@ public class PlayListFragment extends Fragment {
     private RecyclerView recyclerView;
     private PlayListRecyclerViewAdapter adapter;
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
     public PlayListFragment() {
     }
 
@@ -66,13 +67,13 @@ public class PlayListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-        }
-        adapter = new PlayListRecyclerViewAdapter(db.getPlaylists(), mListener, getContext());
-
         // Set the adapter
         if (view instanceof RecyclerView) {
+            if (getArguments() != null) {
+                mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+            }
+            adapter = new PlayListRecyclerViewAdapter(db.getPlaylists(), mListener, getContext());
+
             Context context = view.getContext();
             recyclerView = (RecyclerView) view;
             if (mColumnCount <= 1) {
@@ -109,6 +110,17 @@ public class PlayListFragment extends Fragment {
         return simpleCallback;
     }
 
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+
+        MenuInflater inflater = getActivity().getMenuInflater();
+        inflater.inflate(R.menu.playlist_context_menu, menu);
+
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
+        long itemID = info.position;
+        menu.setHeaderTitle("lior" + itemID);
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -127,21 +139,10 @@ public class PlayListFragment extends Fragment {
         mListener = null;
     }
 
-
     public void scrollToLastPosition() {
         recyclerView.scrollToPosition(this.recyclerView.getScrollBarSize() - 1);
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
         void onListFragmentInteraction(AttPlaylist item, boolean reproducir);

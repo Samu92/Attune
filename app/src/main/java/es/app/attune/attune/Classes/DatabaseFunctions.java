@@ -59,11 +59,11 @@ public class DatabaseFunctions {
     }
 
     public void removePlaylist(String id) {
-        attplaylistDao.deleteByKey(id);
+        attplaylistDao.deleteByKeyInTx(id);
     }
 
     public void removeSong(String id) {
-        songDao.deleteByKey(id);
+        songDao.deleteByKeyInTx(id);
     }
 
     public List<Song> getSongs(String playlistId) {

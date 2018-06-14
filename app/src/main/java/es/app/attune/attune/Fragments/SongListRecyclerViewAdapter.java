@@ -68,6 +68,7 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
     void deleteItem(int index, DatabaseFunctions db) {
         db.removeSong(mValues.get(index).getId());
         notifyDataSetChanged();
+
         mValues.remove(index);
         notifyItemRemoved(index);
     }

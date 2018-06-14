@@ -6,11 +6,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -32,8 +30,8 @@ import java.util.UUID;
 import de.hdodenhof.circleimageview.CircleImageView;
 import es.app.attune.attune.Classes.App;
 import es.app.attune.attune.Classes.AttunePlayer;
+import es.app.attune.attune.Classes.AttuneProgressDialog;
 import es.app.attune.attune.Classes.DatabaseFunctions;
-import es.app.attune.attune.Classes.Progress;
 import es.app.attune.attune.Classes.SearchFunctions;
 import es.app.attune.attune.Classes.SearchInterfaces;
 import es.app.attune.attune.Database.AttPlaylist;
@@ -69,7 +67,7 @@ public class MainActivity extends AppCompatActivity
     private DatabaseFunctions db;
     private SearchInterfaces.ActionListener mActionListener;
 
-    private Progress progress;
+    private AttuneProgressDialog progress;
 
     private AttunePlayer mPlayer;
 
@@ -89,7 +87,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        progress = new Progress(this);
+        progress = new AttuneProgressDialog(this);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -156,7 +154,7 @@ public class MainActivity extends AppCompatActivity
                     if(newPlayListFragmentTabs.validarFormulario()){
                         // El formulario es correcto por lo que obtenemos los parámetros y empezamos el proceso
                         // Obtenemos la imagen de la playlist
-                        progress.setCancelable(false);
+                        progress.setMessage(getString(R.string.creating_playlist));
                         progress.show();
 
                         //start a new thread to process job
@@ -248,11 +246,11 @@ public class MainActivity extends AppCompatActivity
         }
 
         if(id == R.id.close_session){
-            //mActionListener.destroy();
-            /*Spotify.destroyPlayer(this);
+            Spotify.destroyPlayer(this);
             Intent intent = LoginActivity.createIntent(this);
+            intent.putExtra("logout",true);
             startActivity(intent);
-            finish();*/
+            finish();
         }
 
         return super.onOptionsItemSelected(item);
@@ -358,7 +356,15 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void setUserData(UserPrivate user) {
-        navUserName.setText("Usuario de Atunne");
-        navEmail.setText("anónimo@attune.es");
+        if(user.product.equals("premium")){
+            navUserName.setText(user.id);
+            navEmail.setText(user.email);
+            Glide.with(this)
+                    .load(user.images.get(0).url)
+                    .into(navImageView);
+        }else{
+            navUserName.setText("Usuario de Atunne");
+            navEmail.setText("anónimo@attune.es");
+        }
     }
 }

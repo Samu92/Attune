@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -52,6 +53,8 @@ public class PlayListRecyclerViewAdapter extends RecyclerView.Adapter<PlayListRe
         holder.mSongsView.setText(context.getResources().getString(R.string.txt_songs) + String.valueOf(mValues.get(position).getSongs().size()));
         int duration = mValues.get(position).getDuration()/1000;
         holder.mDurationView.setText("Duración: " + Tools.timeConversion(duration));
+
+        holder.itemView.setLongClickable(true);
 
         Glide.with(context)
                 .load(mValues.get(position).getImage())
@@ -112,6 +115,14 @@ public class PlayListRecyclerViewAdapter extends RecyclerView.Adapter<PlayListRe
             mSongsView = (TextView) view.findViewById(R.id.songs);
             mImagePlaylistView = (ImageView) view.findViewById(R.id.image_playlist);
             mDurationView = (TextView) view.findViewById(R.id.duration);
+
+            view.setOnLongClickListener(new View.OnLongClickListener(){
+                @Override
+                public boolean onLongClick(View view) {
+                    Toast.makeText(view.getContext(), "Position is " + getAdapterPosition(), Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+            });
         }
 
         @Override
