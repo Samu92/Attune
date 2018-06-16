@@ -1,6 +1,7 @@
 package es.app.attune.attune.Classes;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +75,7 @@ public class SearchSpotify {
         options.put(SpotifyService.MARKET, "ES");
         options.put("seed_genres",playlist.getGenre());
         options.put("target_tempo",playlist.getTempo());
+        if(playlist.getSong_duration() > 0) options.put("target_duration_ms",((int) playlist.getSong_duration()*60000));
         if(playlist.getAcousticness() != -1) options.put("target_acousticness",playlist.getAcousticness());
         if(playlist.getDanceability() != -1) options.put("target_danceability",playlist.getDanceability());
         if(playlist.getEnergy() != -1) options.put("target_energy",playlist.getEnergy());
@@ -129,6 +131,8 @@ public class SearchSpotify {
 
     private void getAudioFeaturesTracks(final List<Track> tracks, final CompleteListener listener){
         if(!tracks.isEmpty()) {
+            // Hacemos un shuflle para añadir un factor de aletoriedad
+            Collections.shuffle(tracks);
             String ids = "";
             for (Track track : tracks) {
                 ids = ids.concat(track.id + ",");

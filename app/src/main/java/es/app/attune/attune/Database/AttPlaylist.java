@@ -34,6 +34,9 @@ public class AttPlaylist {
     private int duration;
 
     @NotNull
+    private float song_duration;
+
+    @NotNull
     private byte[] image;
 
     @NotNull
@@ -68,16 +71,18 @@ public class AttPlaylist {
     @Generated(hash = 1939289955)
     private transient AttPlaylistDao myDao;
 
-    @Generated(hash = 1283953616)
+    @Generated(hash = 397844945)
     public AttPlaylist(@NotNull String id, @NotNull String name, float tempo,
-            int duration, @NotNull byte[] image, @NotNull String genre,
-            @NotNull Date creation_date, float acousticness, float danceability,
-            float energy, float instrumentalness, float liveness, float loudness,
-            int popularity, float speechiness, float valence) {
+            int duration, float song_duration, @NotNull byte[] image,
+            @NotNull String genre, @NotNull Date creation_date, float acousticness,
+            float danceability, float energy, float instrumentalness,
+            float liveness, float loudness, int popularity, float speechiness,
+            float valence) {
         this.id = id;
         this.name = name;
         this.tempo = tempo;
         this.duration = duration;
+        this.song_duration = song_duration;
         this.image = image;
         this.genre = genre;
         this.creation_date = creation_date;
@@ -126,6 +131,14 @@ public class AttPlaylist {
 
     public void setDuration(int duration) {
         this.duration = duration;
+    }
+
+    public float getSong_duration() {
+        return this.song_duration;
+    }
+
+    public void setSong_duration(float song_duration) {
+        this.song_duration = song_duration;
     }
 
     public byte[] getImage() {
@@ -294,5 +307,5 @@ public class AttPlaylist {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getAttPlaylistDao() : null;
     }
- 
+    
 }

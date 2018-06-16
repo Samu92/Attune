@@ -9,8 +9,10 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ScrollView;
 
 import com.xw.repo.BubbleSeekBar;
 
@@ -326,6 +328,22 @@ public class AdvancedParameters extends Fragment {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 valence.setEnabled(b);
                 valence.setProgress(0);
+            }
+        });
+
+        ScrollView mContainer = (ScrollView) getView().findViewById(R.id.scroll_advanced_parameters);
+        mContainer.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+            @Override
+            public void onScrollChanged() {
+                acousticness.correctOffsetWhenContainerOnScrolling();
+                danceability.correctOffsetWhenContainerOnScrolling();
+                energy.correctOffsetWhenContainerOnScrolling();
+                instrumentalness.correctOffsetWhenContainerOnScrolling();
+                liveness.correctOffsetWhenContainerOnScrolling();
+                loudness.correctOffsetWhenContainerOnScrolling();
+                popularity.correctOffsetWhenContainerOnScrolling();
+                speechiness.correctOffsetWhenContainerOnScrolling();
+                valence.correctOffsetWhenContainerOnScrolling();
             }
         });
 

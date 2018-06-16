@@ -3,19 +3,28 @@ package es.app.attune.attune.Fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.ScrollView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -23,6 +32,8 @@ import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
 import com.xw.repo.BubbleSeekBar;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Classes.ErrorSnackbar;
@@ -38,12 +49,15 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     private ImageView image;
     private EditText name;
     private BubbleSeekBar tempo;
-    private BubbleSeekBar duration;
+    private BubbleSeekBar playlist_duration;
+    private BubbleSeekBar song_duration;
+    private CheckBox check_song_duration;
     private SearchableSpinner searchableSpinner;
     private Boolean valid;
     private static DatabaseFunctions db;
     private static final int PICK_IMAGE_REQUEST = 100;
     private ErrorSnackbar snackbar;
+    private static List<String> genres_list;
 
     public NewPlayList() {
         // Required empty public constructor
@@ -72,13 +86,29 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     }
 
     public String getCategory() {
-        return searchableSpinner.getSelectedItem().toString();
+        String genres = "";
+        for (String item: genres_list
+             ) {
+            genres += item + ",";
+        }
+        genres = genres.substring(0,genres.length() - 1);
+        return genres;
     }
 
-    public int getDuration(){ return duration.getProgress();}
+    public int getDuration(){ return playlist_duration.getProgress();}
+
+    public float getSongDuration() {
+        if(check_song_duration.isChecked()){
+            return song_duration.getProgressFloat();
+        }else{
+            return 0;
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        genres_list = new ArrayList<String>();
+
         super.onCreate(savedInstanceState);
     }
 
@@ -98,10 +128,35 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
         Glide.with(getContext())
                 .load(R.drawable.baseline_add_photo_alternate_white_48)
                 .into(image);
+
         name = (EditText) getView().findViewById(R.id.name_playlist);
+
         tempo = (BubbleSeekBar) getView().findViewById(R.id.bmp_seekbar);
+
         searchableSpinner = (SearchableSpinner) getView().findViewById(R.id.category_spinner);
-        duration = (BubbleSeekBar) getView().findViewById(R.id.duration_seekbar);
+
+        playlist_duration = (BubbleSeekBar) getView().findViewById(R.id.duration_seekbar);
+
+        song_duration = (BubbleSeekBar) getView().findViewById(R.id.song_duration_seekbar);
+        song_duration.setEnabled(false);
+        song_duration.setSecondTrackColor(Color.GRAY);
+        song_duration.setThumbColor(Color.GRAY);
+
+        check_song_duration = (CheckBox) getView().findViewById(R.id.check_song_duration);
+        check_song_duration.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                song_duration.setEnabled(b);
+                if(b == false){
+                    song_duration.setThumbColor(Color.GRAY);
+                    song_duration.setSecondTrackColor(Color.GRAY);
+                    song_duration.setProgress(1);
+                }else{
+                    song_duration.setThumbColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                    song_duration.setSecondTrackColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                }
+            }
+        });
 
         image.setOnClickListener(new View.OnClickListener(){
 
@@ -120,10 +175,15 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
             }
         });
 
-        searchableSpinner.setTitle(getString(R.string.select_genre));
+        searchableSpinner.setTitle(getString(R.string.add_genre));
         searchableSpinner.setPositiveButton(getString(R.string.accept));
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, db.getGenres());
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, db.getGenres());
+
+        final ListView genres_list_view = (ListView) getView().findViewById(R.id.genres_list);
+        final ArrayAdapter<String> genres_list_adapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_list_item_1, genres_list);
+
+        genres_list_view.setAdapter(genres_list_adapter);
 
         // Apply the adapter to the spinner
         searchableSpinner.setAdapter(adapter);
@@ -131,6 +191,43 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
         searchableSpinner.setOnItemSelectedListener(this);
 
         searchableSpinner.setSelection(-1);
+
+        searchableSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if(i != 0){
+                    if(genres_list.size() <= 3){
+                        if(!genres_list.contains((String) searchableSpinner.getSelectedItem())){
+                            genres_list.add((String) searchableSpinner.getSelectedItem());
+                            genres_list_adapter.notifyDataSetChanged();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        genres_list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                genres_list.remove(i);
+                genres_list_adapter.notifyDataSetChanged();
+            }
+        });
+
+        ScrollView mContainer = (ScrollView) getView().findViewById(R.id.scroll_new_playlist);
+        mContainer.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+            @Override
+            public void onScrollChanged() {
+                tempo.correctOffsetWhenContainerOnScrolling();
+                playlist_duration.correctOffsetWhenContainerOnScrolling();
+                song_duration.correctOffsetWhenContainerOnScrolling();
+            }
+        });
     }
 
     // TODO: Rename method, update argument and hook method into UI event

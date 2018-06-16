@@ -1,5 +1,6 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scroll_new_playlist"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:isScrollContainer="false"
@@ -57,14 +58,24 @@
             android:id="@+id/category_spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="30dp"
+            android:layout_marginBottom="15dp"
             android:layout_below="@id/txt_genre"/>
+
+        <ListView
+            android:id="@+id/genres_list"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scrollbars="vertical"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="15dp"
+            android:layout_below="@id/category_spinner"/>
 
         <TextView
             android:id="@+id/txt_tempo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/category_spinner"
+            android:layout_below="@id/genres_list"
             android:layout_marginBottom="15dp"
             android:text="Tempo" />
 
@@ -101,7 +112,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_duration"
-            android:layout_marginBottom="100dp"
+            android:layout_marginBottom="15dp"
             app:bsb_track_color="@color/gray"
             app:bsb_section_text_color="@color/colorPrimary"
             app:bsb_second_track_color="@color/color_blue"
@@ -115,5 +126,44 @@
             app:bsb_min="1"
             app:bsb_max="120"
             app:bsb_progress="1"/>
+
+        <CheckBox
+            android:id="@+id/check_song_duration"
+            android:layout_below="@id/duration_seekbar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/txt_song_duration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/check_song_duration"
+            android:layout_toRightOf="@id/check_song_duration"
+            android:layout_below="@id/duration_seekbar"
+            android:text="@string/song_duration" />
+
+        <com.xw.repo.BubbleSeekBar
+            android:id="@+id/song_duration_seekbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/check_song_duration"
+            android:layout_marginBottom="100dp"
+            android:layout_marginTop="15dp"
+            app:bsb_track_color="@color/gray"
+            app:bsb_section_text_color="@color/colorPrimary"
+            app:bsb_second_track_color="@color/color_blue"
+            app:bsb_section_count="5"
+            app:bsb_show_progress_in_float="true"
+            app:bsb_is_float_type="true"
+            app:bsb_section_text_position="below_section_mark"
+            app:bsb_show_section_mark="true"
+            app:bsb_show_section_text="true"
+            app:bsb_show_thumb_text="true"
+            app:bsb_thumb_text_size="18sp"
+            app:bsb_touch_to_seek="true"
+            app:bsb_min="1"
+            app:bsb_max="10"
+            app:bsb_progress="1"/>
+
     </RelativeLayout>
 </ScrollView>

@@ -9,7 +9,8 @@
     <string name="title_activity_login">Attune</string>
     <string name="login_app">Iniciar sesión</string>
     <string name="spotifyIcon">Spotify</string>
-    <string name="playlist_duration">Duración total (minutos)</string>
+    <string name="playlist_duration">Duración total de la playlist (minutos)</string>
+    <string name="song_duration">Duración de las canciones (minutos)</string>
     <string name="cover_art_description">Cover art</string>
     <string name="txt_songs">Canciones: \u0020</string>
     <string name="txt_genre">Género: \u0020</string>
@@ -29,7 +30,7 @@
     <string name="energy">Energía</string>
     <string name="danceability">Bailabilidad</string>
     <string name="acousticness">Acústica</string>
-    <string name="select_genre">Selecciona una categoría</string>
+    <string name="add_genre">Añadir una categoría</string>
     <string name="accept">Aceptar</string>
     <string name="select_image">Selecciona una imagen</string>
     <string name="please_set_name">Por favor, póngale un nombre a su nueva playlist</string>

@@ -175,6 +175,9 @@ public class MainActivity extends AppCompatActivity
                                 // Obtenemos la duración máxima seleccionada
                                 int duration = newPlayListFragmentTabs.getDuration();
 
+                                //Obtenemos la duración de cada canción
+                                float song_duration = newPlayListFragmentTabs.getSongDuration();
+
                                 float acoustiness = newPlayListFragmentTabs.getAcousticness();
 
                                 float danceability = newPlayListFragmentTabs.getDanceability();
@@ -196,7 +199,7 @@ public class MainActivity extends AppCompatActivity
                                 // Procedemos a llamar a la API para obtener las canciones
                                 UUID newId = java.util.UUID.randomUUID();
                                 AttPlaylist newPlaylist = new AttPlaylist(newId.toString(),
-                                        name,tempo,duration,image,genre,Calendar.getInstance().getTime(),
+                                        name,tempo,duration,song_duration,image,genre,Calendar.getInstance().getTime(),
                                         acoustiness,danceability,energy,instrumentalness,liveness,
                                         loudness,popularity,speechiness,valence);
                                 mActionListener.searchRecomendations(newPlaylist);

@@ -101,6 +101,10 @@ public class NewPlayListTabs extends Fragment {
         return fragmentNewPlaylist.getDuration();
     }
 
+    public float getSongDuration() {
+        return fragmentNewPlaylist.getSongDuration();
+    }
+
     public float getAcousticness() {
         return fragmentAdvancedParameters.getAcousticness();
     }
@@ -136,6 +140,8 @@ public class NewPlayListTabs extends Fragment {
     public float getValence() {
         return fragmentAdvancedParameters.getValence();
     }
+
+
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();
