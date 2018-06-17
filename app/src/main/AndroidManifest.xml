@@ -41,5 +41,10 @@
             android:theme="@style/AttuneLight">
         </activity>
 
+        <service
+            android:name=".AttunePlayer.PlayerService"
+            android:enabled="true"
+            android:exported="false">
+        </service>
     </application>
 </manifest>

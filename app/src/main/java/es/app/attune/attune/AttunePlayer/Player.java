@@ -1,4 +1,4 @@
-package es.app.attune.attune.Interfaces;
+package es.app.attune.attune.AttunePlayer;
 
 import android.content.Context;
 import android.support.annotation.Nullable;

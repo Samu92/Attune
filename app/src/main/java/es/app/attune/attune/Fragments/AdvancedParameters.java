@@ -1,10 +1,12 @@
 package es.app.attune.attune.Fragments;
 
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -142,6 +144,9 @@ public class AdvancedParameters extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         acousticness = (BubbleSeekBar) getView().findViewById(R.id.acousticness);
+        acousticness.setThumbColor(Color.GRAY);
+        acousticness.setSecondTrackColor(Color.GRAY);
+        acousticness.setProgress(0);
         acousticness.setEnabled(false);
         acousticness.setCustomSectionTextArray(new BubbleSeekBar.CustomSectionTextArray() {
             @NonNull
@@ -155,6 +160,9 @@ public class AdvancedParameters extends Fragment {
         });
 
         danceability = (BubbleSeekBar) getView().findViewById(R.id.danceability);
+        danceability.setThumbColor(Color.GRAY);
+        danceability.setSecondTrackColor(Color.GRAY);
+        danceability.setProgress(0);
         danceability.setEnabled(false);
         danceability.setCustomSectionTextArray(new BubbleSeekBar.CustomSectionTextArray() {
             @NonNull
@@ -168,6 +176,9 @@ public class AdvancedParameters extends Fragment {
         });
 
         energy = (BubbleSeekBar) getView().findViewById(R.id.energy);
+        energy.setThumbColor(Color.GRAY);
+        energy.setSecondTrackColor(Color.GRAY);
+        energy.setProgress(0);
         energy.setEnabled(false);
         energy.setCustomSectionTextArray(new BubbleSeekBar.CustomSectionTextArray() {
             @NonNull
@@ -181,6 +192,9 @@ public class AdvancedParameters extends Fragment {
         });
 
         instrumentalness = (BubbleSeekBar) getView().findViewById(R.id.instrumentalness);
+        instrumentalness.setThumbColor(Color.GRAY);
+        instrumentalness.setSecondTrackColor(Color.GRAY);
+        instrumentalness.setProgress(0);
         instrumentalness.setEnabled(false);
         instrumentalness.setCustomSectionTextArray(new BubbleSeekBar.CustomSectionTextArray() {
             @NonNull
@@ -194,6 +208,9 @@ public class AdvancedParameters extends Fragment {
         });
 
         liveness = (BubbleSeekBar) getView().findViewById(R.id.liveness);
+        liveness.setThumbColor(Color.GRAY);
+        liveness.setSecondTrackColor(Color.GRAY);
+        liveness.setProgress(0);
         liveness.setEnabled(false);
         liveness.setCustomSectionTextArray(new BubbleSeekBar.CustomSectionTextArray() {
             @NonNull
@@ -207,6 +224,9 @@ public class AdvancedParameters extends Fragment {
         });
 
         loudness = (BubbleSeekBar) getView().findViewById(R.id.loudness);
+        loudness.setThumbColor(Color.GRAY);
+        loudness.setSecondTrackColor(Color.GRAY);
+        loudness.setProgress(0);
         loudness.setEnabled(false);
         loudness.setCustomSectionTextArray(new BubbleSeekBar.CustomSectionTextArray() {
             @NonNull
@@ -220,6 +240,9 @@ public class AdvancedParameters extends Fragment {
         });
 
         popularity = (BubbleSeekBar) getView().findViewById(R.id.popularity);
+        popularity.setThumbColor(Color.GRAY);
+        popularity.setSecondTrackColor(Color.GRAY);
+        popularity.setProgress(0);
         popularity.setEnabled(false);
         popularity.setCustomSectionTextArray(new BubbleSeekBar.CustomSectionTextArray() {
             @NonNull
@@ -233,6 +256,9 @@ public class AdvancedParameters extends Fragment {
         });
 
         speechiness = (BubbleSeekBar) getView().findViewById(R.id.speachiness);
+        speechiness.setThumbColor(Color.GRAY);
+        speechiness.setSecondTrackColor(Color.GRAY);
+        speechiness.setProgress(0);
         speechiness.setEnabled(false);
         speechiness.setCustomSectionTextArray(new BubbleSeekBar.CustomSectionTextArray() {
             @NonNull
@@ -246,6 +272,9 @@ public class AdvancedParameters extends Fragment {
         });
 
         valence = (BubbleSeekBar) getView().findViewById(R.id.valence);
+        valence.setThumbColor(Color.GRAY);
+        valence.setSecondTrackColor(Color.GRAY);
+        valence.setProgress(0);
         valence.setEnabled(false);
         valence.setCustomSectionTextArray(new BubbleSeekBar.CustomSectionTextArray() {
             @NonNull
@@ -262,72 +291,144 @@ public class AdvancedParameters extends Fragment {
         check_acoustiness.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                acousticness.setEnabled(b);
-                acousticness.setProgress(0);
+                if(!b){
+                    acousticness.setThumbColor(Color.GRAY);
+                    acousticness.setSecondTrackColor(Color.GRAY);
+                    acousticness.setProgress(0);
+                    acousticness.setEnabled(b);
+                }else{
+                    acousticness.setThumbColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                    acousticness.setSecondTrackColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                    acousticness.setEnabled(b);
+                }
             }
         });
         check_danceability = (CheckBox) getView().findViewById(R.id.check_danceability);
         check_danceability.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                danceability.setEnabled(b);
-                danceability.setProgress(0);
+                if(!b){
+                    danceability.setThumbColor(Color.GRAY);
+                    danceability.setSecondTrackColor(Color.GRAY);
+                    danceability.setProgress(0);
+                    danceability.setEnabled(b);
+                }else{
+                    danceability.setThumbColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                    danceability.setSecondTrackColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                    danceability.setEnabled(b);
+                }
             }
         });
         check_energy = (CheckBox) getView().findViewById(R.id.check_energy);
         check_energy.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                energy.setEnabled(b);
-                energy.setProgress(0);
+                if(!b){
+                    energy.setThumbColor(Color.GRAY);
+                    energy.setSecondTrackColor(Color.GRAY);
+                    energy.setProgress(0);
+                    energy.setEnabled(b);
+                }else{
+                    energy.setThumbColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                    energy.setSecondTrackColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                    energy.setEnabled(b);
+                }
             }
         });
         check_instrumentalness = (CheckBox) getView().findViewById(R.id.check_instrumentalness);
         check_instrumentalness.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                instrumentalness.setEnabled(b);
-                instrumentalness.setProgress(0);
+                if(!b){
+                    instrumentalness.setThumbColor(Color.GRAY);
+                    instrumentalness.setSecondTrackColor(Color.GRAY);
+                    instrumentalness.setProgress(0);
+                    instrumentalness.setEnabled(b);
+                }else{
+                    instrumentalness.setThumbColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                    instrumentalness.setSecondTrackColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                    instrumentalness.setEnabled(b);
+                }
             }
         });
         check_liveness = (CheckBox) getView().findViewById(R.id.check_liveness);
         check_liveness.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                liveness.setEnabled(b);
-                liveness.setProgress(0);
+                if(!b){
+                    liveness.setThumbColor(Color.GRAY);
+                    liveness.setSecondTrackColor(Color.GRAY);
+                    liveness.setProgress(0);
+                    liveness.setEnabled(b);
+                }else{
+                    liveness.setThumbColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                    liveness.setSecondTrackColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                    liveness.setEnabled(b);
+                }
             }
         });
         check_loudness = (CheckBox) getView().findViewById(R.id.check_loudness);
         check_loudness.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                loudness.setEnabled(b);
-                loudness.setProgress(0);
+                if(!b){
+                    loudness.setThumbColor(Color.GRAY);
+                    loudness.setSecondTrackColor(Color.GRAY);
+                    loudness.setProgress(0);
+                    loudness.setEnabled(b);
+                }else{
+                    loudness.setThumbColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                    loudness.setSecondTrackColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                    loudness.setEnabled(b);
+                }
             }
         });
         check_popularity = (CheckBox) getView().findViewById(R.id.check_popularity);
         check_popularity.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                popularity.setEnabled(b);
-                popularity.setProgress(0);
+                if(!b){
+                    popularity.setThumbColor(Color.GRAY);
+                    popularity.setSecondTrackColor(Color.GRAY);
+                    popularity.setProgress(0);
+                    popularity.setEnabled(b);
+                }else{
+                    popularity.setThumbColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                    popularity.setSecondTrackColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                    popularity.setEnabled(b);
+                }
             }
         });
         check_speechiness = (CheckBox) getView().findViewById(R.id.check_speachiness);
         check_speechiness.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                speechiness.setEnabled(b);
-                speechiness.setProgress(0);
+                if(!b){
+                    speechiness.setThumbColor(Color.GRAY);
+                    speechiness.setSecondTrackColor(Color.GRAY);
+                    speechiness.setProgress(0);
+                    speechiness.setEnabled(b);
+                }else{
+                    speechiness.setThumbColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                    speechiness.setSecondTrackColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                    speechiness.setEnabled(b);
+                }
             }
         });
         check_valence = (CheckBox) getView().findViewById(R.id.check_valence);
         check_valence.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                valence.setEnabled(b);
-                valence.setProgress(0);
+                if(!b){
+                    valence.setThumbColor(Color.GRAY);
+                    valence.setSecondTrackColor(Color.GRAY);
+                    valence.setProgress(0);
+                    valence.setEnabled(b);
+                }else{
+                    valence.setThumbColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                    valence.setSecondTrackColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                    valence.setEnabled(b);
+                }
             }
         });
 

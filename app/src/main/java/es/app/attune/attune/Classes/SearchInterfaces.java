@@ -38,16 +38,6 @@ public class SearchInterfaces {
 
         void getAvailableGenreSeeds();
 
-        void createPlayer();
-
         void getUserData();
-
-        void selectTrack(Song item);
-
-        void resume();
-
-        void pause();
-
-        void destroy();
     }
 }

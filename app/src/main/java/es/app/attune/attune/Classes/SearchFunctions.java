@@ -8,14 +8,14 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import es.app.attune.attune.AttunePlayer.PlayerService;
 import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.Database.DaoSession;
 import es.app.attune.attune.Database.Song;
-import es.app.attune.attune.Interfaces.Player;
+import es.app.attune.attune.AttunePlayer.Player;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTracks;
@@ -48,21 +48,6 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
     private DaoSession daoSession;
     private DatabaseFunctions db;
 
-    private Player mPlayer;
-
-
-    private ServiceConnection mServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            mPlayer = ((PlayerService.PlayerBinder) service).getService();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mPlayer = null;
-        }
-    };
-
     public SearchFunctions(Context context, SearchInterfaces.ResultPlaylist result, SearchInterfaces.ResultGenres result_genres, SearchInterfaces.ResultUserData result_userdata) {
         mContext = context;
         mResultPlaylist = result;
@@ -86,18 +71,6 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
         }
 
         mSearchPager = new SearchSpotify(spotifyApi.getService());
-
-        mContext.bindService(PlayerService.getIntent(mContext), mServiceConnection, Activity.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    public void createPlayer() {
-
-    }
-
-    @Override
-    public void destroy() {
-        mContext.unbindService(mServiceConnection);
     }
 
     @Override
@@ -207,6 +180,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
         mSearchPager.getUserDataCall(mUserDataListener);
     }
 
+    /*
     @Override
     public void resume() {
         mContext.stopService(PlayerService.getIntent(mContext));
@@ -238,6 +212,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
             mPlayer.resume();
         }
     }
+    */
 
     private void logError(String msg) {
         Toast.makeText(mContext, "Error: " + msg, Toast.LENGTH_SHORT).show();

@@ -1,4 +1,4 @@
-package es.app.attune.attune.Classes;
+package es.app.attune.attune.AttunePlayer;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
@@ -9,8 +9,6 @@ import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.Error;
 import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.Spotify;
-
-import es.app.attune.attune.Interfaces.Player;
 
 /**
  * Created by Samuel on 08/03/2018.

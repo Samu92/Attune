@@ -1,11 +1,14 @@
 package es.app.attune.attune.Activity;
 
 import android.Manifest;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -18,7 +21,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.spotify.sdk.android.player.Spotify;
@@ -28,8 +35,8 @@ import java.util.List;
 import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import es.app.attune.attune.AttunePlayer.PlayerService;
 import es.app.attune.attune.Classes.App;
-import es.app.attune.attune.Classes.AttunePlayer;
 import es.app.attune.attune.Classes.AttuneProgressDialog;
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Classes.SearchFunctions;
@@ -69,7 +76,15 @@ public class MainActivity extends AppCompatActivity
 
     private AttuneProgressDialog progress;
 
-    private AttunePlayer mPlayer;
+    PlayerService mService;
+    boolean mBound = false;
+
+    // Reproductor
+    private ImageButton mPlayPause;
+    private TextView mTitle;
+    private TextView mSubtitle;
+    private ImageView mAlbumArt;
+    private ViewGroup mPlaybackControls;
 
     TextView navEmail;
     TextView navUserName;
@@ -103,10 +118,6 @@ public class MainActivity extends AppCompatActivity
 
         mActionListener = new SearchFunctions(this, this, this, this );
         mActionListener.init(token);
-
-        // Initialize player
-        mPlayer = new AttunePlayer();
-        mPlayer.createMediaPlayer(token,this);
 
         mActionListener.getUserData();
 
@@ -209,12 +220,27 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+
+        // AUDIO PLAYER
+        // Playback controls configuration:
+        // Initialize service player
+        Intent player = new Intent(this, PlayerService.class);
+        player.putExtra("token",token);
+        startService(player);
+
+        mPlaybackControls = (ViewGroup) findViewById(R.id.playback_controls);
+        mPlayPause = (ImageButton) findViewById(R.id.play_pause);
+        mPlayPause.setEnabled(true);
+        mPlayPause.setOnClickListener(mPlaybackButtonListener);
+
+        mTitle = (TextView) findViewById(R.id.title);
+        mSubtitle = (TextView) findViewById(R.id.artist);
+        mAlbumArt = (ImageView) findViewById(R.id.album_art);
     }
 
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         }else{
@@ -283,22 +309,55 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
-        mActionListener.destroy();
-        Spotify.destroyPlayer(this);
+        unbindService(mConnection);
         super.onDestroy();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mActionListener.pause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mActionListener.resume();
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Bind to LocalService
+        Intent intent = new Intent(this, PlayerService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Unbind from the service
+        if (mBound) {
+            unbindService(mConnection);
+            mBound = false;
+        }
+    }
+
+    /** Defines callbacks for service binding, passed to bindService() */
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            PlayerService.PlayerBinder binder = (PlayerService.PlayerBinder) service;
+            mService = binder.getService();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
 
     @Override
     public void onFragmentInteraction(Uri uri) {
@@ -325,7 +384,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onListFragmentInteraction(Song item) {
-        mPlayer.play(item.getUrlSpotify());
+        mService.playSong(item.getUrlSpotify());
     }
 
     @Override
@@ -370,4 +429,12 @@ public class MainActivity extends AppCompatActivity
             navEmail.setText("anónimo@attune.es");
         }
     }
+
+    private final View.OnClickListener mPlaybackButtonListener =
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+    };
 }

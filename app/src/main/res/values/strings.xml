@@ -37,4 +37,9 @@
     <string name="please_select_genre">Por favor, seleccione una categoría</string>
     <string name="creating_playlist">Creando playlist...</string>
     <string-array name="Categories"></string-array>
+    <string name="play_item">Play item</string>
+    <string name="play_pause">play or pause</string>
+    <string name="currently_playing_song">Song currently playing</string>
+    <string name="currently_playing_artist">Artist of currently playing song</string>
+    <string name="currently_playing_extra_info">Extra info for currently playing song</string>
 </resources>
