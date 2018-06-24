@@ -8,11 +8,9 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +23,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -36,7 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import es.app.attune.attune.Classes.DatabaseFunctions;
-import es.app.attune.attune.Classes.ErrorSnackbar;
 import es.app.attune.attune.R;
 
 import static android.app.Activity.RESULT_OK;
@@ -56,8 +54,8 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     private Boolean valid;
     private static DatabaseFunctions db;
     private static final int PICK_IMAGE_REQUEST = 100;
-    private ErrorSnackbar snackbar;
     private static List<String> genres_list;
+    private TextView empty_genre_list;
 
     public NewPlayList() {
         // Required empty public constructor
@@ -122,7 +120,6 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        snackbar = new ErrorSnackbar(view.getRootView());
 
         image = (ImageView) getView().findViewById(R.id.image_playlist);
         Glide.with(getContext())
@@ -200,6 +197,8 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
                         if(!genres_list.contains((String) searchableSpinner.getSelectedItem())){
                             genres_list.add((String) searchableSpinner.getSelectedItem());
                             genres_list_adapter.notifyDataSetChanged();
+                            genres_list_view.setVisibility(View.VISIBLE);
+                            empty_genre_list.setVisibility(View.GONE);
                         }
                     }
                 }
@@ -211,11 +210,24 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
             }
         });
 
+        empty_genre_list = (TextView) getView().findViewById(R.id.empty_list_genre);
+        if(genres_list_adapter.isEmpty()){
+            genres_list_view.setVisibility(View.GONE);
+            empty_genre_list.setVisibility(View.VISIBLE);
+        }else{
+            genres_list_view.setVisibility(View.VISIBLE);
+            empty_genre_list.setVisibility(View.GONE);
+        }
+
         genres_list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 genres_list.remove(i);
                 genres_list_adapter.notifyDataSetChanged();
+                if(genres_list_adapter.isEmpty()){
+                    genres_list_view.setVisibility(View.GONE);
+                    empty_genre_list.setVisibility(View.VISIBLE);
+                }
             }
         });
 
@@ -278,16 +290,12 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
 
         if(name.getText().toString().isEmpty() ){
             valid = false;
-            snackbar.setSnackBarText(getString(R.string.please_set_name));
-            snackbar.showSnackBar();
             name.requestFocus();
             return valid;
         }
 
         if(searchableSpinner.getSelectedItemPosition() == 0){
             valid = false;
-            snackbar.setSnackBarText(getString(R.string.please_select_genre));
-            snackbar.showSnackBar();
             searchableSpinner.requestFocus();
             return valid;
         }

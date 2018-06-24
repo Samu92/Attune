@@ -6,6 +6,8 @@ import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.NotNull;
 
+import java.util.Date;
+
 @Entity
 public class Song {
     @Index(unique = true)
@@ -68,15 +70,17 @@ public class Song {
 
     @NotNull
     private float valence;
+    
+    private String date;
 
-    @Generated(hash = 1333558738)
+    @Generated(hash = 1860946579)
     public Song(@NotNull String id, @NotNull String idPlaylist,
             @NotNull String idSpotify, @NotNull String urlSpotify,
             @NotNull String genreId, @NotNull String name, long duration,
             float tempo, @NotNull String artist, @NotNull String image,
             String previewUrl, float acousticness, float danceability, float energy,
             float instrumentalness, float liveness, float loudness, int popularity,
-            float speechiness, float valence) {
+            float speechiness, float valence, String date) {
         this.id = id;
         this.idPlaylist = idPlaylist;
         this.idSpotify = idSpotify;
@@ -97,6 +101,7 @@ public class Song {
         this.popularity = popularity;
         this.speechiness = speechiness;
         this.valence = valence;
+        this.date = date;
     }
 
     @Generated(hash = 87031450)
@@ -261,6 +266,14 @@ public class Song {
 
     public void setValence(float valence) {
         this.valence = valence;
+    }
+
+    public String getDate() {
+        return this.date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
   

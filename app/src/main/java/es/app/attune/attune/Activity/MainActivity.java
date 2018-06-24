@@ -1,8 +1,10 @@
 package es.app.attune.attune.Activity;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
@@ -25,7 +27,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.spotify.sdk.android.player.Spotify;
@@ -44,30 +45,32 @@ import es.app.attune.attune.Classes.SearchInterfaces;
 import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.Database.DaoSession;
 import es.app.attune.attune.Database.Song;
+import es.app.attune.attune.Fragments.ManualMode;
 import es.app.attune.attune.Fragments.NewPlayList;
-import es.app.attune.attune.Fragments.NewPlayListTabs;
+import es.app.attune.attune.Fragments.AutomaticModeTabs;
 import es.app.attune.attune.Fragments.PlayListFragment;
 import es.app.attune.attune.Fragments.SongsListFragment;
 import es.app.attune.attune.Modules.Tools;
 import es.app.attune.attune.R;
+import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.UserPrivate;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         PlayListFragment.OnListFragmentInteractionListener, NewPlayList.OnFragmentInteractionListener,
         SearchInterfaces.ResultPlaylist, SearchInterfaces.ResultGenres, SearchInterfaces.ResultUserData,
-        SongsListFragment.OnListFragmentInteractionListener, NewPlayListTabs.OnFragmentInteractionListener{
+        SongsListFragment.OnListFragmentInteractionListener, AutomaticModeTabs.OnFragmentInteractionListener{
 
     static final String EXTRA_TOKEN = "EXTRA_TOKEN";
     private static final String KEY_CURRENT_QUERY = "CURRENT_QUERY";
-
     private static final int REQUEST_CODE = 1337;
     private static final int MY_PERMISSIONS_REQUEST_READ_MEDIA = 10 ;
 
     // Fragments
     private PlayListFragment playListFragment;
-    private NewPlayListTabs newPlayListFragmentTabs;
     private SongsListFragment songsListFragment;
+    private static AutomaticModeTabs automaticModeTabs;
+    private static ManualMode manualMode;
 
     //GreenDao
     private DaoSession daoSession;
@@ -116,7 +119,7 @@ public class MainActivity extends AppCompatActivity
         Intent intent = getIntent();
         String token = intent.getStringExtra(EXTRA_TOKEN);
 
-        mActionListener = new SearchFunctions(this, this, this, this );
+        mActionListener = new SearchFunctions(this, this, this, this);
         mActionListener.init(token);
 
         mActionListener.getUserData();
@@ -136,8 +139,9 @@ public class MainActivity extends AppCompatActivity
         mActionListener.getAvailableGenreSeeds();
 
         // Inicializamos los fragmentos
-        newPlayListFragmentTabs = NewPlayListTabs.newInstance(db);
         playListFragment = PlayListFragment.newInstance(db);
+        automaticModeTabs = AutomaticModeTabs.newInstance(db);
+        manualMode = ManualMode.newInstance(db, mActionListener);
 
         getSupportFragmentManager().beginTransaction()
                 .addToBackStack(playListFragment.getClass().getName())
@@ -154,17 +158,31 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Begin the transaction
-                if (!newPlayListFragmentTabs.isVisible()) {
-                    // Si el fragmento no está visible lo mostramos
-                    getSupportFragmentManager().beginTransaction()
-                            .addToBackStack(newPlayListFragmentTabs.getClass().getName())
-                            .replace(R.id.fragmentView, newPlayListFragmentTabs, newPlayListFragmentTabs.getClass().getName())
-                            .commit();
-                }else{
-                    if(newPlayListFragmentTabs.validarFormulario()){
-                        // El formulario es correcto por lo que obtenemos los parámetros y empezamos el proceso
-                        // Obtenemos la imagen de la playlist
+
+                // Si pulsamos el botón mostramos el dialogo de selección de modo
+                if(playListFragment.isVisible()){
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle(R.string.select_mode)
+                            .setItems(R.array.modes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if(which == 0){
+                                        getSupportFragmentManager().beginTransaction()
+                                                .addToBackStack(automaticModeTabs.getClass().getName())
+                                                .replace(R.id.fragmentView, automaticModeTabs, automaticModeTabs.getClass().getName())
+                                                .commit();
+                                    }else if(which == 1){
+                                        getSupportFragmentManager().beginTransaction()
+                                                .addToBackStack(manualMode.getClass().getName())
+                                                .replace(R.id.fragmentView, manualMode, manualMode.getClass().getName())
+                                                .commit();
+                                    }
+                                }
+                            });
+                    builder.show();
+                }else if(automaticModeTabs.isVisible()){
+                    // El formulario es correcto por lo que obtenemos los parámetros y empezamos el proceso
+                    // Obtenemos la imagen de la playlist
+                    if(automaticModeTabs.validarFormulario()){
                         progress.setMessage(getString(R.string.creating_playlist));
                         progress.show();
 
@@ -172,45 +190,45 @@ public class MainActivity extends AppCompatActivity
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                byte[] image = Tools.getByteArray(newPlayListFragmentTabs.getImage());
+                                byte[] image = Tools.getByteArray(automaticModeTabs.getImage());
 
                                 // Obtenemos el nombre de la nueva playlist
-                                String name = newPlayListFragmentTabs.getName();
+                                String name = automaticModeTabs.getName();
 
                                 // Obtenemos el tempo seleccionado
-                                int tempo = newPlayListFragmentTabs.getTempo();
+                                int tempo = automaticModeTabs.getTempo();
 
                                 // Obtenemos las categorías seleccionadas
-                                String genre = newPlayListFragmentTabs.getCategory();
+                                String genre = automaticModeTabs.getCategory();
 
                                 // Obtenemos la duración máxima seleccionada
-                                int duration = newPlayListFragmentTabs.getDuration();
+                                int duration = automaticModeTabs.getDuration();
 
                                 //Obtenemos la duración de cada canción
-                                float song_duration = newPlayListFragmentTabs.getSongDuration();
+                                float song_duration = automaticModeTabs.getSongDuration();
 
-                                float acoustiness = newPlayListFragmentTabs.getAcousticness();
+                                float acoustiness = automaticModeTabs.getAcousticness();
 
-                                float danceability = newPlayListFragmentTabs.getDanceability();
+                                float danceability = automaticModeTabs.getDanceability();
 
-                                float energy = newPlayListFragmentTabs.getEnergy();
+                                float energy = automaticModeTabs.getEnergy();
 
-                                float instrumentalness = newPlayListFragmentTabs.getInstrumentalness();
+                                float instrumentalness = automaticModeTabs.getInstrumentalness();
 
-                                float liveness = newPlayListFragmentTabs.getLiveness();
+                                float liveness = automaticModeTabs.getLiveness();
 
-                                float loudness = newPlayListFragmentTabs.getLoudness();
+                                float loudness = automaticModeTabs.getLoudness();
 
-                                int popularity = newPlayListFragmentTabs.getPopularity();
+                                int popularity = automaticModeTabs.getPopularity();
 
-                                float speechiness = newPlayListFragmentTabs.getSpeechiness();
+                                float speechiness = automaticModeTabs.getSpeechiness();
 
-                                float valence = newPlayListFragmentTabs.getValence();
+                                float valence = automaticModeTabs.getValence();
 
                                 // Procedemos a llamar a la API para obtener las canciones
                                 UUID newId = java.util.UUID.randomUUID();
                                 AttPlaylist newPlaylist = new AttPlaylist(newId.toString(),
-                                        name,tempo,duration,song_duration,image,genre,Calendar.getInstance().getTime(),
+                                        name,tempo,duration,song_duration,image,genre, Calendar.getInstance().getTime(),
                                         acoustiness,danceability,energy,instrumentalness,liveness,
                                         loudness,popularity,speechiness,valence);
                                 mActionListener.searchRecomendations(newPlaylist);
@@ -309,7 +327,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
-        unbindService(mConnection);
+        if(mBound){
+            unbindService(mConnection);
+            mBound = false;
+        }
         super.onDestroy();
     }
 
@@ -415,6 +436,10 @@ public class MainActivity extends AppCompatActivity
         progress.dismiss();
     }
 
+    @Override
+    public void addDataToSearchList(List<Song> items) {
+        manualMode.setAdapter(items);
+    }
 
     @Override
     public void setUserData(UserPrivate user) {

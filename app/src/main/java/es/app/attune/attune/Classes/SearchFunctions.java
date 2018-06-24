@@ -1,21 +1,17 @@
 package es.app.attune.attune.Classes;
 
-import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.ServiceConnection;
-import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
-import es.app.attune.attune.AttunePlayer.PlayerService;
 import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.Database.DaoSession;
 import es.app.attune.attune.Database.Song;
-import es.app.attune.attune.AttunePlayer.Player;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTracks;
@@ -30,6 +26,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
     private static final String TAG = SearchFunctions.class.getSimpleName();
     public static final int SIZE = 50;
     private static final String CLIENT_ID = "";
+    private static final int PAGE_SIZE = 10;
 
     private final Context mContext;
     private final SearchInterfaces.ResultPlaylist mResultPlaylist;
@@ -42,11 +39,14 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
 
     private SearchSpotify mSearchPager;
     private SearchSpotify.CompleteListener mSearchListener;
+    private SearchSpotify.ManualSearchListener mManualSearchListener;
     private SearchSpotify.GenresListener mGenresListener;
     private SearchSpotify.UserDataListener mUserDataListener;
 
     private DaoSession daoSession;
     private DatabaseFunctions db;
+
+    private String mCurrentQuery;
 
     public SearchFunctions(Context context, SearchInterfaces.ResultPlaylist result, SearchInterfaces.ResultGenres result_genres, SearchInterfaces.ResultUserData result_userdata) {
         mContext = context;
@@ -85,7 +85,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
             mResultPlaylist.reset();
             mSearchListener = new SearchSpotify.CompleteListener() {
                 @Override
-                public void onComplete(List<Track> items, AudioFeaturesTracks audioFeaturesTracks) {
+                public void onComplete(List<Track> items, AudioFeaturesTracks audioFeaturesTracks, Map<String, String> dates) {
                     long playlist_duration = 0;
                     for (Track track: items) {
                         UUID newUUID = java.util.UUID.randomUUID();
@@ -97,7 +97,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                         String name = track.name;
                         long duration = track.duration_ms;
                         String artist = track.artists.get(0).name;
-                        String imageUri = "";
+                        String imageUri = track.album.images.get(0).url;
                         String previewUrl = track.preview_url;
                         float acousticness = 0;
                         float danceability = 0;
@@ -109,6 +109,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                         float speechiness = 0;
                         float valence = 0;
                         float tempo = 0;
+                        String date = dates.get(track.id);
                         for (AudioFeaturesTrack feature: audioFeaturesTracks.audio_features) {
                             if(track.id.equals(feature.id)){
                                 tempo = feature.tempo;
@@ -129,7 +130,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                         Song song = new Song(newId,playlistId,trackId,spotifyId,
                                 genreId,name,track.duration_ms,tempo,artist,imageUri,previewUrl,
                                 acousticness,danceability,energy,instrumentalness,liveness,
-                                loudness,popularity,speechiness,valence);
+                                loudness,popularity,speechiness,valence,date);
                         db.insertSong(song);
                     }
                     newPlaylist.setDuration((int) playlist_duration);
@@ -145,6 +146,86 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
             };
             mSearchPager.getRecomendationPlaylist(newPlaylist, SIZE, mSearchListener);
         }
+    }
+
+    @Override
+    public void search(String searchQuery) {
+        if (searchQuery != null && !searchQuery.isEmpty()) {
+            logMessage("query text submit " + searchQuery);
+            mCurrentQuery = searchQuery;
+            //mView.reset();
+            mManualSearchListener = new SearchSpotify.ManualSearchListener() {
+                @Override
+                public void onComplete(List<Track> items, AudioFeaturesTracks audioFeaturesTracks, Map<String, String> dates) {
+                    // Hemos recibido la lista de canciones y sus features
+                    List<Song> song_list = new ArrayList<Song>();
+                    for (Track track: items) {
+                        UUID newUUID = java.util.UUID.randomUUID();
+                        String newId = newUUID.toString();
+                        String playlistId = "";
+                        String trackId = track.id;
+                        String spotifyId = track.uri;
+                        String genreId = "";
+                        String name = track.name;
+                        long duration = track.duration_ms;
+                        String artist = track.artists.get(0).name;
+                        String imageUri = track.album.images.get(0).url;
+                        String previewUrl = track.preview_url;
+                        float acousticness = 0;
+                        float danceability = 0;
+                        float energy = 0;
+                        float instrumentalness = 0;
+                        float liveness = 0;
+                        float loudness = 0;
+                        int popularity = 0;
+                        float speechiness = 0;
+                        float valence = 0;
+                        float tempo = 0;
+                        String date = dates.get(track.id);
+                        for (AudioFeaturesTrack feature: audioFeaturesTracks.audio_features) {
+                            if(feature != null){
+                                if(track.id.equals(feature.id)){
+                                    tempo = feature.tempo;
+                                    acousticness = feature.acousticness;
+                                    danceability = feature.danceability;
+                                    energy = feature.energy;
+                                    instrumentalness = feature.instrumentalness;
+                                    liveness = feature.liveness;
+                                    loudness = feature.loudness;
+                                    popularity = track.popularity;
+                                    speechiness = feature.speechiness;
+                                    valence = feature.valence;
+                                }
+                            }
+                        }
+                        Song song = new Song(newId,playlistId,trackId,spotifyId,
+                                genreId,name,track.duration_ms,tempo,artist,imageUri,previewUrl,
+                                acousticness,danceability,energy,instrumentalness,liveness,
+                                loudness,popularity,speechiness,valence,date);
+                        song_list.add(song);
+                    }
+                    mResultPlaylist.addDataToSearchList(song_list);
+                }
+
+                @Override
+                public void onError(Throwable error) {
+                    logError(error.getMessage());
+                    mResultPlaylist.showError(error.getMessage());
+                }
+            };
+            mSearchPager.getFirstPage(searchQuery, PAGE_SIZE, mManualSearchListener);
+        }
+    }
+
+    @Override
+    public void loadMoreResults() {
+        Log.d(TAG, "Load more...");
+        mSearchPager.getNextPage(mManualSearchListener);
+    }
+
+    @Override
+    public String getRecordedQuery(String keyCurrentQuery) {
+        return mCurrentQuery;
     }
 
     @Override
@@ -223,4 +304,5 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
         Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
         Log.d(TAG, msg);
     }
+
 }

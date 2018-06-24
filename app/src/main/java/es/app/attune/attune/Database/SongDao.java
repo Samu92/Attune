@@ -45,6 +45,7 @@ public class SongDao extends AbstractDao<Song, String> {
         public final static Property Popularity = new Property(17, int.class, "popularity", false, "POPULARITY");
         public final static Property Speechiness = new Property(18, float.class, "speechiness", false, "SPEECHINESS");
         public final static Property Valence = new Property(19, float.class, "valence", false, "VALENCE");
+        public final static Property Date = new Property(20, String.class, "date", false, "DATE");
     }
 
     private Query<Song> attPlaylist_SongsQuery;
@@ -80,7 +81,8 @@ public class SongDao extends AbstractDao<Song, String> {
                 "\"LOUDNESS\" REAL NOT NULL ," + // 16: loudness
                 "\"POPULARITY\" INTEGER NOT NULL ," + // 17: popularity
                 "\"SPEECHINESS\" REAL NOT NULL ," + // 18: speechiness
-                "\"VALENCE\" REAL NOT NULL );"); // 19: valence
+                "\"VALENCE\" REAL NOT NULL ," + // 19: valence
+                "\"DATE\" TEXT);"); // 20: date
         // Add Indexes
         db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_SONG_ID ON \"SONG\"" +
                 " (\"ID\" ASC);");
@@ -119,6 +121,11 @@ public class SongDao extends AbstractDao<Song, String> {
         stmt.bindLong(18, entity.getPopularity());
         stmt.bindDouble(19, entity.getSpeechiness());
         stmt.bindDouble(20, entity.getValence());
+ 
+        String date = entity.getDate();
+        if (date != null) {
+            stmt.bindString(21, date);
+        }
     }
 
     @Override
@@ -148,6 +155,11 @@ public class SongDao extends AbstractDao<Song, String> {
         stmt.bindLong(18, entity.getPopularity());
         stmt.bindDouble(19, entity.getSpeechiness());
         stmt.bindDouble(20, entity.getValence());
+ 
+        String date = entity.getDate();
+        if (date != null) {
+            stmt.bindString(21, date);
+        }
     }
 
     @Override
@@ -177,7 +189,8 @@ public class SongDao extends AbstractDao<Song, String> {
             cursor.getFloat(offset + 16), // loudness
             cursor.getInt(offset + 17), // popularity
             cursor.getFloat(offset + 18), // speechiness
-            cursor.getFloat(offset + 19) // valence
+            cursor.getFloat(offset + 19), // valence
+            cursor.isNull(offset + 20) ? null : cursor.getString(offset + 20) // date
         );
         return entity;
     }
@@ -204,6 +217,7 @@ public class SongDao extends AbstractDao<Song, String> {
         entity.setPopularity(cursor.getInt(offset + 17));
         entity.setSpeechiness(cursor.getFloat(offset + 18));
         entity.setValence(cursor.getFloat(offset + 19));
+        entity.setDate(cursor.isNull(offset + 20) ? null : cursor.getString(offset + 20));
      }
     
     @Override

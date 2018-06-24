@@ -6,7 +6,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import org.w3c.dom.Text;
 
@@ -58,6 +61,20 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
                 }
             }
         });
+
+        if(!mValues.get(position).getImage().equals("")){
+            Picasso.with(context).
+                    load(mValues.get(position).getImage())
+                    .placeholder(R.drawable.baseline_add_photo_alternate_white_48)
+                    .into(holder.image);
+        }else{
+            Picasso.with(context).
+                    load(R.drawable.baseline_add_photo_alternate_white_48)
+                    .placeholder(R.drawable.baseline_add_photo_alternate_white_48)
+                    .into(holder.image);
+        }
+
+        holder.mDateView.setText(context.getResources().getString(R.string.date) + mValues.get(position).getDate());
     }
 
     @Override
@@ -88,6 +105,8 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
         public final TextView mArtistView;
         public final TextView mTempoView;
         public final TextView mDurationView;
+        public final ImageView image;
+        public final TextView mDateView;
         public Song mItem;
 
         public ViewHolder(View view) {
@@ -97,6 +116,8 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
             mArtistView = (TextView) view.findViewById(R.id.song_artist);
             mTempoView = (TextView) view.findViewById(R.id.song_tempo);
             mDurationView = (TextView) view.findViewById(R.id.song_duration);
+            image = (ImageView) view.findViewById(R.id.entity_song_image);
+            mDateView = (TextView) view.findViewById(R.id.song_date);
         }
 
         @Override

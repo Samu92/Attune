@@ -18,7 +18,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewSwitcher;
+
+import org.w3c.dom.Text;
 
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Database.AttPlaylist;
@@ -40,6 +45,7 @@ public class PlayListFragment extends Fragment {
     private static DatabaseFunctions db;
     private RecyclerView recyclerView;
     private PlayListRecyclerViewAdapter adapter;
+    private TextView empty;
 
     public PlayListFragment() {
     }
@@ -68,14 +74,14 @@ public class PlayListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Set the adapter
-        if (view instanceof RecyclerView) {
+        if (view instanceof RelativeLayout) {
             if (getArguments() != null) {
                 mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
             }
             adapter = new PlayListRecyclerViewAdapter(db.getPlaylists(), mListener, getContext());
 
             Context context = view.getContext();
-            recyclerView = (RecyclerView) view;
+            recyclerView = (RecyclerView) view.findViewById(R.id.list);
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
@@ -90,6 +96,16 @@ public class PlayListFragment extends Fragment {
 
             ItemTouchHelper itemTouchHelper = new ItemTouchHelper(createHelperCallback());
             itemTouchHelper.attachToRecyclerView(recyclerView);
+
+            empty = (TextView) getView().findViewById(R.id.empty_view);
+
+            if(adapter.getItemCount() == 0){
+                recyclerView.setVisibility(View.GONE);
+                empty.setVisibility(View.VISIBLE);
+            }else{
+                recyclerView.setVisibility(View.VISIBLE);
+                empty.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -105,6 +121,14 @@ public class PlayListFragment extends Fragment {
                     @Override
                     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                         adapter.deleteItem(viewHolder.getAdapterPosition(),db);
+
+                        if(adapter.getItemCount() == 0){
+                            recyclerView.setVisibility(View.GONE);
+                            empty.setVisibility(View.VISIBLE);
+                        }else{
+                            recyclerView.setVisibility(View.VISIBLE);
+                            empty.setVisibility(View.GONE);
+                        }
                     }
                 };
         return simpleCallback;

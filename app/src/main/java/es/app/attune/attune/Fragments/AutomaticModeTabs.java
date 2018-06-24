@@ -22,7 +22,7 @@ import java.util.List;
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.R;
 
-public class NewPlayListTabs extends Fragment {
+public class AutomaticModeTabs extends Fragment {
 
     private Toolbar toolbar;
     private TabLayout tabLayout;
@@ -36,12 +36,12 @@ public class NewPlayListTabs extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    public NewPlayListTabs() {
+    public AutomaticModeTabs() {
         // Required empty public constructor
     }
 
-    public static NewPlayListTabs newInstance(DatabaseFunctions database) {
-        NewPlayListTabs fragment = new NewPlayListTabs();
+    public static AutomaticModeTabs newInstance(DatabaseFunctions database) {
+        AutomaticModeTabs fragment = new AutomaticModeTabs();
         db = database;
         fragmentNewPlaylist = NewPlayList.newInstance(db);
         fragmentAdvancedParameters = AdvancedParameters.newInstance(db);
