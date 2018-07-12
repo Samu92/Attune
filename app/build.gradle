@@ -84,5 +84,7 @@ dependencies {
 
     implementation 'com.google.guava:guava:18.0'
 
+    implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
+
     testImplementation 'junit:junit:4.12'
 }

@@ -55,11 +55,11 @@
             android:text="@string/Category" />
 
         <com.toptoche.searchablespinnerlibrary.SearchableSpinner
-            android:id="@+id/category_spinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp"
-            android:layout_below="@id/txt_genre"/>
+        android:id="@+id/category_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:layout_below="@id/txt_genre"/>
 
         <RelativeLayout
             android:id="@+id/genres_list_relative"

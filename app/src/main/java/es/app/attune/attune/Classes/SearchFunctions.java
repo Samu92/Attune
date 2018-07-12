@@ -150,7 +150,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
 
     @Override
     public void search(String searchQuery) {
-        if (searchQuery != null && !searchQuery.isEmpty()) {
+        //if (searchQuery != null && !searchQuery.isEmpty()) {
             logMessage("query text submit " + searchQuery);
             mCurrentQuery = searchQuery;
             //mView.reset();
@@ -214,7 +214,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                 }
             };
             mSearchPager.getFirstPage(searchQuery, PAGE_SIZE, mManualSearchListener);
-        }
+        //}
     }
 
     @Override

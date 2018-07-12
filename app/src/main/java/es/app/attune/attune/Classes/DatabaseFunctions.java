@@ -54,6 +54,15 @@ public class DatabaseFunctions {
         return attplaylistDao.loadAll();
     }
 
+    public ArrayList<String> getPlaylistsNames() {
+        ArrayList<String> temp = new ArrayList<String>();
+        List<AttPlaylist> tempP =  attplaylistDao.loadAll();
+        for (AttPlaylist playlist: tempP) {
+            temp.add(playlist.getName());
+        }
+        return temp;
+    }
+
     public void insertSong(Song song) {
         songDao.insertInTx(song);
     }
@@ -70,5 +79,9 @@ public class DatabaseFunctions {
         List<Song> songs = new ArrayList<>();
         songs = songDao._queryAttPlaylist_Songs(playlistId);
         return songs;
+    }
+    
+    public void insertSongInPlaylist(Song selected_song, String playlist) {
+
     }
 }

@@ -49,8 +49,24 @@
     <string name="search_hint">Búsqueda</string>
     <string name="select_mode">Selecciona un modo</string>
     <string name="date">Fecha:</string>
+    <string name="title_filter">Filtro</string>
+    <string name="content_filter" />
+    <string name="agree">Aceptar</string>
+    <string name="disagree">Cancelar</string>
+    <string name="txt_filter_date">Fecha:</string>
+    <string name="date_filter_range">Rango de años</string>
+    <string name="no_manual_data_available">No hay resultados, introduce algún criterio de búsqueda</string>
+    <string name="select_manual_mode">Selecciona una opción</string>
+    <string name="select_playlist">Selecciona la playlist</string>
+    <string name="no_data_available_short_list_playlist">No hay ninguna playlist creada</string>
+    <string name="txt_empty_filter">Sin filtros</string>
     <string-array name="modes">
         <item>Automático</item>
         <item>Manual</item>
+    </string-array>
+    <string-array name="manual_modes">
+        <item>Reproducir</item>
+        <item>Añadir a playlist existente</item>
+        <item>Crear en nueva playlist</item>
     </string-array>
 </resources>

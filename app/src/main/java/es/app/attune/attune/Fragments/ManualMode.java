@@ -1,33 +1,52 @@
 package es.app.attune.attune.Fragments;
 
 
+import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
-import android.widget.Toast;
+import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
+
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
+import es.app.attune.attune.Adapters.FilterAdapter;
 import es.app.attune.attune.Adapters.SearchResultsAdapter;
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Classes.ResultListScrollListener;
-import es.app.attune.attune.Classes.SearchFunctions;
 import es.app.attune.attune.Classes.SearchInterfaces;
 import es.app.attune.attune.Database.Song;
 import es.app.attune.attune.R;
-import kaaes.spotify.webapi.android.models.Track;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ManualMode extends Fragment {
+public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetListener {
 
     private static DatabaseFunctions db;
     private SearchView searchView;
@@ -37,14 +56,82 @@ public class ManualMode extends Fragment {
 
     private LinearLayoutManager mLayoutManager;
     private ScrollListener mScrollListener;
+
+    private ManualMode.OnListFragmentInteractionListener mListener;
+
     private SearchResultsAdapter mAdapter;
+
+    private RecyclerView resultsList;
+
+    private MaterialDialog material;
+
+    private SearchableSpinner genresSpinner;
+
+    private static List<String> genres_list;
+
+    private int fecha_edicion = 0;
+    private EditText editText_start;
+    private EditText editText_end;
+
+    private DatePickerDialog dialogpicker;
+
+    private int year_start;
+    private int year_end;
+    private String genre;
+
+    private TextView empty;
+
+    private ProgressBar progressManualBar;
+
+    private ListView playlist_list_view;
+    private MaterialDialog playlist_list_dialog;
+
+    private TextView empty_playlist_list;
+
+    private LinearLayout filter_layout;
+
+    private AppCompatCheckBox filter_date_check;
+
+    private RecyclerView filter_list;
+    private ArrayList<String> filter_array;
+    private FilterAdapter filterAdapter;
+
+    private TextView empty_filter_list;
+
+    private Song selected_song;
 
     public ManualMode() {
         // Required empty public constructor
     }
 
     public void setAdapter(List<Song> items) {
-        mAdapter.addData(items);
+        if(mAdapter != null){
+            mAdapter.addData(items);
+
+            if(mAdapter.getItemCount() == 0){
+                resultsList.setVisibility(View.GONE);
+                empty.setVisibility(View.VISIBLE);
+            }else{
+                resultsList.setVisibility(View.VISIBLE);
+                empty.setVisibility(View.GONE);
+            }
+            progressManualBar.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+        if(fecha_edicion == 0){
+            year_start = i;
+            editText_start.setText(String.valueOf(i));
+            //editText_start.setText(String.valueOf(i2) + "/" + String.valueOf(i1+1) + "/" + String.valueOf(i));
+    }
+
+        if(fecha_edicion == 1){
+            year_end = i;
+            editText_end.setText(String.valueOf(i));
+            //editText_end.setText(String.valueOf(i2) + "/" + String.valueOf(i1) + "/" + String.valueOf(i));
+        }
     }
 
     private class ScrollListener extends ResultListScrollListener {
@@ -68,6 +155,8 @@ public class ManualMode extends Fragment {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        genres_list = new ArrayList<String>();
+
         super.onCreate(savedInstanceState);
     }
 
@@ -78,52 +167,359 @@ public class ManualMode extends Fragment {
         return inflater.inflate(R.layout.fragment_manual_mode, container, false);
     }
 
+    /**
+     * Called when a fragment is first attached to its context.
+     * {@link #onCreate(Bundle)} will be called after this.
+     *
+     * @param context
+     */
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof SongsListFragment.OnListFragmentInteractionListener) {
+            mListener = (ManualMode.OnListFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnListFragmentInteractionListener");
+        }
+    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        progressManualBar = (ProgressBar) getView().findViewById(R.id.search_manual_progress);
+        progressManualBar.setVisibility(View.GONE);
+
         mLayoutManager = new LinearLayoutManager(getContext());
         mScrollListener =  new ScrollListener(mLayoutManager);
 
+        genre = "";
+
+       material = new MaterialDialog.Builder(getActivity())
+                .title(R.string.title_filter)
+                .customView(R.layout.filter_dialog_layout, true)
+                .positiveText(R.string.agree)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        genre = genresSpinner.getSelectedItem().toString();
+
+                        filter_array.clear();
+
+                        if(!filter_date_check.isChecked()){
+                            year_start = 1600;
+                            year_end = year_end = Calendar.getInstance().get(Calendar.YEAR);
+                            filter_array.add(String.valueOf(year_start) + " - " + String.valueOf(year_end));
+                        }else{
+                            year_start = Integer.valueOf(editText_start.getText().toString());
+                            year_end = Integer.valueOf(editText_end.getText().toString());
+                            filter_array.add(String.valueOf(year_start) + " - " + String.valueOf(year_end));
+                        }
+
+                        if(genresSpinner.getSelectedItemPosition() != 0){
+                            if(!genre.equals("")){
+                                filter_array.add(genre);
+                            }
+                        }else{
+                            genre = "";
+                        }
+
+                        filterAdapter.notifyDataSetChanged();
+
+                        if(filterAdapter.getItemCount() == 0){
+                            empty_filter_list.setVisibility(View.VISIBLE);
+                            filter_list.setVisibility(View.GONE);
+                        }else{
+                            empty_filter_list.setVisibility(View.GONE);
+                            filter_list.setVisibility(View.VISIBLE);
+                        }
+
+                        reset();
+
+                        String query = searchView.getQuery().toString();
+
+                        if(query.equals("")){
+                            query = "year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
+                            if(genresSpinner.getSelectedItemPosition() != 0){
+                                if(!genre.equals("")){
+                                    query += " genre:" + genre;
+                                }
+
+                            }
+                        }else{
+                            query += "* year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
+                            if(genresSpinner.getSelectedItemPosition() != 0){
+                                if(!genre.equals("")){
+                                    query += " genre:" + genre;
+                                }
+                            }
+                        }
+
+                        progressManualBar.setVisibility(View.VISIBLE);
+                        empty.setVisibility(View.GONE);
+                        mActionListener.search(query);
+                    }
+                })
+                .negativeText(R.string.disagree)
+                .build();
+
         searchView = (SearchView) getView().findViewById(R.id.search_view);
+
+        filter_layout = (LinearLayout) getView().findViewById(R.id.filter_view);
+        filter_layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                material.show();
+            }
+        });
+
+        filter_list = (RecyclerView) getView().findViewById(R.id.filter_list);
+
+        filter_list.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                material.show();
+            }
+        });
+
+        filter_list.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                material.show();
+                return true;
+            }
+        });
+
+        LinearLayoutManager filter_manager = new LinearLayoutManager(getContext());
+        filter_manager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        filter_list.setLayoutManager(filter_manager);
+
+        filter_array = new ArrayList<String>();
+        filterAdapter = new FilterAdapter(filter_array, getContext());
+        filter_list.setAdapter(filterAdapter);
+
+        empty_filter_list = (TextView) getView().findViewById(R.id.empty_filter_list);
+
+        if(filterAdapter.getItemCount() == 0){
+            empty_filter_list.setVisibility(View.VISIBLE);
+            filter_list.setVisibility(View.GONE);
+        }else{
+            empty_filter_list.setVisibility(View.GONE);
+            filter_list.setVisibility(View.VISIBLE);
+        }
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 reset();
+
+                if(query.equals("")){
+                    query = "year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
+                    if(genresSpinner.getSelectedItemPosition() != 0){
+                        if(!genre.equals("")){
+                            query += " genre:" + genre;
+                        }
+                    }
+                }else{
+                    query += "* year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
+                    if(genresSpinner.getSelectedItemPosition() != 0){
+                        if(!genre.equals("")){
+                            query += " genre:" + genre;
+                        }
+                    }
+                }
+
+                progressManualBar.setVisibility(View.VISIBLE);
+                empty.setVisibility(View.GONE);
                 mActionListener.search(query);
                 searchView.clearFocus();
+
                 return true;
             }
 
             @Override
-            public boolean onQueryTextChange(String s) {
-                return false;
+            public boolean onQueryTextChange(String query) {
+                if(query.equals("")){
+                    reset();
+
+                    if(query.equals("")){
+                        query = "year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
+                        if(genresSpinner.getSelectedItemPosition() != 0){
+                            if(!genre.equals("")){
+                                query += " genre:" + genre;
+                            }
+                        }
+                    }else{
+                        query += "* year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
+                        if(genresSpinner.getSelectedItemPosition() != 0){
+                            if(!genre.equals("")){
+                                query += " genre:" + genre;
+                            }
+                        }
+                    }
+
+                    progressManualBar.setVisibility(View.VISIBLE);
+                    empty.setVisibility(View.GONE);
+                    mActionListener.search(query);
+                    //searchView.clearFocus();
+
+                    return true;
+                }else{
+                    return true;
+                }
             }
         });
+
+        genresSpinner = (SearchableSpinner) material.getCustomView().findViewById(R.id.category_filter_spinner);
+
+        genresSpinner.setTitle(getString(R.string.add_genre));
+        genresSpinner.setPositiveButton(getString(R.string.accept));
+
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, db.getGenres());
+
+        // Apply the adapter to the spinner
+        genresSpinner.setAdapter(adapter);
+
+        genresSpinner.setSelection(-1);
 
         // Setup search results list
         mAdapter = new SearchResultsAdapter(getActivity(), new SearchResultsAdapter.ItemSelectedListener() {
             @Override
-            public void onItemSelected(View itemView, Song item) {
-                Toast.makeText(getContext(), item.getName(), Toast.LENGTH_SHORT).show();
+            public void onItemSelected(View itemView, final Song item) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle(R.string.select_manual_mode)
+                        .setItems(R.array.manual_modes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                if(which == 0){
+                                    if (null != mListener) {
+                                        // Notify the active callbacks interface (the activity, if the
+                                        // fragment is attached to one) that an item has been selected.
+                                        mListener.onListFragmentInteraction(item);
+                                    }
+                                }else if(which == 1){
+                                    selected_song = item;
+                                    playlist_list_dialog.show();
+                                }else if(which == 2){
+
+                                }
+                            }
+                        });
+                builder.show();
             }
         });
 
-        RecyclerView resultsList = (RecyclerView) view.findViewById(R.id.search_results);
+        year_start = 1600;
+        year_end = Calendar.getInstance().get(Calendar.YEAR);
+
+        editText_start = (EditText) material.getCustomView().findViewById(R.id.txt_filter_start_date);
+        editText_start.setClickable(true);
+        editText_start.setFocusable(false);
+
+        dialogpicker = new DatePickerDialog(
+                getContext(), ManualMode.this, Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH), Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+
+        editText_start.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fecha_edicion = 0;
+                dialogpicker.show();
+            }
+        });
+        editText_start.setText(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
+
+        editText_end = (EditText) material.getCustomView().findViewById(R.id.txt_filter_end_date);
+        editText_end.setText(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
+        editText_end.setClickable(true);
+        editText_end.setFocusable(false);
+
+        editText_end.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fecha_edicion = 1;
+                dialogpicker.show();
+            }
+        });
+
+        filter_date_check = (AppCompatCheckBox) material.getCustomView().findViewById(R.id.check_filter_date);
+        filter_date_check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    editText_start.setEnabled(true);
+                    editText_end.setEnabled(true);
+                }else{
+                    editText_start.setEnabled(false);
+                    editText_end.setEnabled(false);
+                }
+            }
+        });
+
+        playlist_list_dialog = new MaterialDialog.Builder(getActivity())
+                .title(R.string.select_playlist)
+                .customView(R.layout.playlist_list_short,false)
+                .negativeText(R.string.disagree)
+                .build();
+
+        empty_playlist_list = (TextView) playlist_list_dialog.getCustomView().findViewById(R.id.empty_short_playlist_list_view);
+
+        playlist_list_view = (ListView) playlist_list_dialog.getCustomView().findViewById(R.id.short_playlist_list);
+        final ArrayAdapter<String> adapter_playlist_list = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, db.getPlaylistsNames());
+        playlist_list_view.setAdapter(adapter_playlist_list);
+
+        playlist_list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String playlist = adapter_playlist_list.getItem(i);
+
+                db.insertSongInPlaylist(selected_song,playlist);
+            }
+        });
+
+        if(adapter_playlist_list.getCount() == 0){
+            playlist_list_view.setVisibility(View.GONE);
+            empty_playlist_list.setVisibility(View.VISIBLE);
+        }else{
+            playlist_list_view.setVisibility(View.VISIBLE);
+            empty_playlist_list.setVisibility(View.GONE);
+        }
+
+        resultsList = (RecyclerView) view.findViewById(R.id.search_results);
         resultsList.setHasFixedSize(true);
         resultsList.setLayoutManager(mLayoutManager);
         resultsList.setAdapter(mAdapter);
         resultsList.addOnScrollListener(mScrollListener);
 
-        // If fragment was recreated wit active search restore it
         String currentQuery = mActionListener.getRecordedQuery(KEY_CURRENT_QUERY);
         mActionListener.search(currentQuery);
         searchView.clearFocus();
+
+        empty = (TextView) getView().findViewById(R.id.empty_manual_view);
+
+        if(mAdapter.getItemCount() == 0){
+            resultsList.setVisibility(View.GONE);
+            empty.setVisibility(View.VISIBLE);
+        }else{
+            resultsList.setVisibility(View.VISIBLE);
+            empty.setVisibility(View.GONE);
+        }
     }
 
     private void reset() {
         mScrollListener.reset();
         mAdapter.clearData();
+
+        if(mAdapter.getItemCount() == 0){
+            resultsList.setVisibility(View.GONE);
+            empty.setVisibility(View.VISIBLE);
+        }else{
+            resultsList.setVisibility(View.VISIBLE);
+            empty.setVisibility(View.GONE);
+        }
+    }
+
+    public interface OnListFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onListFragmentInteraction(Song item);
     }
 }

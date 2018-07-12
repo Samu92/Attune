@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/txt_filter_genre"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/txt_genre"/>
+
+    <com.toptoche.searchablespinnerlibrary.SearchableSpinner
+        android:id="@+id/category_filter_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:layout_below="@id/txt_filter_genre"/>
+
+    <TextView
+        android:id="@+id/txt_filter_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/txt_filter_date"
+        android:layout_below="@id/category_filter_spinner"/>
+
+    <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/check_filter_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/category_filter_spinner"
+        android:layout_alignBaseline="@id/txt_filter_start_date"/>
+
+    <EditText
+        android:id="@+id/txt_filter_start_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/txt_filter_date"
+        android:layout_toRightOf="@id/check_filter_date"
+        android:inputType="datetime"
+        android:enabled="false"/>
+
+    <TextView
+        android:id="@+id/txt_filter_separator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/txt_filter_date"
+        android:layout_toRightOf="@id/txt_filter_start_date"
+        android:layout_alignBaseline="@id/txt_filter_start_date"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp"
+        android:text="-"/>
+
+    <EditText
+        android:id="@+id/txt_filter_end_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/txt_filter_date"
+        android:inputType="datetime"
+        android:layout_marginLeft="2dp"
+        android:layout_toRightOf="@id/txt_filter_separator"
+        android:enabled="false"/>
+</RelativeLayout>

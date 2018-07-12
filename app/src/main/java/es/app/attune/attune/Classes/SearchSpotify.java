@@ -124,7 +124,6 @@ public class SearchSpotify {
     }
 
     private void getSearchData(String query, int offset, final int limit, final ManualSearchListener listener) {
-
         Map<String, Object> options = new HashMap<>();
         options.put(SpotifyService.OFFSET, offset);
         options.put(SpotifyService.LIMIT, limit);
@@ -235,6 +234,8 @@ public class SearchSpotify {
                     listener.onError(error);
                 }
             });
+        }else{
+            listener.onComplete(tracks,null,null);
         }
     }
 

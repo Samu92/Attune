@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         PlayListFragment.OnListFragmentInteractionListener, NewPlayList.OnFragmentInteractionListener,
         SearchInterfaces.ResultPlaylist, SearchInterfaces.ResultGenres, SearchInterfaces.ResultUserData,
-        SongsListFragment.OnListFragmentInteractionListener, AutomaticModeTabs.OnFragmentInteractionListener{
+        SongsListFragment.OnListFragmentInteractionListener, AutomaticModeTabs.OnFragmentInteractionListener, ManualMode.OnListFragmentInteractionListener{
 
     static final String EXTRA_TOKEN = "EXTRA_TOKEN";
     private static final String KEY_CURRENT_QUERY = "CURRENT_QUERY";
@@ -407,6 +407,7 @@ public class MainActivity extends AppCompatActivity
     public void onListFragmentInteraction(Song item) {
         mService.playSong(item.getUrlSpotify());
     }
+
 
     @Override
     public void reset() {
