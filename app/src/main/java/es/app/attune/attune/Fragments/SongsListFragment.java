@@ -12,6 +12,8 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Database.Song;
@@ -31,6 +33,7 @@ public class SongsListFragment extends Fragment {
     private RecyclerView recyclerView;
     private SongListRecyclerViewAdapter adapter;
     private static String playlistId;
+    private TextView empty;
 
     public SongsListFragment() {
         // Required empty public constructor
@@ -63,9 +66,9 @@ public class SongsListFragment extends Fragment {
         adapter = new SongListRecyclerViewAdapter(db.getSongs(playlistId), mListener, getContext());
 
         // Set the adapter
-        if (view instanceof RecyclerView) {
+        if (view instanceof RelativeLayout) {
             Context context = view.getContext();
-            recyclerView = (RecyclerView) view;
+            recyclerView = (RecyclerView) view.findViewById(R.id.songs_list);
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
@@ -80,6 +83,16 @@ public class SongsListFragment extends Fragment {
 
             ItemTouchHelper itemTouchHelper = new ItemTouchHelper(createHelperCallback());
             itemTouchHelper.attachToRecyclerView(recyclerView);
+
+            empty = (TextView) view.findViewById(R.id.empty_song_view);
+
+            if(adapter.getItemCount() == 0){
+                recyclerView.setVisibility(View.GONE);
+                empty.setVisibility(View.VISIBLE);
+            }else{
+                recyclerView.setVisibility(View.VISIBLE);
+                empty.setVisibility(View.GONE);
+            }
         }
         return view;
     }
@@ -89,13 +102,21 @@ public class SongsListFragment extends Fragment {
                 new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
                     @Override
                     public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                        adapter.moveItem(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+                        adapter.moveItem(viewHolder.getAdapterPosition(), target.getAdapterPosition(),db);
                         return true;
                     }
 
                     @Override
                     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                         adapter.deleteItem(viewHolder.getAdapterPosition(),db);
+
+                        if(adapter.getItemCount() == 0){
+                            recyclerView.setVisibility(View.GONE);
+                            empty.setVisibility(View.VISIBLE);
+                        }else{
+                            recyclerView.setVisibility(View.VISIBLE);
+                            empty.setVisibility(View.GONE);
+                        }
                     }
                 };
         return simpleCallback;

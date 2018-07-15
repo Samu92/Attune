@@ -29,6 +29,7 @@ public class PlayListRecyclerViewAdapter extends RecyclerView.Adapter<PlayListRe
     private final List<AttPlaylist> mValues;
     private final OnListFragmentInteractionListener mListener;
     private Context context;
+    private ViewHolder holder;
 
     public PlayListRecyclerViewAdapter(List<AttPlaylist> items, OnListFragmentInteractionListener listener, Context context) {
         mValues = items;
@@ -45,6 +46,7 @@ public class PlayListRecyclerViewAdapter extends RecyclerView.Adapter<PlayListRe
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
+        this.holder = holder;
         holder.mItem = mValues.get(position);
         //holder.mIdView.setText(mValues.get(position).getId());
         holder.mNameView.setText(mValues.get(position).getName());
@@ -85,6 +87,8 @@ public class PlayListRecyclerViewAdapter extends RecyclerView.Adapter<PlayListRe
         AttPlaylist itemB = mValues.get(newIndex);
         mValues.set(oldIndex, itemB);
         mValues.set(newIndex, itemA);
+
+        db.changePosition(itemA, itemB, newIndex, oldIndex);
 
         notifyItemMoved(oldIndex,newIndex);
     }

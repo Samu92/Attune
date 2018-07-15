@@ -26,26 +26,27 @@ public class SongDao extends AbstractDao<Song, String> {
      */
     public static class Properties {
         public final static Property Id = new Property(0, String.class, "id", true, "ID");
-        public final static Property IdPlaylist = new Property(1, String.class, "idPlaylist", false, "ID_PLAYLIST");
-        public final static Property IdSpotify = new Property(2, String.class, "idSpotify", false, "ID_SPOTIFY");
-        public final static Property UrlSpotify = new Property(3, String.class, "urlSpotify", false, "URL_SPOTIFY");
-        public final static Property GenreId = new Property(4, String.class, "genreId", false, "GENRE_ID");
-        public final static Property Name = new Property(5, String.class, "name", false, "NAME");
-        public final static Property Duration = new Property(6, long.class, "duration", false, "DURATION");
-        public final static Property Tempo = new Property(7, float.class, "tempo", false, "TEMPO");
-        public final static Property Artist = new Property(8, String.class, "artist", false, "ARTIST");
-        public final static Property Image = new Property(9, String.class, "image", false, "IMAGE");
-        public final static Property PreviewUrl = new Property(10, String.class, "previewUrl", false, "PREVIEW_URL");
-        public final static Property Acousticness = new Property(11, float.class, "acousticness", false, "ACOUSTICNESS");
-        public final static Property Danceability = new Property(12, float.class, "danceability", false, "DANCEABILITY");
-        public final static Property Energy = new Property(13, float.class, "energy", false, "ENERGY");
-        public final static Property Instrumentalness = new Property(14, float.class, "instrumentalness", false, "INSTRUMENTALNESS");
-        public final static Property Liveness = new Property(15, float.class, "liveness", false, "LIVENESS");
-        public final static Property Loudness = new Property(16, float.class, "loudness", false, "LOUDNESS");
-        public final static Property Popularity = new Property(17, int.class, "popularity", false, "POPULARITY");
-        public final static Property Speechiness = new Property(18, float.class, "speechiness", false, "SPEECHINESS");
-        public final static Property Valence = new Property(19, float.class, "valence", false, "VALENCE");
-        public final static Property Date = new Property(20, String.class, "date", false, "DATE");
+        public final static Property Position = new Property(1, int.class, "position", false, "POSITION");
+        public final static Property IdPlaylist = new Property(2, String.class, "idPlaylist", false, "ID_PLAYLIST");
+        public final static Property IdSpotify = new Property(3, String.class, "idSpotify", false, "ID_SPOTIFY");
+        public final static Property UrlSpotify = new Property(4, String.class, "urlSpotify", false, "URL_SPOTIFY");
+        public final static Property GenreId = new Property(5, String.class, "genreId", false, "GENRE_ID");
+        public final static Property Name = new Property(6, String.class, "name", false, "NAME");
+        public final static Property Duration = new Property(7, long.class, "duration", false, "DURATION");
+        public final static Property Tempo = new Property(8, float.class, "tempo", false, "TEMPO");
+        public final static Property Artist = new Property(9, String.class, "artist", false, "ARTIST");
+        public final static Property Image = new Property(10, String.class, "image", false, "IMAGE");
+        public final static Property PreviewUrl = new Property(11, String.class, "previewUrl", false, "PREVIEW_URL");
+        public final static Property Acousticness = new Property(12, float.class, "acousticness", false, "ACOUSTICNESS");
+        public final static Property Danceability = new Property(13, float.class, "danceability", false, "DANCEABILITY");
+        public final static Property Energy = new Property(14, float.class, "energy", false, "ENERGY");
+        public final static Property Instrumentalness = new Property(15, float.class, "instrumentalness", false, "INSTRUMENTALNESS");
+        public final static Property Liveness = new Property(16, float.class, "liveness", false, "LIVENESS");
+        public final static Property Loudness = new Property(17, float.class, "loudness", false, "LOUDNESS");
+        public final static Property Popularity = new Property(18, int.class, "popularity", false, "POPULARITY");
+        public final static Property Speechiness = new Property(19, float.class, "speechiness", false, "SPEECHINESS");
+        public final static Property Valence = new Property(20, float.class, "valence", false, "VALENCE");
+        public final static Property Date = new Property(21, String.class, "date", false, "DATE");
     }
 
     private Query<Song> attPlaylist_SongsQuery;
@@ -63,26 +64,27 @@ public class SongDao extends AbstractDao<Song, String> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"SONG\" (" + //
                 "\"ID\" TEXT PRIMARY KEY NOT NULL ," + // 0: id
-                "\"ID_PLAYLIST\" TEXT NOT NULL ," + // 1: idPlaylist
-                "\"ID_SPOTIFY\" TEXT NOT NULL ," + // 2: idSpotify
-                "\"URL_SPOTIFY\" TEXT NOT NULL ," + // 3: urlSpotify
-                "\"GENRE_ID\" TEXT NOT NULL ," + // 4: genreId
-                "\"NAME\" TEXT NOT NULL ," + // 5: name
-                "\"DURATION\" INTEGER NOT NULL ," + // 6: duration
-                "\"TEMPO\" REAL NOT NULL ," + // 7: tempo
-                "\"ARTIST\" TEXT NOT NULL ," + // 8: artist
-                "\"IMAGE\" TEXT NOT NULL ," + // 9: image
-                "\"PREVIEW_URL\" TEXT," + // 10: previewUrl
-                "\"ACOUSTICNESS\" REAL NOT NULL ," + // 11: acousticness
-                "\"DANCEABILITY\" REAL NOT NULL ," + // 12: danceability
-                "\"ENERGY\" REAL NOT NULL ," + // 13: energy
-                "\"INSTRUMENTALNESS\" REAL NOT NULL ," + // 14: instrumentalness
-                "\"LIVENESS\" REAL NOT NULL ," + // 15: liveness
-                "\"LOUDNESS\" REAL NOT NULL ," + // 16: loudness
-                "\"POPULARITY\" INTEGER NOT NULL ," + // 17: popularity
-                "\"SPEECHINESS\" REAL NOT NULL ," + // 18: speechiness
-                "\"VALENCE\" REAL NOT NULL ," + // 19: valence
-                "\"DATE\" TEXT);"); // 20: date
+                "\"POSITION\" INTEGER NOT NULL ," + // 1: position
+                "\"ID_PLAYLIST\" TEXT NOT NULL ," + // 2: idPlaylist
+                "\"ID_SPOTIFY\" TEXT NOT NULL ," + // 3: idSpotify
+                "\"URL_SPOTIFY\" TEXT NOT NULL ," + // 4: urlSpotify
+                "\"GENRE_ID\" TEXT NOT NULL ," + // 5: genreId
+                "\"NAME\" TEXT NOT NULL ," + // 6: name
+                "\"DURATION\" INTEGER NOT NULL ," + // 7: duration
+                "\"TEMPO\" REAL NOT NULL ," + // 8: tempo
+                "\"ARTIST\" TEXT NOT NULL ," + // 9: artist
+                "\"IMAGE\" TEXT NOT NULL ," + // 10: image
+                "\"PREVIEW_URL\" TEXT," + // 11: previewUrl
+                "\"ACOUSTICNESS\" REAL NOT NULL ," + // 12: acousticness
+                "\"DANCEABILITY\" REAL NOT NULL ," + // 13: danceability
+                "\"ENERGY\" REAL NOT NULL ," + // 14: energy
+                "\"INSTRUMENTALNESS\" REAL NOT NULL ," + // 15: instrumentalness
+                "\"LIVENESS\" REAL NOT NULL ," + // 16: liveness
+                "\"LOUDNESS\" REAL NOT NULL ," + // 17: loudness
+                "\"POPULARITY\" INTEGER NOT NULL ," + // 18: popularity
+                "\"SPEECHINESS\" REAL NOT NULL ," + // 19: speechiness
+                "\"VALENCE\" REAL NOT NULL ," + // 20: valence
+                "\"DATE\" TEXT);"); // 21: date
         // Add Indexes
         db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_SONG_ID ON \"SONG\"" +
                 " (\"ID\" ASC);");
@@ -98,33 +100,34 @@ public class SongDao extends AbstractDao<Song, String> {
     protected final void bindValues(DatabaseStatement stmt, Song entity) {
         stmt.clearBindings();
         stmt.bindString(1, entity.getId());
-        stmt.bindString(2, entity.getIdPlaylist());
-        stmt.bindString(3, entity.getIdSpotify());
-        stmt.bindString(4, entity.getUrlSpotify());
-        stmt.bindString(5, entity.getGenreId());
-        stmt.bindString(6, entity.getName());
-        stmt.bindLong(7, entity.getDuration());
-        stmt.bindDouble(8, entity.getTempo());
-        stmt.bindString(9, entity.getArtist());
-        stmt.bindString(10, entity.getImage());
+        stmt.bindLong(2, entity.getPosition());
+        stmt.bindString(3, entity.getIdPlaylist());
+        stmt.bindString(4, entity.getIdSpotify());
+        stmt.bindString(5, entity.getUrlSpotify());
+        stmt.bindString(6, entity.getGenreId());
+        stmt.bindString(7, entity.getName());
+        stmt.bindLong(8, entity.getDuration());
+        stmt.bindDouble(9, entity.getTempo());
+        stmt.bindString(10, entity.getArtist());
+        stmt.bindString(11, entity.getImage());
  
         String previewUrl = entity.getPreviewUrl();
         if (previewUrl != null) {
-            stmt.bindString(11, previewUrl);
+            stmt.bindString(12, previewUrl);
         }
-        stmt.bindDouble(12, entity.getAcousticness());
-        stmt.bindDouble(13, entity.getDanceability());
-        stmt.bindDouble(14, entity.getEnergy());
-        stmt.bindDouble(15, entity.getInstrumentalness());
-        stmt.bindDouble(16, entity.getLiveness());
-        stmt.bindDouble(17, entity.getLoudness());
-        stmt.bindLong(18, entity.getPopularity());
-        stmt.bindDouble(19, entity.getSpeechiness());
-        stmt.bindDouble(20, entity.getValence());
+        stmt.bindDouble(13, entity.getAcousticness());
+        stmt.bindDouble(14, entity.getDanceability());
+        stmt.bindDouble(15, entity.getEnergy());
+        stmt.bindDouble(16, entity.getInstrumentalness());
+        stmt.bindDouble(17, entity.getLiveness());
+        stmt.bindDouble(18, entity.getLoudness());
+        stmt.bindLong(19, entity.getPopularity());
+        stmt.bindDouble(20, entity.getSpeechiness());
+        stmt.bindDouble(21, entity.getValence());
  
         String date = entity.getDate();
         if (date != null) {
-            stmt.bindString(21, date);
+            stmt.bindString(22, date);
         }
     }
 
@@ -132,33 +135,34 @@ public class SongDao extends AbstractDao<Song, String> {
     protected final void bindValues(SQLiteStatement stmt, Song entity) {
         stmt.clearBindings();
         stmt.bindString(1, entity.getId());
-        stmt.bindString(2, entity.getIdPlaylist());
-        stmt.bindString(3, entity.getIdSpotify());
-        stmt.bindString(4, entity.getUrlSpotify());
-        stmt.bindString(5, entity.getGenreId());
-        stmt.bindString(6, entity.getName());
-        stmt.bindLong(7, entity.getDuration());
-        stmt.bindDouble(8, entity.getTempo());
-        stmt.bindString(9, entity.getArtist());
-        stmt.bindString(10, entity.getImage());
+        stmt.bindLong(2, entity.getPosition());
+        stmt.bindString(3, entity.getIdPlaylist());
+        stmt.bindString(4, entity.getIdSpotify());
+        stmt.bindString(5, entity.getUrlSpotify());
+        stmt.bindString(6, entity.getGenreId());
+        stmt.bindString(7, entity.getName());
+        stmt.bindLong(8, entity.getDuration());
+        stmt.bindDouble(9, entity.getTempo());
+        stmt.bindString(10, entity.getArtist());
+        stmt.bindString(11, entity.getImage());
  
         String previewUrl = entity.getPreviewUrl();
         if (previewUrl != null) {
-            stmt.bindString(11, previewUrl);
+            stmt.bindString(12, previewUrl);
         }
-        stmt.bindDouble(12, entity.getAcousticness());
-        stmt.bindDouble(13, entity.getDanceability());
-        stmt.bindDouble(14, entity.getEnergy());
-        stmt.bindDouble(15, entity.getInstrumentalness());
-        stmt.bindDouble(16, entity.getLiveness());
-        stmt.bindDouble(17, entity.getLoudness());
-        stmt.bindLong(18, entity.getPopularity());
-        stmt.bindDouble(19, entity.getSpeechiness());
-        stmt.bindDouble(20, entity.getValence());
+        stmt.bindDouble(13, entity.getAcousticness());
+        stmt.bindDouble(14, entity.getDanceability());
+        stmt.bindDouble(15, entity.getEnergy());
+        stmt.bindDouble(16, entity.getInstrumentalness());
+        stmt.bindDouble(17, entity.getLiveness());
+        stmt.bindDouble(18, entity.getLoudness());
+        stmt.bindLong(19, entity.getPopularity());
+        stmt.bindDouble(20, entity.getSpeechiness());
+        stmt.bindDouble(21, entity.getValence());
  
         String date = entity.getDate();
         if (date != null) {
-            stmt.bindString(21, date);
+            stmt.bindString(22, date);
         }
     }
 
@@ -171,26 +175,27 @@ public class SongDao extends AbstractDao<Song, String> {
     public Song readEntity(Cursor cursor, int offset) {
         Song entity = new Song( //
             cursor.getString(offset + 0), // id
-            cursor.getString(offset + 1), // idPlaylist
-            cursor.getString(offset + 2), // idSpotify
-            cursor.getString(offset + 3), // urlSpotify
-            cursor.getString(offset + 4), // genreId
-            cursor.getString(offset + 5), // name
-            cursor.getLong(offset + 6), // duration
-            cursor.getFloat(offset + 7), // tempo
-            cursor.getString(offset + 8), // artist
-            cursor.getString(offset + 9), // image
-            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10), // previewUrl
-            cursor.getFloat(offset + 11), // acousticness
-            cursor.getFloat(offset + 12), // danceability
-            cursor.getFloat(offset + 13), // energy
-            cursor.getFloat(offset + 14), // instrumentalness
-            cursor.getFloat(offset + 15), // liveness
-            cursor.getFloat(offset + 16), // loudness
-            cursor.getInt(offset + 17), // popularity
-            cursor.getFloat(offset + 18), // speechiness
-            cursor.getFloat(offset + 19), // valence
-            cursor.isNull(offset + 20) ? null : cursor.getString(offset + 20) // date
+            cursor.getInt(offset + 1), // position
+            cursor.getString(offset + 2), // idPlaylist
+            cursor.getString(offset + 3), // idSpotify
+            cursor.getString(offset + 4), // urlSpotify
+            cursor.getString(offset + 5), // genreId
+            cursor.getString(offset + 6), // name
+            cursor.getLong(offset + 7), // duration
+            cursor.getFloat(offset + 8), // tempo
+            cursor.getString(offset + 9), // artist
+            cursor.getString(offset + 10), // image
+            cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11), // previewUrl
+            cursor.getFloat(offset + 12), // acousticness
+            cursor.getFloat(offset + 13), // danceability
+            cursor.getFloat(offset + 14), // energy
+            cursor.getFloat(offset + 15), // instrumentalness
+            cursor.getFloat(offset + 16), // liveness
+            cursor.getFloat(offset + 17), // loudness
+            cursor.getInt(offset + 18), // popularity
+            cursor.getFloat(offset + 19), // speechiness
+            cursor.getFloat(offset + 20), // valence
+            cursor.isNull(offset + 21) ? null : cursor.getString(offset + 21) // date
         );
         return entity;
     }
@@ -198,26 +203,27 @@ public class SongDao extends AbstractDao<Song, String> {
     @Override
     public void readEntity(Cursor cursor, Song entity, int offset) {
         entity.setId(cursor.getString(offset + 0));
-        entity.setIdPlaylist(cursor.getString(offset + 1));
-        entity.setIdSpotify(cursor.getString(offset + 2));
-        entity.setUrlSpotify(cursor.getString(offset + 3));
-        entity.setGenreId(cursor.getString(offset + 4));
-        entity.setName(cursor.getString(offset + 5));
-        entity.setDuration(cursor.getLong(offset + 6));
-        entity.setTempo(cursor.getFloat(offset + 7));
-        entity.setArtist(cursor.getString(offset + 8));
-        entity.setImage(cursor.getString(offset + 9));
-        entity.setPreviewUrl(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
-        entity.setAcousticness(cursor.getFloat(offset + 11));
-        entity.setDanceability(cursor.getFloat(offset + 12));
-        entity.setEnergy(cursor.getFloat(offset + 13));
-        entity.setInstrumentalness(cursor.getFloat(offset + 14));
-        entity.setLiveness(cursor.getFloat(offset + 15));
-        entity.setLoudness(cursor.getFloat(offset + 16));
-        entity.setPopularity(cursor.getInt(offset + 17));
-        entity.setSpeechiness(cursor.getFloat(offset + 18));
-        entity.setValence(cursor.getFloat(offset + 19));
-        entity.setDate(cursor.isNull(offset + 20) ? null : cursor.getString(offset + 20));
+        entity.setPosition(cursor.getInt(offset + 1));
+        entity.setIdPlaylist(cursor.getString(offset + 2));
+        entity.setIdSpotify(cursor.getString(offset + 3));
+        entity.setUrlSpotify(cursor.getString(offset + 4));
+        entity.setGenreId(cursor.getString(offset + 5));
+        entity.setName(cursor.getString(offset + 6));
+        entity.setDuration(cursor.getLong(offset + 7));
+        entity.setTempo(cursor.getFloat(offset + 8));
+        entity.setArtist(cursor.getString(offset + 9));
+        entity.setImage(cursor.getString(offset + 10));
+        entity.setPreviewUrl(cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11));
+        entity.setAcousticness(cursor.getFloat(offset + 12));
+        entity.setDanceability(cursor.getFloat(offset + 13));
+        entity.setEnergy(cursor.getFloat(offset + 14));
+        entity.setInstrumentalness(cursor.getFloat(offset + 15));
+        entity.setLiveness(cursor.getFloat(offset + 16));
+        entity.setLoudness(cursor.getFloat(offset + 17));
+        entity.setPopularity(cursor.getInt(offset + 18));
+        entity.setSpeechiness(cursor.getFloat(offset + 19));
+        entity.setValence(cursor.getFloat(offset + 20));
+        entity.setDate(cursor.isNull(offset + 21) ? null : cursor.getString(offset + 21));
      }
     
     @Override

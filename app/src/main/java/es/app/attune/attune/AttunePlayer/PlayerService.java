@@ -6,9 +6,11 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 public class PlayerService extends Service {
 
+    private static final String TAG = "PlayerService";
     private final IBinder mBinder = new PlayerBinder();
     private AttunePlayer mPlayer = new AttunePlayer();
 
@@ -34,7 +36,12 @@ public class PlayerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mPlayer.createMediaPlayer(intent.getExtras().getString("token"),PlayerService.this);
+        if(null == intent){
+            String source = null == intent ? "intent" : "action";
+            Log.e (TAG, source + " was null, flags=" + flags + " bits=" + Integer.toBinaryString (flags));
+        }else{
+            mPlayer.createMediaPlayer(intent.getExtras().getString("token"),PlayerService.this);
+        }
         return START_STICKY;
     }
 

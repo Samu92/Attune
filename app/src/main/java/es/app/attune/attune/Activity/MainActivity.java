@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -52,7 +53,6 @@ import es.app.attune.attune.Fragments.PlayListFragment;
 import es.app.attune.attune.Fragments.SongsListFragment;
 import es.app.attune.attune.Modules.Tools;
 import es.app.attune.attune.R;
-import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.UserPrivate;
 
 public class MainActivity extends AppCompatActivity
@@ -89,6 +89,8 @@ public class MainActivity extends AppCompatActivity
     private ImageView mAlbumArt;
     private ViewGroup mPlaybackControls;
 
+    private String token;
+
     TextView navEmail;
     TextView navUserName;
     CircleImageView navImageView;
@@ -97,10 +99,10 @@ public class MainActivity extends AppCompatActivity
         return new Intent(context, MainActivity.class);
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -117,7 +119,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         Intent intent = getIntent();
-        String token = intent.getStringExtra(EXTRA_TOKEN);
+        token = intent.getStringExtra(EXTRA_TOKEN);
 
         mActionListener = new SearchFunctions(this, this, this, this);
         mActionListener.init(token);
@@ -190,6 +192,8 @@ public class MainActivity extends AppCompatActivity
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
+                                int position = db.getNextPosition();
+
                                 byte[] image = Tools.getByteArray(automaticModeTabs.getImage());
 
                                 // Obtenemos el nombre de la nueva playlist
@@ -227,7 +231,7 @@ public class MainActivity extends AppCompatActivity
 
                                 // Procedemos a llamar a la API para obtener las canciones
                                 UUID newId = java.util.UUID.randomUUID();
-                                AttPlaylist newPlaylist = new AttPlaylist(newId.toString(),
+                                AttPlaylist newPlaylist = new AttPlaylist(newId.toString(), position,
                                         name,tempo,duration,song_duration,image,genre, Calendar.getInstance().getTime(),
                                         acoustiness,danceability,energy,instrumentalness,liveness,
                                         loudness,popularity,speechiness,valence);
@@ -239,13 +243,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        // AUDIO PLAYER
-        // Playback controls configuration:
-        // Initialize service player
-        Intent player = new Intent(this, PlayerService.class);
-        player.putExtra("token",token);
-        startService(player);
-
         mPlaybackControls = (ViewGroup) findViewById(R.id.playback_controls);
         mPlayPause = (ImageButton) findViewById(R.id.play_pause);
         mPlayPause.setEnabled(true);
@@ -254,6 +251,18 @@ public class MainActivity extends AppCompatActivity
         mTitle = (TextView) findViewById(R.id.title);
         mSubtitle = (TextView) findViewById(R.id.artist);
         mAlbumArt = (ImageView) findViewById(R.id.album_art);
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        // AUDIO PLAYER
+        // Playback controls configuration:
+        // Initialize service player
+        Intent player = new Intent(getApplicationContext(), PlayerService.class);
+        player.putExtra("token",token);
+        startService(player);
+
+        super.onPostCreate(savedInstanceState);
     }
 
     @Override
@@ -346,20 +355,21 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onStart() {
-        super.onStart();
         // Bind to LocalService
         Intent intent = new Intent(this, PlayerService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+
+        super.onStart();
     }
 
     @Override
     protected void onStop() {
-        super.onStop();
         // Unbind from the service
         if (mBound) {
             unbindService(mConnection);
             mBound = false;
         }
+        super.onStop();
     }
 
     /** Defines callbacks for service binding, passed to bindService() */
@@ -387,18 +397,33 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onListFragmentInteraction(AttPlaylist item, boolean reproducir) {
-        if(reproducir){
+        if (reproducir) {
 
-        }else{
+        }else {
             // Hemos recibido un click en una de las playlist
-            songsListFragment = SongsListFragment.newInstance(db,item.getId());
+            songsListFragment = SongsListFragment.newInstance(db, item.getId());
             // Mostramos la lista de canciones
             if (!songsListFragment.isVisible()) {
-                // Si el fragmento no está visible lo mostramos
-                getSupportFragmentManager().beginTransaction()
-                        .addToBackStack(songsListFragment.getClass().getName())
-                        .replace(R.id.fragmentView, songsListFragment, songsListFragment.getClass().getName())
-                        .commit();
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle(R.string.select_playlist_option)
+                        .setItems(R.array.playlist_options, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (which == 0) {
+                                    // Reproducción
+
+                                } else if (which == 1) {
+                                    // Si el fragmento no está visible lo mostramos
+                                    getSupportFragmentManager().beginTransaction()
+                                            .addToBackStack(songsListFragment.getClass().getName())
+                                            .replace(R.id.fragmentView, songsListFragment, songsListFragment.getClass().getName())
+                                            .commit();
+                                } else if (which == 2) {
+                                    // Editamos la playlist
+
+                                }
+                            }
+                        });
+                builder.show();
             }
         }
     }

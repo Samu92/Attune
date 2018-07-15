@@ -60,6 +60,10 @@
     <string name="select_playlist">Selecciona la playlist</string>
     <string name="no_data_available_short_list_playlist">No hay ninguna playlist creada</string>
     <string name="txt_empty_filter">Sin filtros</string>
+    <string name="validate_name">El nombre de la playlist es obligatorio</string>
+    <string name="validate_name_exists">Ya existe una playlist con ese nombre.</string>
+    <string name="no_data_available_songs">Esta playlist no tiene ninguna canción, añade nuevas desde el modo automático o el modo manual.</string>
+    <string name="select_playlist_option">Seleccione una opción</string>
     <string-array name="modes">
         <item>Automático</item>
         <item>Manual</item>
@@ -68,5 +72,10 @@
         <item>Reproducir</item>
         <item>Añadir a playlist existente</item>
         <item>Crear en nueva playlist</item>
+    </string-array>
+    <string-array name="playlist_options">
+        <item>Reproducir</item>
+        <item>Editar canciones</item>
+        <item>Editar playlist</item>
     </string-array>
 </resources>

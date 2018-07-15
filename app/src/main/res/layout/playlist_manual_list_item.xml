@@ -7,7 +7,7 @@
     android:background="@drawable/border_item_filter">
 
     <TextView
-        android:id="@+id/text_id"
+        android:id="@+id/playlist_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/white"/>

@@ -90,6 +90,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                     for (Track track: items) {
                         UUID newUUID = java.util.UUID.randomUUID();
                         String newId = newUUID.toString();
+                        int position = db.getSongNextPosition(newPlaylist.getId());
                         String playlistId = newPlaylist.getId();
                         String trackId = track.id;
                         String spotifyId = track.uri;
@@ -127,7 +128,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
 
                         playlist_duration += track.duration_ms;
 
-                        Song song = new Song(newId,playlistId,trackId,spotifyId,
+                        Song song = new Song(newId,position,playlistId,trackId,spotifyId,
                                 genreId,name,track.duration_ms,tempo,artist,imageUri,previewUrl,
                                 acousticness,danceability,energy,instrumentalness,liveness,
                                 loudness,popularity,speechiness,valence,date);
@@ -162,6 +163,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                     for (Track track: items) {
                         UUID newUUID = java.util.UUID.randomUUID();
                         String newId = newUUID.toString();
+                        int position = -1;
                         String playlistId = "";
                         String trackId = track.id;
                         String spotifyId = track.uri;
@@ -198,7 +200,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                                 }
                             }
                         }
-                        Song song = new Song(newId,playlistId,trackId,spotifyId,
+                        Song song = new Song(newId, position, playlistId,trackId,spotifyId,
                                 genreId,name,track.duration_ms,tempo,artist,imageUri,previewUrl,
                                 acousticness,danceability,energy,instrumentalness,liveness,
                                 loudness,popularity,speechiness,valence,date);

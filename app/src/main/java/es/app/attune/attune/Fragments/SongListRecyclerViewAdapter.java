@@ -90,11 +90,13 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
         notifyItemRemoved(index);
     }
 
-    void moveItem(int oldIndex, int newIndex){
+    void moveItem(int oldIndex, int newIndex, DatabaseFunctions db){
         Song itemA = mValues.get(oldIndex);
         Song itemB = mValues.get(newIndex);
         mValues.set(oldIndex, itemB);
         mValues.set(newIndex, itemA);
+
+        db.changeSongPosition(itemA, itemB, newIndex, oldIndex);
 
         notifyItemMoved(oldIndex,newIndex);
     }

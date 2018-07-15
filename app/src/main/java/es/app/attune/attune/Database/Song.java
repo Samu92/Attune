@@ -16,6 +16,9 @@ public class Song {
     private String id;
 
     @NotNull
+    private int position;
+
+    @NotNull
     private String idPlaylist;
 
     @NotNull
@@ -73,8 +76,8 @@ public class Song {
     
     private String date;
 
-    @Generated(hash = 1860946579)
-    public Song(@NotNull String id, @NotNull String idPlaylist,
+    @Generated(hash = 273668774)
+    public Song(@NotNull String id, int position, @NotNull String idPlaylist,
             @NotNull String idSpotify, @NotNull String urlSpotify,
             @NotNull String genreId, @NotNull String name, long duration,
             float tempo, @NotNull String artist, @NotNull String image,
@@ -82,6 +85,7 @@ public class Song {
             float instrumentalness, float liveness, float loudness, int popularity,
             float speechiness, float valence, String date) {
         this.id = id;
+        this.position = position;
         this.idPlaylist = idPlaylist;
         this.idSpotify = idSpotify;
         this.urlSpotify = urlSpotify;
@@ -114,6 +118,14 @@ public class Song {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public int getPosition() {
+        return this.position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
     }
 
     public String getIdPlaylist() {
@@ -276,5 +288,6 @@ public class Song {
         this.date = date;
     }
 
+  
   
 }

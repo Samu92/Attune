@@ -291,8 +291,18 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
         if(name.getText().toString().isEmpty() ){
             valid = false;
             name.requestFocus();
+            name.setError(getString(R.string.validate_name));
             return valid;
+        }else{
+            if(db.playlistNameExists(name.getText())){
+                valid = false;
+                name.requestFocus();
+                name.setError(getString(R.string.validate_name_exists));
+                return valid;
+            }
         }
+
+
 
         if(searchableSpinner.getSelectedItemPosition() == 0){
             valid = false;

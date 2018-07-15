@@ -13,17 +13,11 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.ViewSwitcher;
-
-import org.w3c.dom.Text;
 
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Database.AttPlaylist;
@@ -75,6 +69,7 @@ public class PlayListFragment extends Fragment {
 
         // Set the adapter
         if (view instanceof RelativeLayout) {
+
             if (getArguments() != null) {
                 mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
             }
@@ -82,11 +77,16 @@ public class PlayListFragment extends Fragment {
 
             Context context = view.getContext();
             recyclerView = (RecyclerView) view.findViewById(R.id.list);
+
+            recyclerView.setAdapter(null);
+            recyclerView.setLayoutManager(null);
+
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
+
             recyclerView.setAdapter(adapter);
             DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
             recyclerView.addItemDecoration(dividerItemDecoration);
@@ -106,6 +106,8 @@ public class PlayListFragment extends Fragment {
                 recyclerView.setVisibility(View.VISIBLE);
                 empty.setVisibility(View.GONE);
             }
+
+            adapter.notifyDataSetChanged();
         }
     }
 

@@ -5,7 +5,12 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -21,6 +26,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -29,19 +35,27 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 
 import es.app.attune.attune.Adapters.FilterAdapter;
 import es.app.attune.attune.Adapters.SearchResultsAdapter;
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Classes.ResultListScrollListener;
 import es.app.attune.attune.Classes.SearchInterfaces;
+import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.Database.Song;
+import es.app.attune.attune.Modules.Tools;
 import es.app.attune.attune.R;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -85,6 +99,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
 
     private ListView playlist_list_view;
     private MaterialDialog playlist_list_dialog;
+    private MaterialDialog new_playlist_dialog;
 
     private TextView empty_playlist_list;
 
@@ -99,6 +114,10 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
     private TextView empty_filter_list;
 
     private Song selected_song;
+
+    private static final int PICK_IMAGE_REQUEST = 100;
+
+    private ImageView image;
 
     public ManualMode() {
         // Required empty public constructor
@@ -401,7 +420,8 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                                     selected_song = item;
                                     playlist_list_dialog.show();
                                 }else if(which == 2){
-
+                                    selected_song = item;
+                                    new_playlist_dialog.show();
                                 }
                             }
                         });
@@ -461,18 +481,120 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                 .negativeText(R.string.disagree)
                 .build();
 
+        new_playlist_dialog = new MaterialDialog.Builder(getActivity())
+                .title("Nueva playlist")
+                .customView(R.layout.new_playlist_short, false)
+                .positiveText(R.string.agree)
+                .negativeText(R.string.disagree)
+                .autoDismiss(false)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+
+                        EditText edit_name = (EditText) new_playlist_dialog.getView().findViewById(R.id.new_playlist_name);
+                        if(!edit_name.getText().toString().equals("")){
+
+                            int position = db.getNextPosition();
+
+                            BitmapDrawable drawable = (BitmapDrawable) image.getDrawable();
+                            Bitmap bitmap = drawable.getBitmap();
+                            bitmap = bitmap.copy(bitmap.getConfig(),false);
+                            byte[] image = Tools.getByteArray(bitmap);
+
+                            // Obtenemos el nombre de la nueva playlist
+                            String name = edit_name.getText().toString();
+
+                            // Obtenemos el tempo seleccionado
+                            float tempo = selected_song.getTempo();
+
+                            // Obtenemos las categorías seleccionadas
+                            String genre = selected_song.getGenreId();
+
+                            // Obtenemos la duración máxima seleccionada
+                            int duration = 0;
+
+                            //Obtenemos la duración de cada canción
+                            float song_duration = 0;
+
+                            float acoustiness = 0;
+
+                            float danceability = 0;
+
+                            float energy = 0;
+
+                            float instrumentalness = 0;
+
+                            float liveness = 0;
+
+                            float loudness = 0;
+
+                            int popularity = 0;
+
+                            float speechiness = 0;
+
+                            float valence = 0;
+
+                            // Procedemos a llamar a la API para obtener las canciones
+                            UUID newId = java.util.UUID.randomUUID();
+                            AttPlaylist newPlaylist = new AttPlaylist(newId.toString(), position,
+                                    name,tempo,duration,song_duration,image,genre, Calendar.getInstance().getTime(),
+                                    acoustiness,danceability,energy,instrumentalness,liveness,
+                                    loudness,popularity,speechiness,valence);
+                            if(db.playlistNameExists(edit_name.getText())){
+                                edit_name.setError(getString(R.string.validate_name_exists));
+                                edit_name.findFocus();
+                            }else{
+                                db.createNewPlaylist(newPlaylist,selected_song);
+                                new_playlist_dialog.dismiss();
+                            }
+                        }else{
+                            edit_name.setError("El nombre es obligatorio.");
+                            edit_name.findFocus();
+                        }
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        new_playlist_dialog.dismiss();
+                    }
+                })
+                .build();
+
+        image = (ImageView) new_playlist_dialog.getView().findViewById(R.id.image_new_manual_playlist);
+        Glide.with(getContext())
+                .load(R.drawable.baseline_add_photo_alternate_white_48)
+                .into(image);
+
+        image.setOnClickListener(new View.OnClickListener(){
+
+            /**
+             * Called when a view has been clicked.
+             *
+             * @param v The view that was clicked.
+             */
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, getString(R.string.select_image)),
+                        PICK_IMAGE_REQUEST);
+            }
+        });
+
         empty_playlist_list = (TextView) playlist_list_dialog.getCustomView().findViewById(R.id.empty_short_playlist_list_view);
 
         playlist_list_view = (ListView) playlist_list_dialog.getCustomView().findViewById(R.id.short_playlist_list);
-        final ArrayAdapter<String> adapter_playlist_list = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, db.getPlaylistsNames());
+        final ArrayAdapter<String> adapter_playlist_list = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, db.getPlaylistsNames());
         playlist_list_view.setAdapter(adapter_playlist_list);
 
         playlist_list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String playlist = adapter_playlist_list.getItem(i);
-
                 db.insertSongInPlaylist(selected_song,playlist);
+                playlist_list_dialog.dismiss();
             }
         });
 
@@ -521,5 +643,30 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
         void onListFragmentInteraction(Song item);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode){
+            case PICK_IMAGE_REQUEST:
+                if(resultCode == RESULT_OK){
+                    Uri selectedImage = data.getData();
+
+                    // method 1
+                    try {
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), selectedImage);
+                        Glide.with(getContext())
+                                .load(bitmap)
+                                .apply(new RequestOptions()
+                                        .placeholder(R.drawable.music_note)
+                                        .centerCrop())
+                                .into(image);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                break;
+        }
     }
 }

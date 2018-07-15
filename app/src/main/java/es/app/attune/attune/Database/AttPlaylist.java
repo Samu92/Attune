@@ -20,6 +20,9 @@ public class AttPlaylist {
     @Id
     private String id;
 
+    @NotNull
+    private int position;
+
     @ToMany(referencedJoinProperty = "idPlaylist")
     @OrderBy("name ASC")
     private List<Song> songs;
@@ -71,14 +74,15 @@ public class AttPlaylist {
     @Generated(hash = 1939289955)
     private transient AttPlaylistDao myDao;
 
-    @Generated(hash = 397844945)
-    public AttPlaylist(@NotNull String id, @NotNull String name, float tempo,
-            int duration, float song_duration, @NotNull byte[] image,
+    @Generated(hash = 1242720315)
+    public AttPlaylist(@NotNull String id, int position, @NotNull String name,
+            float tempo, int duration, float song_duration, @NotNull byte[] image,
             @NotNull String genre, @NotNull Date creation_date, float acousticness,
             float danceability, float energy, float instrumentalness,
             float liveness, float loudness, int popularity, float speechiness,
             float valence) {
         this.id = id;
+        this.position = position;
         this.name = name;
         this.tempo = tempo;
         this.duration = duration;
@@ -107,6 +111,14 @@ public class AttPlaylist {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public int getPosition() {
+        return this.position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
     }
 
     public String getName() {
@@ -307,5 +319,7 @@ public class AttPlaylist {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getAttPlaylistDao() : null;
     }
+
+  
     
 }
