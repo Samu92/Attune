@@ -11,10 +11,13 @@ import android.widget.TextView;
 import com.google.common.base.Joiner;
 import com.squareup.picasso.Picasso;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import es.app.attune.attune.Database.Song;
+import es.app.attune.attune.Modules.Tools;
 import es.app.attune.attune.R;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
 import kaaes.spotify.webapi.android.models.Image;
@@ -31,14 +34,18 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
         public final TextView title;
         public final TextView subtitle;
         public final ImageView image;
-        public final TextView features;
+        public final TextView tempo;
+        public final TextView date;
+        public final TextView duration;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            title = (TextView) itemView.findViewById(R.id.entity_title);
-            subtitle = (TextView) itemView.findViewById(R.id.entity_subtitle);
-            image = (ImageView) itemView.findViewById(R.id.entity_image);
-            features = (TextView) itemView.findViewById(R.id.entity_features);
+            title = itemView.findViewById(R.id.entity_title);
+            subtitle = itemView.findViewById(R.id.entity_subtitle);
+            image = itemView.findViewById(R.id.entity_image);
+            tempo = itemView.findViewById(R.id.entity_tempo);
+            date = itemView.findViewById(R.id.entity_date);
+            duration = itemView.findViewById(R.id.entity_duration);
             itemView.setOnClickListener(this);
         }
 
@@ -79,22 +86,19 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
 
         holder.title.setText(item.getName());
 
-        List<String> names = new ArrayList<>();
-        /*for (ArtistSimple i : item.artists) {
-            names.add(i.name);
-        }*/
-
-        names.add(item.getArtist());
-
+        String artists = item.getArtist();
+        
         Joiner joiner = Joiner.on(", ");
-        holder.subtitle.setText(joiner.join(names));
+        holder.subtitle.setText(artists);
 
         String image = item.getImage();
         if (image != null) {
             Picasso.with(mContext).load(image).into(holder.image);
         }
 
-        holder.features.setText("Bpm: " + String.valueOf(item.getTempo()) + " " + mContext.getString(R.string.date) + "  " + item.getDate());
+        holder.tempo.setText("Bpm: " + String.valueOf(item.getTempo()));
+        holder.date.setText(mContext.getString(R.string.date) + " " + item.getDate());
+        holder.duration.setText(mContext.getString(R.string.duration) + " " + Tools.timeConversion((int) item.getDuration()/1000));
     }
 
     @Override

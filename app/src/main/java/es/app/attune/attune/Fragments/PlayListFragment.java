@@ -76,7 +76,7 @@ public class PlayListFragment extends Fragment {
             adapter = new PlayListRecyclerViewAdapter(db.getPlaylists(), mListener, getContext());
 
             Context context = view.getContext();
-            recyclerView = (RecyclerView) view.findViewById(R.id.list);
+            recyclerView = view.findViewById(R.id.list);
 
             recyclerView.setAdapter(null);
             recyclerView.setLayoutManager(null);
@@ -97,7 +97,7 @@ public class PlayListFragment extends Fragment {
             ItemTouchHelper itemTouchHelper = new ItemTouchHelper(createHelperCallback());
             itemTouchHelper.attachToRecyclerView(recyclerView);
 
-            empty = (TextView) getView().findViewById(R.id.empty_view);
+            empty = getView().findViewById(R.id.empty_view);
 
             if(adapter.getItemCount() == 0){
                 recyclerView.setVisibility(View.GONE);
@@ -107,7 +107,6 @@ public class PlayListFragment extends Fragment {
                 empty.setVisibility(View.GONE);
             }
 
-            adapter.notifyDataSetChanged();
         }
     }
 
@@ -165,8 +164,24 @@ public class PlayListFragment extends Fragment {
         mListener = null;
     }
 
-    public void scrollToLastPosition() {
-        recyclerView.scrollToPosition(this.recyclerView.getScrollBarSize() - 1);
+    @Override
+    public void onResume() {
+        recountSongsAndDuration();
+        super.onResume();
+    }
+
+    @Override
+    public void onStart() {
+        recountSongsAndDuration();
+        super.onStart();
+    }
+
+    private void recountSongsAndDuration() {
+        adapter.notifyDataSetChanged();
+    }
+
+    public void update() {
+        adapter.notifyDataSetChanged();
     }
 
     public interface OnListFragmentInteractionListener {

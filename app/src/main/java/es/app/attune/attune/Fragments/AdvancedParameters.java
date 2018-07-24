@@ -18,6 +18,8 @@ import android.widget.ScrollView;
 
 import com.xw.repo.BubbleSeekBar;
 
+import java.util.Date;
+
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.R;
 
@@ -143,7 +145,7 @@ public class AdvancedParameters extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
-        acousticness = (BubbleSeekBar) getView().findViewById(R.id.acousticness);
+        acousticness = getView().findViewById(R.id.acousticness);
         acousticness.setThumbColor(Color.GRAY);
         acousticness.setSecondTrackColor(Color.GRAY);
         acousticness.setProgress(0);
@@ -159,7 +161,7 @@ public class AdvancedParameters extends Fragment {
             }
         });
 
-        danceability = (BubbleSeekBar) getView().findViewById(R.id.danceability);
+        danceability = getView().findViewById(R.id.danceability);
         danceability.setThumbColor(Color.GRAY);
         danceability.setSecondTrackColor(Color.GRAY);
         danceability.setProgress(0);
@@ -175,7 +177,7 @@ public class AdvancedParameters extends Fragment {
             }
         });
 
-        energy = (BubbleSeekBar) getView().findViewById(R.id.energy);
+        energy = getView().findViewById(R.id.energy);
         energy.setThumbColor(Color.GRAY);
         energy.setSecondTrackColor(Color.GRAY);
         energy.setProgress(0);
@@ -191,7 +193,7 @@ public class AdvancedParameters extends Fragment {
             }
         });
 
-        instrumentalness = (BubbleSeekBar) getView().findViewById(R.id.instrumentalness);
+        instrumentalness = getView().findViewById(R.id.instrumentalness);
         instrumentalness.setThumbColor(Color.GRAY);
         instrumentalness.setSecondTrackColor(Color.GRAY);
         instrumentalness.setProgress(0);
@@ -207,7 +209,7 @@ public class AdvancedParameters extends Fragment {
             }
         });
 
-        liveness = (BubbleSeekBar) getView().findViewById(R.id.liveness);
+        liveness = getView().findViewById(R.id.liveness);
         liveness.setThumbColor(Color.GRAY);
         liveness.setSecondTrackColor(Color.GRAY);
         liveness.setProgress(0);
@@ -223,7 +225,7 @@ public class AdvancedParameters extends Fragment {
             }
         });
 
-        loudness = (BubbleSeekBar) getView().findViewById(R.id.loudness);
+        loudness = getView().findViewById(R.id.loudness);
         loudness.setThumbColor(Color.GRAY);
         loudness.setSecondTrackColor(Color.GRAY);
         loudness.setProgress(0);
@@ -239,7 +241,7 @@ public class AdvancedParameters extends Fragment {
             }
         });
 
-        popularity = (BubbleSeekBar) getView().findViewById(R.id.popularity);
+        popularity = getView().findViewById(R.id.popularity);
         popularity.setThumbColor(Color.GRAY);
         popularity.setSecondTrackColor(Color.GRAY);
         popularity.setProgress(0);
@@ -255,7 +257,7 @@ public class AdvancedParameters extends Fragment {
             }
         });
 
-        speechiness = (BubbleSeekBar) getView().findViewById(R.id.speachiness);
+        speechiness = getView().findViewById(R.id.speachiness);
         speechiness.setThumbColor(Color.GRAY);
         speechiness.setSecondTrackColor(Color.GRAY);
         speechiness.setProgress(0);
@@ -271,7 +273,7 @@ public class AdvancedParameters extends Fragment {
             }
         });
 
-        valence = (BubbleSeekBar) getView().findViewById(R.id.valence);
+        valence = getView().findViewById(R.id.valence);
         valence.setThumbColor(Color.GRAY);
         valence.setSecondTrackColor(Color.GRAY);
         valence.setProgress(0);
@@ -287,7 +289,7 @@ public class AdvancedParameters extends Fragment {
             }
         });
 
-        check_acoustiness = (CheckBox) getView().findViewById(R.id.check_acousticness);
+        check_acoustiness = getView().findViewById(R.id.check_acousticness);
         check_acoustiness.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -303,7 +305,7 @@ public class AdvancedParameters extends Fragment {
                 }
             }
         });
-        check_danceability = (CheckBox) getView().findViewById(R.id.check_danceability);
+        check_danceability = getView().findViewById(R.id.check_danceability);
         check_danceability.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -319,7 +321,7 @@ public class AdvancedParameters extends Fragment {
                 }
             }
         });
-        check_energy = (CheckBox) getView().findViewById(R.id.check_energy);
+        check_energy = getView().findViewById(R.id.check_energy);
         check_energy.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -335,7 +337,7 @@ public class AdvancedParameters extends Fragment {
                 }
             }
         });
-        check_instrumentalness = (CheckBox) getView().findViewById(R.id.check_instrumentalness);
+        check_instrumentalness = getView().findViewById(R.id.check_instrumentalness);
         check_instrumentalness.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -351,7 +353,7 @@ public class AdvancedParameters extends Fragment {
                 }
             }
         });
-        check_liveness = (CheckBox) getView().findViewById(R.id.check_liveness);
+        check_liveness = getView().findViewById(R.id.check_liveness);
         check_liveness.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -367,7 +369,7 @@ public class AdvancedParameters extends Fragment {
                 }
             }
         });
-        check_loudness = (CheckBox) getView().findViewById(R.id.check_loudness);
+        check_loudness = getView().findViewById(R.id.check_loudness);
         check_loudness.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -383,7 +385,7 @@ public class AdvancedParameters extends Fragment {
                 }
             }
         });
-        check_popularity = (CheckBox) getView().findViewById(R.id.check_popularity);
+        check_popularity = getView().findViewById(R.id.check_popularity);
         check_popularity.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -399,7 +401,7 @@ public class AdvancedParameters extends Fragment {
                 }
             }
         });
-        check_speechiness = (CheckBox) getView().findViewById(R.id.check_speachiness);
+        check_speechiness = getView().findViewById(R.id.check_speachiness);
         check_speechiness.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -415,7 +417,7 @@ public class AdvancedParameters extends Fragment {
                 }
             }
         });
-        check_valence = (CheckBox) getView().findViewById(R.id.check_valence);
+        check_valence = getView().findViewById(R.id.check_valence);
         check_valence.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -432,7 +434,7 @@ public class AdvancedParameters extends Fragment {
             }
         });
 
-        ScrollView mContainer = (ScrollView) getView().findViewById(R.id.scroll_advanced_parameters);
+        ScrollView mContainer = getView().findViewById(R.id.scroll_advanced_parameters);
         mContainer.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
             @Override
             public void onScrollChanged() {
@@ -451,9 +453,10 @@ public class AdvancedParameters extends Fragment {
         super.onViewCreated(view, savedInstanceState);
     }
 
-    public boolean ValidarFormulario(){
+    public boolean ValidarFormulario(int mode){
         boolean valid = true;
 
         return valid;
     }
+
 }

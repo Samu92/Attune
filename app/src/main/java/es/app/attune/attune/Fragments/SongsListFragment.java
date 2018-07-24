@@ -68,7 +68,7 @@ public class SongsListFragment extends Fragment {
         // Set the adapter
         if (view instanceof RelativeLayout) {
             Context context = view.getContext();
-            recyclerView = (RecyclerView) view.findViewById(R.id.songs_list);
+            recyclerView = view.findViewById(R.id.songs_list);
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
@@ -84,7 +84,7 @@ public class SongsListFragment extends Fragment {
             ItemTouchHelper itemTouchHelper = new ItemTouchHelper(createHelperCallback());
             itemTouchHelper.attachToRecyclerView(recyclerView);
 
-            empty = (TextView) view.findViewById(R.id.empty_song_view);
+            empty = view.findViewById(R.id.empty_song_view);
 
             if(adapter.getItemCount() == 0){
                 recyclerView.setVisibility(View.GONE);

@@ -32,6 +32,7 @@ import com.xw.repo.BubbleSeekBar;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import es.app.attune.attune.Classes.DatabaseFunctions;
@@ -56,6 +57,9 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     private static final int PICK_IMAGE_REQUEST = 100;
     private static List<String> genres_list;
     private TextView empty_genre_list;
+    private CheckBox date_checkbox;
+    private EditText date_start;
+    private EditText date_end;
 
     public NewPlayList() {
         // Required empty public constructor
@@ -103,6 +107,22 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
         }
     }
 
+    public String getYearStart() {
+        if(date_checkbox.isChecked()){
+            return date_start.getText().toString();
+        }else{
+            return "";
+        }
+    }
+
+    public String getYearEnd() {
+        if(date_checkbox.isChecked()){
+            return date_end.getText().toString();
+        }else{
+            return "";
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         genres_list = new ArrayList<String>();
@@ -121,30 +141,30 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        image = (ImageView) getView().findViewById(R.id.image_playlist);
+        image = getView().findViewById(R.id.image_playlist);
         Glide.with(getContext())
                 .load(R.drawable.baseline_add_photo_alternate_white_48)
                 .into(image);
 
-        name = (EditText) getView().findViewById(R.id.name_playlist);
+        name = getView().findViewById(R.id.name_playlist);
 
-        tempo = (BubbleSeekBar) getView().findViewById(R.id.bmp_seekbar);
+        tempo = getView().findViewById(R.id.bmp_seekbar);
 
-        searchableSpinner = (SearchableSpinner) getView().findViewById(R.id.category_spinner);
+        searchableSpinner = getView().findViewById(R.id.category_spinner);
 
-        playlist_duration = (BubbleSeekBar) getView().findViewById(R.id.duration_seekbar);
+        playlist_duration = getView().findViewById(R.id.duration_seekbar);
 
-        song_duration = (BubbleSeekBar) getView().findViewById(R.id.song_duration_seekbar);
+        song_duration = getView().findViewById(R.id.song_duration_seekbar);
         song_duration.setEnabled(false);
         song_duration.setSecondTrackColor(Color.GRAY);
         song_duration.setThumbColor(Color.GRAY);
 
-        check_song_duration = (CheckBox) getView().findViewById(R.id.check_song_duration);
+        check_song_duration = getView().findViewById(R.id.check_song_duration);
         check_song_duration.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 song_duration.setEnabled(b);
-                if(b == false){
+                if(!b){
                     song_duration.setThumbColor(Color.GRAY);
                     song_duration.setSecondTrackColor(Color.GRAY);
                     song_duration.setProgress(1);
@@ -177,7 +197,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
 
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, db.getGenres());
 
-        final ListView genres_list_view = (ListView) getView().findViewById(R.id.genres_list);
+        final ListView genres_list_view = getView().findViewById(R.id.genres_list);
         final ArrayAdapter<String> genres_list_adapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_list_item_1, genres_list);
 
         genres_list_view.setAdapter(genres_list_adapter);
@@ -194,7 +214,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 if(i != 0){
                     if(genres_list.size() <= 3){
-                        if(!genres_list.contains((String) searchableSpinner.getSelectedItem())){
+                        if(!genres_list.contains(searchableSpinner.getSelectedItem())){
                             genres_list.add((String) searchableSpinner.getSelectedItem());
                             genres_list_adapter.notifyDataSetChanged();
                             genres_list_view.setVisibility(View.VISIBLE);
@@ -210,7 +230,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
             }
         });
 
-        empty_genre_list = (TextView) getView().findViewById(R.id.empty_list_genre);
+        empty_genre_list = getView().findViewById(R.id.empty_list_genre);
         if(genres_list_adapter.isEmpty()){
             genres_list_view.setVisibility(View.GONE);
             empty_genre_list.setVisibility(View.VISIBLE);
@@ -231,13 +251,33 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
             }
         });
 
-        ScrollView mContainer = (ScrollView) getView().findViewById(R.id.scroll_new_playlist);
+        ScrollView mContainer = getView().findViewById(R.id.scroll_new_playlist);
         mContainer.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
             @Override
             public void onScrollChanged() {
                 tempo.correctOffsetWhenContainerOnScrolling();
                 playlist_duration.correctOffsetWhenContainerOnScrolling();
                 song_duration.correctOffsetWhenContainerOnScrolling();
+            }
+        });
+
+        date_checkbox = (CheckBox) getView().findViewById(R.id.check_new_playlist_date);
+        date_start = (EditText) getView().findViewById(R.id.txt_start_date);
+        date_start.setEnabled(false);
+        date_start.setText(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
+        date_end = (EditText) getView().findViewById(R.id.txt_end_date);
+        date_end.setEnabled(false);
+        date_end.setText(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
+        date_checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    date_start.setEnabled(true);
+                    date_end.setEnabled(true);
+                }else{
+                    date_start.setEnabled(false);
+                    date_end.setEnabled(false);
+                }
             }
         });
     }
@@ -268,7 +308,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        //Toast.makeText(getContext(),searchableSpinner.getSelectedItem().toString(),Toast.LENGTH_LONG).show();
+
     }
 
     @Override
@@ -285,24 +325,24 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     /*
         Función que valida el formulario de creación de la playlist
      */
-    public boolean ValidarFormulario(){
+    public boolean ValidarFormulario(int mode){
         valid = true;
 
-        if(name.getText().toString().isEmpty() ){
-            valid = false;
-            name.requestFocus();
-            name.setError(getString(R.string.validate_name));
-            return valid;
-        }else{
-            if(db.playlistNameExists(name.getText())){
+        if(mode == 0){
+            if(name.getText().toString().isEmpty() ){
                 valid = false;
                 name.requestFocus();
-                name.setError(getString(R.string.validate_name_exists));
+                name.setError(getString(R.string.validate_name));
                 return valid;
+            }else{
+                if(db.playlistNameExists(name.getText().toString())){
+                    valid = false;
+                    name.requestFocus();
+                    name.setError(getString(R.string.validate_name_exists));
+                    return valid;
+                }
             }
         }
-
-
 
         if(searchableSpinner.getSelectedItemPosition() == 0){
             valid = false;

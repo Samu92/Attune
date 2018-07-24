@@ -74,9 +74,9 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
     }
 
     @Override
-    public void searchRecomendations(final AttPlaylist newPlaylist) {
-        final float tempo  = newPlaylist.getTempo();
-        String genre = newPlaylist.getGenre();
+    public void searchRecomendations(final AttPlaylist playlist, final int mode) {
+        final float tempo  = playlist.getTempo();
+        String genre = playlist.getGenre();
 
         if (tempo != 0 && !genre.isEmpty()) {
             mTempo = tempo;
@@ -87,14 +87,15 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                 @Override
                 public void onComplete(List<Track> items, AudioFeaturesTracks audioFeaturesTracks, Map<String, String> dates) {
                     long playlist_duration = 0;
+                    List<Song> songs = new ArrayList<Song>();
                     for (Track track: items) {
                         UUID newUUID = java.util.UUID.randomUUID();
                         String newId = newUUID.toString();
-                        int position = db.getSongNextPosition(newPlaylist.getId());
-                        String playlistId = newPlaylist.getId();
+                        int position = db.getSongNextPosition(playlist.getId());
+                        String playlistId = playlist.getId();
                         String trackId = track.id;
                         String spotifyId = track.uri;
-                        String genreId = newPlaylist.getGenre();
+                        String genreId = playlist.getGenre();
                         String name = track.name;
                         long duration = track.duration_ms;
                         String artist = track.artists.get(0).name;
@@ -132,11 +133,16 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                                 genreId,name,track.duration_ms,tempo,artist,imageUri,previewUrl,
                                 acousticness,danceability,energy,instrumentalness,liveness,
                                 loudness,popularity,speechiness,valence,date);
-                        db.insertSong(song);
+                        songs.add(song);
                     }
-                    newPlaylist.setDuration((int) playlist_duration);
-                    db.insertNewPlaylist(newPlaylist);
-                    mResultPlaylist.showListPlaylist();
+                    if(mode == 0){
+                        playlist.setDuration((int) playlist_duration);
+                        db.insertNewPlaylist(playlist,songs);
+                        mResultPlaylist.showListPlaylist();
+                    }else if(mode == 1){
+                        db.insertSongsInPlaylist(playlist,songs);
+                        mResultPlaylist.showListPlaylist();
+                    }
                 }
 
                 @Override
@@ -145,7 +151,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                     mResultPlaylist.showError(error.getMessage());
                 }
             };
-            mSearchPager.getRecomendationPlaylist(newPlaylist, SIZE, mSearchListener);
+            mSearchPager.getRecomendationPlaylist(playlist, SIZE, mSearchListener);
         }
     }
 

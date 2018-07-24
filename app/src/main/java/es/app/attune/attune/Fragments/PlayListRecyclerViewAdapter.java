@@ -113,20 +113,12 @@ public class PlayListRecyclerViewAdapter extends RecyclerView.Adapter<PlayListRe
             super(view);
             mView = view;
             //mIdView = (TextView) view.findViewById(R.id.id);
-            mNameView = (TextView) view.findViewById(R.id.name);
-            mTempoView = (TextView) view.findViewById(R.id.tempo);
-            mGenreView = (TextView) view.findViewById(R.id.genre);
-            mSongsView = (TextView) view.findViewById(R.id.songs);
-            mImagePlaylistView = (ImageView) view.findViewById(R.id.image_playlist);
-            mDurationView = (TextView) view.findViewById(R.id.duration);
-
-            view.setOnLongClickListener(new View.OnLongClickListener(){
-                @Override
-                public boolean onLongClick(View view) {
-                    Toast.makeText(view.getContext(), "Position is " + getAdapterPosition(), Toast.LENGTH_SHORT).show();
-                    return false;
-                }
-            });
+            mNameView = view.findViewById(R.id.name);
+            mTempoView = view.findViewById(R.id.tempo);
+            mGenreView = view.findViewById(R.id.genre);
+            mSongsView = view.findViewById(R.id.songs);
+            mImagePlaylistView = view.findViewById(R.id.image_playlist);
+            mDurationView = view.findViewById(R.id.duration);
         }
 
         @Override

@@ -8,9 +8,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -25,21 +28,29 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.spotify.sdk.android.player.Spotify;
 
+import java.io.IOException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import es.app.attune.attune.AttunePlayer.PlayerService;
 import es.app.attune.attune.Classes.App;
-import es.app.attune.attune.Classes.AttuneProgressDialog;
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Classes.SearchFunctions;
 import es.app.attune.attune.Classes.SearchInterfaces;
@@ -65,6 +76,7 @@ public class MainActivity extends AppCompatActivity
     private static final String KEY_CURRENT_QUERY = "CURRENT_QUERY";
     private static final int REQUEST_CODE = 1337;
     private static final int MY_PERMISSIONS_REQUEST_READ_MEDIA = 10 ;
+    private static final int PICK_IMAGE_REQUEST = 100;
 
     // Fragments
     private PlayListFragment playListFragment;
@@ -77,7 +89,7 @@ public class MainActivity extends AppCompatActivity
     private DatabaseFunctions db;
     private SearchInterfaces.ActionListener mActionListener;
 
-    private AttuneProgressDialog progress;
+    private MaterialDialog progress;
 
     PlayerService mService;
     boolean mBound = false;
@@ -89,11 +101,26 @@ public class MainActivity extends AppCompatActivity
     private ImageView mAlbumArt;
     private ViewGroup mPlaybackControls;
 
+    private MaterialDialog playlist_list_dialog;
+
     private String token;
 
     TextView navEmail;
     TextView navUserName;
     CircleImageView navImageView;
+
+    private TextView empty_playlist_list;
+    private ListView playlist_list_view;
+
+    private ArrayAdapter<String> adapter_playlist_list;
+
+    private MaterialDialog edit_playlist_dialog;
+
+    private ImageView image;
+
+    private AttPlaylist selected_playlist;
+
+    private TextView txt_loading;
 
     public static Intent createIntent(Context context) {
         return new Intent(context, MainActivity.class);
@@ -104,18 +131,23 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        progress = new AttuneProgressDialog(this);
+        progress = new MaterialDialog.Builder(MainActivity.this)
+                .customView(R.layout.loading_layout, false)
+                .build();
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        txt_loading = progress.getView().findViewById(R.id.txt_loading);
+        txt_loading.setText(R.string.playlist_creating);
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         Intent intent = getIntent();
@@ -127,9 +159,9 @@ public class MainActivity extends AppCompatActivity
         mActionListener.getUserData();
 
         View headerView = navigationView.getHeaderView(0);
-        navEmail = (TextView) headerView.findViewById(R.id.email);
-        navUserName = (TextView) headerView.findViewById(R.id.username);
-        navImageView = (CircleImageView) headerView.findViewById(R.id.profile_image);
+        navEmail = headerView.findViewById(R.id.email);
+        navUserName = headerView.findViewById(R.id.username);
+        navImageView = headerView.findViewById(R.id.profile_image);
 
         Glide.with(this).load(R.drawable.default_profile).into(navImageView);
 
@@ -156,7 +188,7 @@ public class MainActivity extends AppCompatActivity
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_MEDIA);
         }
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabNewPlayList);
+        FloatingActionButton fab = findViewById(R.id.fabNewPlayList);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -184,73 +216,216 @@ public class MainActivity extends AppCompatActivity
                 }else if(automaticModeTabs.isVisible()){
                     // El formulario es correcto por lo que obtenemos los parámetros y empezamos el proceso
                     // Obtenemos la imagen de la playlist
-                    if(automaticModeTabs.validarFormulario()){
-                        progress.setMessage(getString(R.string.creating_playlist));
-                        progress.show();
 
-                        //start a new thread to process job
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                int position = db.getNextPosition();
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setTitle(R.string.select_playlist_option)
+                                .setItems(R.array.create_playlist_options, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if(which == 0){
+                                            if(automaticModeTabs.validarFormulario(0)){
+                                                progress.show();
 
-                                byte[] image = Tools.getByteArray(automaticModeTabs.getImage());
+                                                //start a new thread to process job
+                                                new Thread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        int position = db.getNextPosition();
 
-                                // Obtenemos el nombre de la nueva playlist
-                                String name = automaticModeTabs.getName();
+                                                        byte[] image = Tools.getByteArray(automaticModeTabs.getImage());
 
-                                // Obtenemos el tempo seleccionado
-                                int tempo = automaticModeTabs.getTempo();
+                                                        // Obtenemos el nombre de la nueva playlist
+                                                        String name = automaticModeTabs.getName();
 
-                                // Obtenemos las categorías seleccionadas
-                                String genre = automaticModeTabs.getCategory();
+                                                        // Obtenemos el tempo seleccionado
+                                                        int tempo = automaticModeTabs.getTempo();
 
-                                // Obtenemos la duración máxima seleccionada
-                                int duration = automaticModeTabs.getDuration();
+                                                        // Obtenemos las categorías seleccionadas
+                                                        String genre = automaticModeTabs.getCategory();
 
-                                //Obtenemos la duración de cada canción
-                                float song_duration = automaticModeTabs.getSongDuration();
+                                                        // Obtenemos la duración máxima seleccionada
+                                                        int duration = automaticModeTabs.getDuration();
 
-                                float acoustiness = automaticModeTabs.getAcousticness();
+                                                        //Obtenemos la duración de cada canción
+                                                        float song_duration = automaticModeTabs.getSongDuration();
 
-                                float danceability = automaticModeTabs.getDanceability();
+                                                        float acoustiness = automaticModeTabs.getAcousticness();
 
-                                float energy = automaticModeTabs.getEnergy();
+                                                        float danceability = automaticModeTabs.getDanceability();
 
-                                float instrumentalness = automaticModeTabs.getInstrumentalness();
+                                                        float energy = automaticModeTabs.getEnergy();
 
-                                float liveness = automaticModeTabs.getLiveness();
+                                                        float instrumentalness = automaticModeTabs.getInstrumentalness();
 
-                                float loudness = automaticModeTabs.getLoudness();
+                                                        float liveness = automaticModeTabs.getLiveness();
 
-                                int popularity = automaticModeTabs.getPopularity();
+                                                        float loudness = automaticModeTabs.getLoudness();
 
-                                float speechiness = automaticModeTabs.getSpeechiness();
+                                                        int popularity = automaticModeTabs.getPopularity();
 
-                                float valence = automaticModeTabs.getValence();
+                                                        float speechiness = automaticModeTabs.getSpeechiness();
 
-                                // Procedemos a llamar a la API para obtener las canciones
-                                UUID newId = java.util.UUID.randomUUID();
-                                AttPlaylist newPlaylist = new AttPlaylist(newId.toString(), position,
-                                        name,tempo,duration,song_duration,image,genre, Calendar.getInstance().getTime(),
-                                        acoustiness,danceability,energy,instrumentalness,liveness,
-                                        loudness,popularity,speechiness,valence);
-                                mActionListener.searchRecomendations(newPlaylist);
-                            }
-                        }).start();
-                    }
+                                                        float valence = automaticModeTabs.getValence();
+
+                                                        String date_start = automaticModeTabs.getYearStart();
+
+                                                        String date_end = automaticModeTabs.getYearEnd();
+
+                                                        // Procedemos a llamar a la API para obtener las canciones
+                                                        UUID newId = java.util.UUID.randomUUID();
+                                                        AttPlaylist newPlaylist = new AttPlaylist(newId.toString(), position,
+                                                                name,tempo,duration,song_duration, date_start, date_end, image,genre, Calendar.getInstance().getTime(),
+                                                                acoustiness,danceability,energy,instrumentalness,liveness,
+                                                                loudness,popularity,speechiness,valence);
+                                                        mActionListener.searchRecomendations(newPlaylist,0);
+                                                    }
+                                                }).start();
+                                            }
+                                        }else if(which == 1){
+                                            if(automaticModeTabs.validarFormulario(1)){
+                                                playlist_list_dialog.show();
+                                            }
+                                        }
+                                    }
+                                });
+                        builder.show();
                 }
             }
         });
 
-        mPlaybackControls = (ViewGroup) findViewById(R.id.playback_controls);
-        mPlayPause = (ImageButton) findViewById(R.id.play_pause);
+        playlist_list_dialog = new MaterialDialog.Builder(MainActivity.this)
+                .title(R.string.select_playlist)
+                .customView(R.layout.playlist_list_short,false)
+                .negativeText(R.string.disagree)
+                .build();
+
+        playlist_list_dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                adapter_playlist_list = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, db.getPlaylistsNames());
+                playlist_list_view.setAdapter(adapter_playlist_list);
+                adapter_playlist_list.notifyDataSetChanged();
+            }
+        });
+
+        empty_playlist_list = playlist_list_dialog.getCustomView().findViewById(R.id.empty_short_playlist_list_view);
+
+        playlist_list_view = playlist_list_dialog.getCustomView().findViewById(R.id.short_playlist_list);
+        adapter_playlist_list = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, db.getPlaylistsNames());
+        playlist_list_view.setAdapter(adapter_playlist_list);
+
+        playlist_list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String playlist = adapter_playlist_list.getItem(i);
+                if(db.playlistNameExists(playlist)){
+                    AttPlaylist selected_playlist = db.getPlaylistByName(playlist);
+                    selected_playlist.setDuration(automaticModeTabs.getDuration());
+                    mActionListener.searchRecomendations(selected_playlist,1);
+                    playlist_list_dialog.dismiss();
+                }
+            }
+        });
+
+        if(adapter_playlist_list.getCount() == 0){
+            playlist_list_view.setVisibility(View.GONE);
+            empty_playlist_list.setVisibility(View.VISIBLE);
+        }else{
+            playlist_list_view.setVisibility(View.VISIBLE);
+            empty_playlist_list.setVisibility(View.GONE);
+        }
+
+        mPlaybackControls = findViewById(R.id.playback_controls);
+        mPlayPause = findViewById(R.id.play_pause);
         mPlayPause.setEnabled(true);
         mPlayPause.setOnClickListener(mPlaybackButtonListener);
 
-        mTitle = (TextView) findViewById(R.id.title);
-        mSubtitle = (TextView) findViewById(R.id.artist);
-        mAlbumArt = (ImageView) findViewById(R.id.album_art);
+        mTitle = findViewById(R.id.title);
+        mSubtitle = findViewById(R.id.artist);
+        mAlbumArt = findViewById(R.id.album_art);
+
+        edit_playlist_dialog = new MaterialDialog.Builder(MainActivity.this)
+                .title("Nueva playlist")
+                .customView(R.layout.new_playlist_short, false)
+                .positiveText(R.string.agree)
+                .negativeText(R.string.disagree)
+                .autoDismiss(false)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        EditText edit_name = edit_playlist_dialog.getView().findViewById(R.id.new_playlist_name);
+                        if(!edit_name.getText().toString().equals("")){
+                            if(!db.playlistNameExists(edit_name.getText().toString())){
+                                // Editamos la playlist
+                                db.editPlaylist(selected_playlist,edit_name.getText().toString(),image.getDrawable());
+                                edit_playlist_dialog.dismiss();
+                                playListFragment.update();
+                            }else{
+                                edit_name.setError(getString(R.string.validate_name_exists));
+                                edit_name.findFocus();
+                            }
+                        }else{
+                            edit_name.setError(getString(R.string.obligatory_name));
+                            edit_name.findFocus();
+                        }
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        edit_playlist_dialog.dismiss();
+                    }
+                })
+                .build();
+
+        edit_playlist_dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                Glide.with(MainActivity.this)
+                        .load(selected_playlist.getImage())
+                        .into(image);
+            }
+        });
+
+        image = edit_playlist_dialog.getView().findViewById(R.id.image_new_manual_playlist);
+        Glide.with(MainActivity.this)
+                .load(R.drawable.baseline_add_photo_alternate_white_48)
+                .into(image);
+
+        image.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, getString(R.string.select_image)),
+                        PICK_IMAGE_REQUEST);
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode){
+            case PICK_IMAGE_REQUEST:
+                if(resultCode == RESULT_OK){
+                    Uri selectedImage = data.getData();
+
+                    // method 1
+                    try {
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(MainActivity.this.getContentResolver(), selectedImage);
+                        Glide.with(MainActivity.this)
+                                .load(bitmap)
+                                .apply(new RequestOptions()
+                                        .placeholder(R.drawable.music_note)
+                                        .centerCrop())
+                                .into(image);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                break;
+        }
     }
 
     @Override
@@ -267,7 +442,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         }else{
@@ -329,7 +504,7 @@ public class MainActivity extends AppCompatActivity
             item.setChecked(false);
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -396,7 +571,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onListFragmentInteraction(AttPlaylist item, boolean reproducir) {
+    public void onListFragmentInteraction(final AttPlaylist item, boolean reproducir) {
         if (reproducir) {
 
         }else {
@@ -419,7 +594,8 @@ public class MainActivity extends AppCompatActivity
                                             .commit();
                                 } else if (which == 2) {
                                     // Editamos la playlist
-
+                                    selected_playlist = item;
+                                    edit_playlist_dialog.show();
                                 }
                             }
                         });

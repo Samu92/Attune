@@ -45,6 +45,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
+import es.app.attune.attune.Activity.MainActivity;
 import es.app.attune.attune.Adapters.FilterAdapter;
 import es.app.attune.attune.Adapters.SearchResultsAdapter;
 import es.app.attune.attune.Classes.DatabaseFunctions;
@@ -86,8 +87,6 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
     private int fecha_edicion = 0;
     private EditText editText_start;
     private EditText editText_end;
-
-    private DatePickerDialog dialogpicker;
 
     private int year_start;
     private int year_end;
@@ -144,7 +143,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
             year_start = i;
             editText_start.setText(String.valueOf(i));
             //editText_start.setText(String.valueOf(i2) + "/" + String.valueOf(i1+1) + "/" + String.valueOf(i));
-    }
+        }
 
         if(fecha_edicion == 1){
             year_end = i;
@@ -207,7 +206,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        progressManualBar = (ProgressBar) getView().findViewById(R.id.search_manual_progress);
+        progressManualBar = getView().findViewById(R.id.search_manual_progress);
         progressManualBar.setVisibility(View.GONE);
 
         mLayoutManager = new LinearLayoutManager(getContext());
@@ -283,9 +282,9 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                 .negativeText(R.string.disagree)
                 .build();
 
-        searchView = (SearchView) getView().findViewById(R.id.search_view);
+        searchView = getView().findViewById(R.id.search_view);
 
-        filter_layout = (LinearLayout) getView().findViewById(R.id.filter_view);
+        filter_layout = getView().findViewById(R.id.filter_view);
         filter_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -293,7 +292,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
             }
         });
 
-        filter_list = (RecyclerView) getView().findViewById(R.id.filter_list);
+        filter_list = getView().findViewById(R.id.filter_list);
 
         filter_list.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -318,7 +317,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
         filterAdapter = new FilterAdapter(filter_array, getContext());
         filter_list.setAdapter(filterAdapter);
 
-        empty_filter_list = (TextView) getView().findViewById(R.id.empty_filter_list);
+        empty_filter_list = getView().findViewById(R.id.empty_filter_list);
 
         if(filterAdapter.getItemCount() == 0){
             empty_filter_list.setVisibility(View.VISIBLE);
@@ -332,7 +331,6 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
             @Override
             public boolean onQueryTextSubmit(String query) {
                 reset();
-
                 if(query.equals("")){
                     query = "year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
                     if(genresSpinner.getSelectedItemPosition() != 0){
@@ -385,12 +383,12 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
 
                     return true;
                 }else{
-                    return true;
+                    return false;
                 }
             }
         });
 
-        genresSpinner = (SearchableSpinner) material.getCustomView().findViewById(R.id.category_filter_spinner);
+        genresSpinner = material.getCustomView().findViewById(R.id.category_filter_spinner);
 
         genresSpinner.setTitle(getString(R.string.add_genre));
         genresSpinner.setPositiveButton(getString(R.string.accept));
@@ -432,36 +430,18 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
         year_start = 1600;
         year_end = Calendar.getInstance().get(Calendar.YEAR);
 
-        editText_start = (EditText) material.getCustomView().findViewById(R.id.txt_filter_start_date);
+        editText_start = material.getCustomView().findViewById(R.id.txt_filter_start_date);
         editText_start.setClickable(true);
-        editText_start.setFocusable(false);
+        editText_start.setFocusable(true);
 
-        dialogpicker = new DatePickerDialog(
-                getContext(), ManualMode.this, Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH), Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
-
-        editText_start.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                fecha_edicion = 0;
-                dialogpicker.show();
-            }
-        });
         editText_start.setText(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
 
-        editText_end = (EditText) material.getCustomView().findViewById(R.id.txt_filter_end_date);
+        editText_end = material.getCustomView().findViewById(R.id.txt_filter_end_date);
         editText_end.setText(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
         editText_end.setClickable(true);
-        editText_end.setFocusable(false);
+        editText_end.setFocusable(true);
 
-        editText_end.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                fecha_edicion = 1;
-                dialogpicker.show();
-            }
-        });
-
-        filter_date_check = (AppCompatCheckBox) material.getCustomView().findViewById(R.id.check_filter_date);
+        filter_date_check = material.getCustomView().findViewById(R.id.check_filter_date);
         filter_date_check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -491,7 +471,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
 
-                        EditText edit_name = (EditText) new_playlist_dialog.getView().findViewById(R.id.new_playlist_name);
+                        EditText edit_name = new_playlist_dialog.getView().findViewById(R.id.new_playlist_name);
                         if(!edit_name.getText().toString().equals("")){
 
                             int position = db.getNextPosition();
@@ -537,10 +517,10 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                             // Procedemos a llamar a la API para obtener las canciones
                             UUID newId = java.util.UUID.randomUUID();
                             AttPlaylist newPlaylist = new AttPlaylist(newId.toString(), position,
-                                    name,tempo,duration,song_duration,image,genre, Calendar.getInstance().getTime(),
+                                    name,tempo,duration,song_duration,"","",image,genre, Calendar.getInstance().getTime(),
                                     acoustiness,danceability,energy,instrumentalness,liveness,
                                     loudness,popularity,speechiness,valence);
-                            if(db.playlistNameExists(edit_name.getText())){
+                            if(db.playlistNameExists(edit_name.getText().toString())){
                                 edit_name.setError(getString(R.string.validate_name_exists));
                                 edit_name.findFocus();
                             }else{
@@ -548,7 +528,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                                 new_playlist_dialog.dismiss();
                             }
                         }else{
-                            edit_name.setError("El nombre es obligatorio.");
+                            edit_name.setError(getString(R.string.obligatory_name));
                             edit_name.findFocus();
                         }
                     }
@@ -561,7 +541,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                 })
                 .build();
 
-        image = (ImageView) new_playlist_dialog.getView().findViewById(R.id.image_new_manual_playlist);
+        image = new_playlist_dialog.getView().findViewById(R.id.image_new_manual_playlist);
         Glide.with(getContext())
                 .load(R.drawable.baseline_add_photo_alternate_white_48)
                 .into(image);
@@ -583,9 +563,9 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
             }
         });
 
-        empty_playlist_list = (TextView) playlist_list_dialog.getCustomView().findViewById(R.id.empty_short_playlist_list_view);
+        empty_playlist_list = playlist_list_dialog.getCustomView().findViewById(R.id.empty_short_playlist_list_view);
 
-        playlist_list_view = (ListView) playlist_list_dialog.getCustomView().findViewById(R.id.short_playlist_list);
+        playlist_list_view = playlist_list_dialog.getCustomView().findViewById(R.id.short_playlist_list);
         final ArrayAdapter<String> adapter_playlist_list = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, db.getPlaylistsNames());
         playlist_list_view.setAdapter(adapter_playlist_list);
 
@@ -606,17 +586,21 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
             empty_playlist_list.setVisibility(View.GONE);
         }
 
-        resultsList = (RecyclerView) view.findViewById(R.id.search_results);
+        resultsList = view.findViewById(R.id.search_results);
         resultsList.setHasFixedSize(true);
         resultsList.setLayoutManager(mLayoutManager);
         resultsList.setAdapter(mAdapter);
         resultsList.addOnScrollListener(mScrollListener);
 
         String currentQuery = mActionListener.getRecordedQuery(KEY_CURRENT_QUERY);
-        mActionListener.search(currentQuery);
-        searchView.clearFocus();
+        if(currentQuery != null){
+            if(!currentQuery.equals("")){
+                mActionListener.search(currentQuery);
+                searchView.clearFocus();
+            }
+        }
 
-        empty = (TextView) getView().findViewById(R.id.empty_manual_view);
+        empty = getView().findViewById(R.id.empty_manual_view);
 
         if(mAdapter.getItemCount() == 0){
             resultsList.setVisibility(View.GONE);

@@ -1,6 +1,9 @@
 package es.app.attune.attune.Classes;
 
-import android.text.Editable;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.widget.ArrayAdapter;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 
@@ -15,6 +18,7 @@ import es.app.attune.attune.Database.Genre;
 import es.app.attune.attune.Database.GenreDao;
 import es.app.attune.attune.Database.Song;
 import es.app.attune.attune.Database.SongDao;
+import es.app.attune.attune.Modules.Tools;
 
 public class DatabaseFunctions {
 
@@ -50,10 +54,6 @@ public class DatabaseFunctions {
         return result;
     }
 
-    public void insertNewPlaylist(AttPlaylist newPlaylist) {
-        attplaylistDao.insertOrReplaceInTx(newPlaylist);
-    }
-
     public List<AttPlaylist> getPlaylists(){
         QueryBuilder<AttPlaylist> q = attplaylistDao.queryBuilder();
         q.orderAsc(AttPlaylistDao.Properties.Position);
@@ -73,21 +73,28 @@ public class DatabaseFunctions {
     public List<Song> getSongs(String playlistId) {
         QueryBuilder<Song> q = songDao.queryBuilder();
         q.where(SongDao.Properties.IdPlaylist.eq(playlistId)).orderAsc(SongDao.Properties.Position);
-        //List<Song> songs = new ArrayList<>();
-        //songs = songDao._queryAttPlaylist_Songs(playlistId);
         return q.list();
     }
 
-    public void insertSong(Song song) {
-        songDao.insertInTx(song);
-    }
-
     public void removePlaylist(String id) {
+        QueryBuilder<AttPlaylist> q = attplaylistDao.queryBuilder();
+        q.where(AttPlaylistDao.Properties.Id.eq(id)).limit(1);
+        songDao.deleteInTx(q.list().get(0).getSongs());
         attplaylistDao.deleteByKeyInTx(id);
     }
 
     public void removeSong(String id) {
-        songDao.deleteByKeyInTx(id);
+        QueryBuilder<Song> q = songDao.queryBuilder();
+        q.where(SongDao.Properties.Id.eq(id)).limit(1);
+        Song temp_song = q.list().get(0);
+
+        QueryBuilder<AttPlaylist> q1 = attplaylistDao.queryBuilder();
+        q1.where(AttPlaylistDao.Properties.Id.eq(temp_song.getIdPlaylist())).limit(1);
+        AttPlaylist temp_playlist = q1.list().get(0);
+
+        temp_playlist.getSongs().remove(temp_song);
+        songDao.deleteInTx(temp_song);
+        attplaylistDao.updateInTx(temp_playlist);
     }
 
     public void insertSongInPlaylist(Song selected_song, String playlist) {
@@ -98,15 +105,35 @@ public class DatabaseFunctions {
         if(q.list().size() > 0){
             AttPlaylist tempPlaylist = q.list().get(0);
             selected_song.setIdPlaylist(tempPlaylist.getId());
+            tempPlaylist.getSongs().add(selected_song);
             songDao.insertOrReplaceInTx(selected_song);
+            attplaylistDao.updateInTx(tempPlaylist);
+            recalculatePlaylistDuration(tempPlaylist.getId());
         }
     }
 
+    public void insertNewPlaylist(AttPlaylist newPlaylist, List<Song> songs) {
+        songDao.insertInTx(songs);
+        attplaylistDao.insertOrReplaceInTx(newPlaylist);
+    }
+
+    public void insertSongsInPlaylist(AttPlaylist playlist, List<Song> songs) {
+        QueryBuilder<AttPlaylist> q = attplaylistDao.queryBuilder();
+        q.where(AttPlaylistDao.Properties.Id.eq(playlist.getId()));
+        if(q.list().size() > 0){
+            AttPlaylist tempPlaylist = q.list().get(0);
+            tempPlaylist.getSongs().addAll(songs);
+            songDao.insertOrReplaceInTx(songs);
+            attplaylistDao.updateInTx(tempPlaylist);
+            recalculatePlaylistDuration(tempPlaylist.getId());
+        }
+    }
 
     public void createNewPlaylist(AttPlaylist playlist ,Song item) {
         attplaylistDao.insertOrReplaceInTx(playlist);
         item.setIdPlaylist(playlist.getId());
         songDao.insertOrReplaceInTx(item);
+        recalculatePlaylistDuration(playlist.getId());
     }
 
     private String getPlaylistIdByName(String playlist) {
@@ -115,15 +142,11 @@ public class DatabaseFunctions {
         return q.list().get(0).getId();
     }
 
-    public boolean playlistNameExists(Editable text) {
+    public boolean playlistNameExists(String text) {
         QueryBuilder<AttPlaylist> q = attplaylistDao.queryBuilder();
         q.where(AttPlaylistDao.Properties.Name.like(text.toString()));
         List<AttPlaylist> playlists = q.list();
-        if(playlists.size() > 0){
-            return true;
-        }else{
-            return false;
-        }
+        return playlists.size() > 0;
     }
 
     public int getNextPosition() {
@@ -157,5 +180,34 @@ public class DatabaseFunctions {
         itemB.setPosition(oldIndex);
         songDao.insertOrReplaceInTx(itemA,itemB);
     }
+
+    public AttPlaylist getPlaylistByName(String playlist) {
+        QueryBuilder<AttPlaylist> q = attplaylistDao.queryBuilder();
+        q.where(AttPlaylistDao.Properties.Position.isNotNull(),AttPlaylistDao.Properties.Name.like(playlist)).limit(1);
+        return q.list().get(0);
+    }
+
+    public void editPlaylist(AttPlaylist selected_playlist, String newPlaylistName, Drawable drawable) {
+        selected_playlist.setName(newPlaylistName);
+        BitmapDrawable temp_drawable = (BitmapDrawable) drawable;
+        Bitmap bitmap = temp_drawable.getBitmap();
+        bitmap = bitmap.copy(bitmap.getConfig(),false);
+        selected_playlist.setImage(Tools.getByteArray(bitmap));
+        attplaylistDao.updateInTx(selected_playlist);
+    }
+
+    public void recalculatePlaylistDuration(String idPlaylist) {
+        QueryBuilder<AttPlaylist> q = attplaylistDao.queryBuilder();
+        q.where(AttPlaylistDao.Properties.Id.like(idPlaylist)).limit(1);
+        AttPlaylist temp = q.list().get(0);
+        List<Song> song_list =  temp.getSongs();
+        long newDuration = 0;
+        for (Song song : song_list) {
+            newDuration += song.getDuration();
+        }
+        temp.setDuration((int) newDuration);
+        attplaylistDao.updateInTx(temp);
+    }
+
 
 }

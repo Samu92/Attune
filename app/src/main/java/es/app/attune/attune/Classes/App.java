@@ -17,12 +17,19 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
 
-        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, ENCRYPTED ? "attune-db-encrypted" : "attune-db");
-        Database db = ENCRYPTED ? helper.getEncryptedWritableDb("super-secret") : helper.getWritableDb();
+        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "attune-db", null);
+        Database db = helper.getWritableDb();
         daoSession = new DaoMaster(db).newSession();
 
         //DaoMaster.dropAllTables(db,true);
         //DaoMaster.createAllTables(db,true);
+
+        /* RELEASE */
+        /*
+        DaoMaster.OpenHelper helper = new DaoMaster.OpenHelper(this, ENCRYPTED ? "attune-db-encrypted" : "attune-db");
+        Database db = ENCRYPTED ? helper.getEncryptedWritableDb("super-secret") : helper.getWritableDb();
+        daoSession = new DaoMaster(db).newSession();
+        */
     }
 
     public DaoSession getDaoSession() {

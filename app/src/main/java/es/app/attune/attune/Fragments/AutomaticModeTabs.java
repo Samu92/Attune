@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import es.app.attune.attune.Classes.DatabaseFunctions;
@@ -57,10 +58,10 @@ public class AutomaticModeTabs extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        viewPager = (ViewPager) getView().findViewById(R.id.viewpager_newplaylist);
+        viewPager = getView().findViewById(R.id.viewpager_newplaylist);
         setupViewPager(viewPager);
 
-        tabLayout = (TabLayout) getActivity().findViewById(R.id.tabs);
+        tabLayout = getActivity().findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
     }
 
@@ -71,12 +72,12 @@ public class AutomaticModeTabs extends Fragment {
         viewPager.setAdapter(adapter);
     }
 
-    public boolean validarFormulario() {
+    public boolean validarFormulario(int mode) {
         boolean correcto_general = false;
         boolean correcto_avanzado = true;
         // Validamos la pestaña General
-        correcto_general = fragmentNewPlaylist.ValidarFormulario();
-        correcto_avanzado = fragmentAdvancedParameters.ValidarFormulario();
+        correcto_general = fragmentNewPlaylist.ValidarFormulario(mode);
+        correcto_avanzado = fragmentAdvancedParameters.ValidarFormulario(mode);
 
         return (correcto_general && correcto_avanzado);
     }
@@ -141,6 +142,9 @@ public class AutomaticModeTabs extends Fragment {
         return fragmentAdvancedParameters.getValence();
     }
 
+    public String getYearStart() { return fragmentNewPlaylist.getYearStart();}
+
+    public String getYearEnd() { return fragmentNewPlaylist.getYearEnd();}
 
 
     class ViewPagerAdapter extends FragmentPagerAdapter {

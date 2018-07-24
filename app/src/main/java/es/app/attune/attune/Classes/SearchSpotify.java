@@ -1,8 +1,13 @@
 package es.app.attune.attune.Classes;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +41,11 @@ public class SearchSpotify {
     private float mDuration;
     private String mCurrentQuery;
     private int mPageSize;
+    private String mYear_start;
+    private String mYear_end;
+    private Map<String,String> dates;
+    private int partition_step;
+    private int steps_size;
 
     public interface CompleteListener {
         void onComplete(List<Track> items, AudioFeaturesTracks audioFeaturesTracks, Map<String, String> dates);
@@ -59,6 +69,7 @@ public class SearchSpotify {
 
     public SearchSpotify(SpotifyService spotifyApi) {
         mSpotifyApi = spotifyApi;
+        dates = new HashMap<String,String>();
     }
 
     public void getRecomendationPlaylist(AttPlaylist playlist, int size, CompleteListener listener){
@@ -66,6 +77,8 @@ public class SearchSpotify {
         mSize = size;
         mTempo = playlist.getTempo();
         mDuration = playlist.getDuration();
+        mYear_start = playlist.getPlaylist_start_date();
+        mYear_end = playlist.getPlaylist_end_date();
         getDataPlaylist(playlist,
                 0, size, listener);
     }
@@ -198,15 +211,17 @@ public class SearchSpotify {
 
                     // Como tenemos una duración fijada de la playlist no podemos pasarnos de ella
                     // seleccionaremos canciones hasta que se llegue al límite establecido en milisegundos.
-                    List<Track> result = new ArrayList<>();
+                    /*List<Track> result = new ArrayList<>();
                     int temp_duration = 0;
                     for (Track track: tracks) {
                         if(temp_duration <= (mDuration*60000)){
                             temp_duration += track.duration_ms;
                             result.add(track);
                         }
-                    }
-                    getAutomaticModeDates(result, audioFeaturesTracks, listener);
+                    }*/
+
+                    //getAutomaticModeDates(result, audioFeaturesTracks, listener);
+                    getAutomaticModeDates(tracks, audioFeaturesTracks, listener);
                 }
 
                 @Override
@@ -240,35 +255,97 @@ public class SearchSpotify {
     }
 
     private void getAutomaticModeDates(final List<Track> tracks, final AudioFeaturesTracks features, final CompleteListener listener){
-        String ids = "";
+        final List<Track> result = new ArrayList<Track>();
+
+        List<String> ids = new ArrayList<String>();
         for (Track track : tracks) {
-            ids = ids.concat(track.album.id + ",");
+            ids.add(track.album.id);
         }
-        ids = ids.substring(0,ids.length()-1);
-        mSpotifyApi.getAlbums(ids, new Callback<Albums>() {
-            @Override
-            public void success(Albums albums, Response response) {
-                Map<String,String> dates = new HashMap<String,String>();
-                for (Track track: tracks) {
-                    if(albums.albums != null){
-                        for (Album album: albums.albums){
-                            if(album != null){
+
+        int partitionSize = 20;
+        List<List<String>> partitions = new LinkedList<List<String>>();
+        for (int i = 0; i < ids.size(); i += partitionSize) {
+            partitions.add(ids.subList(i,
+                    Math.min(i + partitionSize, ids.size())));
+        }
+
+        partition_step = 0;
+        steps_size = partitions.size() - 1;
+        dates.clear();
+
+        calculateDatesRecursive(tracks,partitions,features,listener);
+    }
+
+    private void calculateDatesRecursive(final List<Track> tracks, final List<List<String>> partitions, final AudioFeaturesTracks features, final CompleteListener listener) {
+        if(partition_step <= steps_size) {
+            String str_ids = "";
+            for (String id : partitions.get(partition_step)) {
+                str_ids = str_ids.concat(id + ",");
+            }
+            str_ids = str_ids.substring(0, str_ids.length() - 1);
+
+            mSpotifyApi.getAlbums(str_ids, new Callback<Albums>() {
+                @Override
+                public void success(Albums albums, Response response) {
+                    for(Track track: tracks){
+                        if(albums.albums != null){
+                            for(Album album: albums.albums){
                                 if(track.album.id.equals(album.id)){
                                     dates.put(track.id,album.release_date);
                                 }
                             }
                         }
                     }
+                    partition_step += 1;
+                    calculateDatesRecursive(tracks,partitions,features,listener);
                 }
 
-                listener.onComplete(tracks, features, dates);
+                @Override
+                public void failure(RetrofitError error) {
+                    listener.onError(error);
+                }
+            });
+        }else{
+            // Eliminamos aquellas canciones que no están dentro de los años indicados
+            List<Track> result_temp = new ArrayList<>();
+            Map<String,String> dates_temp = new HashMap<String,String>();
+            dates_temp.putAll(dates);
+
+            result_temp.addAll(tracks);
+            if(mYear_start != "" & mYear_end != ""){
+                for (Track track: tracks) {
+                    for (Map.Entry<String,String> entry: dates.entrySet()) {
+                        if(entry.getKey() == track.id){
+                            Date release = null;
+                            try {
+                                release = new SimpleDateFormat("yyyy").parse(entry.getValue());
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            Calendar cal = Calendar.getInstance();
+                            cal.setTime(release);
+                            String release_year = Integer.valueOf(cal.get(Calendar.YEAR)).toString();
+                            if(!(Integer.valueOf(release_year) >= Integer.valueOf(mYear_start) & Integer.valueOf(release_year) <= Integer.valueOf(mYear_end))) {
+                                result_temp.remove(track);
+                                dates_temp.remove(entry.getKey());
+                            }
+                        }
+                    }
+                }
             }
 
-            @Override
-            public void failure(RetrofitError error) {
-                listener.onError(error);
+            // Como tenemos una duración fijada de la playlist no podemos pasarnos de ella
+            // seleccionaremos canciones hasta que se llegue al límite establecido en milisegundos.
+            List<Track> result_finish = new ArrayList<>();
+            int temp_duration = 0;
+            for (Track track: result_temp) {
+                if(temp_duration <= (mDuration*60000)){
+                    temp_duration += track.duration_ms;
+                    result_finish.add(track);
+                }
             }
-        });
+            listener.onComplete(result_finish,features,dates_temp);
+        }
     }
 
     private void getManualModeDates(final List<Track> tracks, final AudioFeaturesTracks features, final ManualSearchListener listener){

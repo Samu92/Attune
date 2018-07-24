@@ -4,7 +4,6 @@ import java.util.List;
 
 import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.Database.Song;
-import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.UserPrivate;
 
 /**
@@ -37,7 +36,7 @@ public class SearchInterfaces {
 
         void init(String token);
 
-        void searchRecomendations(AttPlaylist newPlaylist);
+        void searchRecomendations(AttPlaylist newPlaylist, int i);
 
         void getAvailableGenreSeeds();
 

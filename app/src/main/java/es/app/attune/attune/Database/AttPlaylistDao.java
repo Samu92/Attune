@@ -28,18 +28,20 @@ public class AttPlaylistDao extends AbstractDao<AttPlaylist, String> {
         public final static Property Tempo = new Property(3, float.class, "tempo", false, "TEMPO");
         public final static Property Duration = new Property(4, int.class, "duration", false, "DURATION");
         public final static Property Song_duration = new Property(5, float.class, "song_duration", false, "SONG_DURATION");
-        public final static Property Image = new Property(6, byte[].class, "image", false, "IMAGE");
-        public final static Property Genre = new Property(7, String.class, "genre", false, "GENRE");
-        public final static Property Creation_date = new Property(8, java.util.Date.class, "creation_date", false, "CREATION_DATE");
-        public final static Property Acousticness = new Property(9, float.class, "acousticness", false, "ACOUSTICNESS");
-        public final static Property Danceability = new Property(10, float.class, "danceability", false, "DANCEABILITY");
-        public final static Property Energy = new Property(11, float.class, "energy", false, "ENERGY");
-        public final static Property Instrumentalness = new Property(12, float.class, "instrumentalness", false, "INSTRUMENTALNESS");
-        public final static Property Liveness = new Property(13, float.class, "liveness", false, "LIVENESS");
-        public final static Property Loudness = new Property(14, float.class, "loudness", false, "LOUDNESS");
-        public final static Property Popularity = new Property(15, int.class, "popularity", false, "POPULARITY");
-        public final static Property Speechiness = new Property(16, float.class, "speechiness", false, "SPEECHINESS");
-        public final static Property Valence = new Property(17, float.class, "valence", false, "VALENCE");
+        public final static Property Playlist_start_date = new Property(6, String.class, "playlist_start_date", false, "PLAYLIST_START_DATE");
+        public final static Property Playlist_end_date = new Property(7, String.class, "playlist_end_date", false, "PLAYLIST_END_DATE");
+        public final static Property Image = new Property(8, byte[].class, "image", false, "IMAGE");
+        public final static Property Genre = new Property(9, String.class, "genre", false, "GENRE");
+        public final static Property Creation_date = new Property(10, java.util.Date.class, "creation_date", false, "CREATION_DATE");
+        public final static Property Acousticness = new Property(11, float.class, "acousticness", false, "ACOUSTICNESS");
+        public final static Property Danceability = new Property(12, float.class, "danceability", false, "DANCEABILITY");
+        public final static Property Energy = new Property(13, float.class, "energy", false, "ENERGY");
+        public final static Property Instrumentalness = new Property(14, float.class, "instrumentalness", false, "INSTRUMENTALNESS");
+        public final static Property Liveness = new Property(15, float.class, "liveness", false, "LIVENESS");
+        public final static Property Loudness = new Property(16, float.class, "loudness", false, "LOUDNESS");
+        public final static Property Popularity = new Property(17, int.class, "popularity", false, "POPULARITY");
+        public final static Property Speechiness = new Property(18, float.class, "speechiness", false, "SPEECHINESS");
+        public final static Property Valence = new Property(19, float.class, "valence", false, "VALENCE");
     }
 
     private DaoSession daoSession;
@@ -64,18 +66,20 @@ public class AttPlaylistDao extends AbstractDao<AttPlaylist, String> {
                 "\"TEMPO\" REAL NOT NULL ," + // 3: tempo
                 "\"DURATION\" INTEGER NOT NULL ," + // 4: duration
                 "\"SONG_DURATION\" REAL NOT NULL ," + // 5: song_duration
-                "\"IMAGE\" BLOB NOT NULL ," + // 6: image
-                "\"GENRE\" TEXT NOT NULL ," + // 7: genre
-                "\"CREATION_DATE\" INTEGER NOT NULL ," + // 8: creation_date
-                "\"ACOUSTICNESS\" REAL NOT NULL ," + // 9: acousticness
-                "\"DANCEABILITY\" REAL NOT NULL ," + // 10: danceability
-                "\"ENERGY\" REAL NOT NULL ," + // 11: energy
-                "\"INSTRUMENTALNESS\" REAL NOT NULL ," + // 12: instrumentalness
-                "\"LIVENESS\" REAL NOT NULL ," + // 13: liveness
-                "\"LOUDNESS\" REAL NOT NULL ," + // 14: loudness
-                "\"POPULARITY\" INTEGER NOT NULL ," + // 15: popularity
-                "\"SPEECHINESS\" REAL NOT NULL ," + // 16: speechiness
-                "\"VALENCE\" REAL NOT NULL );"); // 17: valence
+                "\"PLAYLIST_START_DATE\" TEXT NOT NULL ," + // 6: playlist_start_date
+                "\"PLAYLIST_END_DATE\" TEXT NOT NULL ," + // 7: playlist_end_date
+                "\"IMAGE\" BLOB NOT NULL ," + // 8: image
+                "\"GENRE\" TEXT NOT NULL ," + // 9: genre
+                "\"CREATION_DATE\" INTEGER NOT NULL ," + // 10: creation_date
+                "\"ACOUSTICNESS\" REAL NOT NULL ," + // 11: acousticness
+                "\"DANCEABILITY\" REAL NOT NULL ," + // 12: danceability
+                "\"ENERGY\" REAL NOT NULL ," + // 13: energy
+                "\"INSTRUMENTALNESS\" REAL NOT NULL ," + // 14: instrumentalness
+                "\"LIVENESS\" REAL NOT NULL ," + // 15: liveness
+                "\"LOUDNESS\" REAL NOT NULL ," + // 16: loudness
+                "\"POPULARITY\" INTEGER NOT NULL ," + // 17: popularity
+                "\"SPEECHINESS\" REAL NOT NULL ," + // 18: speechiness
+                "\"VALENCE\" REAL NOT NULL );"); // 19: valence
         // Add Indexes
         db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_ATT_PLAYLIST_ID ON \"ATT_PLAYLIST\"" +
                 " (\"ID\" ASC);");
@@ -96,18 +100,20 @@ public class AttPlaylistDao extends AbstractDao<AttPlaylist, String> {
         stmt.bindDouble(4, entity.getTempo());
         stmt.bindLong(5, entity.getDuration());
         stmt.bindDouble(6, entity.getSong_duration());
-        stmt.bindBlob(7, entity.getImage());
-        stmt.bindString(8, entity.getGenre());
-        stmt.bindLong(9, entity.getCreation_date().getTime());
-        stmt.bindDouble(10, entity.getAcousticness());
-        stmt.bindDouble(11, entity.getDanceability());
-        stmt.bindDouble(12, entity.getEnergy());
-        stmt.bindDouble(13, entity.getInstrumentalness());
-        stmt.bindDouble(14, entity.getLiveness());
-        stmt.bindDouble(15, entity.getLoudness());
-        stmt.bindLong(16, entity.getPopularity());
-        stmt.bindDouble(17, entity.getSpeechiness());
-        stmt.bindDouble(18, entity.getValence());
+        stmt.bindString(7, entity.getPlaylist_start_date());
+        stmt.bindString(8, entity.getPlaylist_end_date());
+        stmt.bindBlob(9, entity.getImage());
+        stmt.bindString(10, entity.getGenre());
+        stmt.bindLong(11, entity.getCreation_date().getTime());
+        stmt.bindDouble(12, entity.getAcousticness());
+        stmt.bindDouble(13, entity.getDanceability());
+        stmt.bindDouble(14, entity.getEnergy());
+        stmt.bindDouble(15, entity.getInstrumentalness());
+        stmt.bindDouble(16, entity.getLiveness());
+        stmt.bindDouble(17, entity.getLoudness());
+        stmt.bindLong(18, entity.getPopularity());
+        stmt.bindDouble(19, entity.getSpeechiness());
+        stmt.bindDouble(20, entity.getValence());
     }
 
     @Override
@@ -119,18 +125,20 @@ public class AttPlaylistDao extends AbstractDao<AttPlaylist, String> {
         stmt.bindDouble(4, entity.getTempo());
         stmt.bindLong(5, entity.getDuration());
         stmt.bindDouble(6, entity.getSong_duration());
-        stmt.bindBlob(7, entity.getImage());
-        stmt.bindString(8, entity.getGenre());
-        stmt.bindLong(9, entity.getCreation_date().getTime());
-        stmt.bindDouble(10, entity.getAcousticness());
-        stmt.bindDouble(11, entity.getDanceability());
-        stmt.bindDouble(12, entity.getEnergy());
-        stmt.bindDouble(13, entity.getInstrumentalness());
-        stmt.bindDouble(14, entity.getLiveness());
-        stmt.bindDouble(15, entity.getLoudness());
-        stmt.bindLong(16, entity.getPopularity());
-        stmt.bindDouble(17, entity.getSpeechiness());
-        stmt.bindDouble(18, entity.getValence());
+        stmt.bindString(7, entity.getPlaylist_start_date());
+        stmt.bindString(8, entity.getPlaylist_end_date());
+        stmt.bindBlob(9, entity.getImage());
+        stmt.bindString(10, entity.getGenre());
+        stmt.bindLong(11, entity.getCreation_date().getTime());
+        stmt.bindDouble(12, entity.getAcousticness());
+        stmt.bindDouble(13, entity.getDanceability());
+        stmt.bindDouble(14, entity.getEnergy());
+        stmt.bindDouble(15, entity.getInstrumentalness());
+        stmt.bindDouble(16, entity.getLiveness());
+        stmt.bindDouble(17, entity.getLoudness());
+        stmt.bindLong(18, entity.getPopularity());
+        stmt.bindDouble(19, entity.getSpeechiness());
+        stmt.bindDouble(20, entity.getValence());
     }
 
     @Override
@@ -153,18 +161,20 @@ public class AttPlaylistDao extends AbstractDao<AttPlaylist, String> {
             cursor.getFloat(offset + 3), // tempo
             cursor.getInt(offset + 4), // duration
             cursor.getFloat(offset + 5), // song_duration
-            cursor.getBlob(offset + 6), // image
-            cursor.getString(offset + 7), // genre
-            new java.util.Date(cursor.getLong(offset + 8)), // creation_date
-            cursor.getFloat(offset + 9), // acousticness
-            cursor.getFloat(offset + 10), // danceability
-            cursor.getFloat(offset + 11), // energy
-            cursor.getFloat(offset + 12), // instrumentalness
-            cursor.getFloat(offset + 13), // liveness
-            cursor.getFloat(offset + 14), // loudness
-            cursor.getInt(offset + 15), // popularity
-            cursor.getFloat(offset + 16), // speechiness
-            cursor.getFloat(offset + 17) // valence
+            cursor.getString(offset + 6), // playlist_start_date
+            cursor.getString(offset + 7), // playlist_end_date
+            cursor.getBlob(offset + 8), // image
+            cursor.getString(offset + 9), // genre
+            new java.util.Date(cursor.getLong(offset + 10)), // creation_date
+            cursor.getFloat(offset + 11), // acousticness
+            cursor.getFloat(offset + 12), // danceability
+            cursor.getFloat(offset + 13), // energy
+            cursor.getFloat(offset + 14), // instrumentalness
+            cursor.getFloat(offset + 15), // liveness
+            cursor.getFloat(offset + 16), // loudness
+            cursor.getInt(offset + 17), // popularity
+            cursor.getFloat(offset + 18), // speechiness
+            cursor.getFloat(offset + 19) // valence
         );
         return entity;
     }
@@ -177,18 +187,20 @@ public class AttPlaylistDao extends AbstractDao<AttPlaylist, String> {
         entity.setTempo(cursor.getFloat(offset + 3));
         entity.setDuration(cursor.getInt(offset + 4));
         entity.setSong_duration(cursor.getFloat(offset + 5));
-        entity.setImage(cursor.getBlob(offset + 6));
-        entity.setGenre(cursor.getString(offset + 7));
-        entity.setCreation_date(new java.util.Date(cursor.getLong(offset + 8)));
-        entity.setAcousticness(cursor.getFloat(offset + 9));
-        entity.setDanceability(cursor.getFloat(offset + 10));
-        entity.setEnergy(cursor.getFloat(offset + 11));
-        entity.setInstrumentalness(cursor.getFloat(offset + 12));
-        entity.setLiveness(cursor.getFloat(offset + 13));
-        entity.setLoudness(cursor.getFloat(offset + 14));
-        entity.setPopularity(cursor.getInt(offset + 15));
-        entity.setSpeechiness(cursor.getFloat(offset + 16));
-        entity.setValence(cursor.getFloat(offset + 17));
+        entity.setPlaylist_start_date(cursor.getString(offset + 6));
+        entity.setPlaylist_end_date(cursor.getString(offset + 7));
+        entity.setImage(cursor.getBlob(offset + 8));
+        entity.setGenre(cursor.getString(offset + 9));
+        entity.setCreation_date(new java.util.Date(cursor.getLong(offset + 10)));
+        entity.setAcousticness(cursor.getFloat(offset + 11));
+        entity.setDanceability(cursor.getFloat(offset + 12));
+        entity.setEnergy(cursor.getFloat(offset + 13));
+        entity.setInstrumentalness(cursor.getFloat(offset + 14));
+        entity.setLiveness(cursor.getFloat(offset + 15));
+        entity.setLoudness(cursor.getFloat(offset + 16));
+        entity.setPopularity(cursor.getInt(offset + 17));
+        entity.setSpeechiness(cursor.getFloat(offset + 18));
+        entity.setValence(cursor.getFloat(offset + 19));
      }
     
     @Override

@@ -84,7 +84,7 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
 
     void deleteItem(int index, DatabaseFunctions db) {
         db.removeSong(mValues.get(index).getId());
-        notifyDataSetChanged();
+        db.recalculatePlaylistDuration(mValues.get(index).getIdPlaylist());
 
         mValues.remove(index);
         notifyItemRemoved(index);
@@ -114,12 +114,12 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mNameView = (TextView) view.findViewById(R.id.song_name);
-            mArtistView = (TextView) view.findViewById(R.id.song_artist);
-            mTempoView = (TextView) view.findViewById(R.id.song_tempo);
-            mDurationView = (TextView) view.findViewById(R.id.song_duration);
-            image = (ImageView) view.findViewById(R.id.entity_song_image);
-            mDateView = (TextView) view.findViewById(R.id.song_date);
+            mNameView = view.findViewById(R.id.song_name);
+            mArtistView = view.findViewById(R.id.song_artist);
+            mTempoView = view.findViewById(R.id.song_tempo);
+            mDurationView = view.findViewById(R.id.song_duration);
+            image = view.findViewById(R.id.entity_song_image);
+            mDateView = view.findViewById(R.id.song_date);
         }
 
         @Override

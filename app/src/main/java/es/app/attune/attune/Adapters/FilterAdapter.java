@@ -42,7 +42,7 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterView
 
         public FilterViewHolder(View itemView) {
             super(itemView);
-            text= (TextView) itemView.findViewById(R.id.text_id);
+            text= itemView.findViewById(R.id.text_id);
         }
     }
 }
