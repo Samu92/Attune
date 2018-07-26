@@ -221,7 +221,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/check_song_duration"
-            android:layout_marginBottom="100dp"
+            android:layout_marginBottom="50dp"
             android:layout_marginTop="15dp"
             app:bsb_track_color="@color/gray"
             app:bsb_section_text_color="@color/colorPrimary"
@@ -238,6 +238,13 @@
             app:bsb_min="1"
             app:bsb_max="10"
             app:bsb_progress="1"/>
+
+        <Button
+            android:id="@+id/create_playlist_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/song_duration_seekbar"
+            android:text="@string/txt_playlist_create"/>
 
     </RelativeLayout>
 </ScrollView>

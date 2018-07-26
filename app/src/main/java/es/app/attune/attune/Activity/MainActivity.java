@@ -65,11 +65,12 @@ import es.app.attune.attune.Fragments.SongsListFragment;
 import es.app.attune.attune.Modules.Tools;
 import es.app.attune.attune.R;
 import kaaes.spotify.webapi.android.models.UserPrivate;
+import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         PlayListFragment.OnListFragmentInteractionListener, NewPlayList.OnFragmentInteractionListener,
-        SearchInterfaces.ResultPlaylist, SearchInterfaces.ResultGenres, SearchInterfaces.ResultUserData,
+        SearchInterfaces.ResultPlaylist, SearchInterfaces.ResultGenres, SearchInterfaces.ResultUserData, SearchInterfaces.ResultNewPlaylist,
         SongsListFragment.OnListFragmentInteractionListener, AutomaticModeTabs.OnFragmentInteractionListener, ManualMode.OnListFragmentInteractionListener{
 
     static final String EXTRA_TOKEN = "EXTRA_TOKEN";
@@ -89,19 +90,14 @@ public class MainActivity extends AppCompatActivity
     private DatabaseFunctions db;
     private SearchInterfaces.ActionListener mActionListener;
 
-    private MaterialDialog progress;
-
     PlayerService mService;
     boolean mBound = false;
 
     // Reproductor
-    private ImageButton mPlayPause;
     private TextView mTitle;
     private TextView mSubtitle;
     private ImageView mAlbumArt;
     private ViewGroup mPlaybackControls;
-
-    private MaterialDialog playlist_list_dialog;
 
     private String token;
 
@@ -109,18 +105,11 @@ public class MainActivity extends AppCompatActivity
     TextView navUserName;
     CircleImageView navImageView;
 
-    private TextView empty_playlist_list;
-    private ListView playlist_list_view;
-
-    private ArrayAdapter<String> adapter_playlist_list;
+    private ImageView image;
 
     private MaterialDialog edit_playlist_dialog;
 
-    private ImageView image;
-
     private AttPlaylist selected_playlist;
-
-    private TextView txt_loading;
 
     public static Intent createIntent(Context context) {
         return new Intent(context, MainActivity.class);
@@ -134,13 +123,6 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        progress = new MaterialDialog.Builder(MainActivity.this)
-                .customView(R.layout.loading_layout, false)
-                .build();
-
-        txt_loading = progress.getView().findViewById(R.id.txt_loading);
-        txt_loading.setText(R.string.playlist_creating);
-
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -153,7 +135,7 @@ public class MainActivity extends AppCompatActivity
         Intent intent = getIntent();
         token = intent.getStringExtra(EXTRA_TOKEN);
 
-        mActionListener = new SearchFunctions(this, this, this, this);
+        mActionListener = new SearchFunctions(this, this, this, this, this);
         mActionListener.init(token);
 
         mActionListener.getUserData();
@@ -174,7 +156,7 @@ public class MainActivity extends AppCompatActivity
 
         // Inicializamos los fragmentos
         playListFragment = PlayListFragment.newInstance(db);
-        automaticModeTabs = AutomaticModeTabs.newInstance(db);
+        automaticModeTabs = AutomaticModeTabs.newInstance(db,mActionListener);
         manualMode = ManualMode.newInstance(db, mActionListener);
 
         getSupportFragmentManager().beginTransaction()
@@ -188,156 +170,7 @@ public class MainActivity extends AppCompatActivity
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_MEDIA);
         }
 
-        FloatingActionButton fab = findViewById(R.id.fabNewPlayList);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                // Si pulsamos el botón mostramos el dialogo de selección de modo
-                if(playListFragment.isVisible()){
-                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setTitle(R.string.select_mode)
-                            .setItems(R.array.modes, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if(which == 0){
-                                        getSupportFragmentManager().beginTransaction()
-                                                .addToBackStack(automaticModeTabs.getClass().getName())
-                                                .replace(R.id.fragmentView, automaticModeTabs, automaticModeTabs.getClass().getName())
-                                                .commit();
-                                    }else if(which == 1){
-                                        getSupportFragmentManager().beginTransaction()
-                                                .addToBackStack(manualMode.getClass().getName())
-                                                .replace(R.id.fragmentView, manualMode, manualMode.getClass().getName())
-                                                .commit();
-                                    }
-                                }
-                            });
-                    builder.show();
-                }else if(automaticModeTabs.isVisible()){
-                    // El formulario es correcto por lo que obtenemos los parámetros y empezamos el proceso
-                    // Obtenemos la imagen de la playlist
-
-                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                        builder.setTitle(R.string.select_playlist_option)
-                                .setItems(R.array.create_playlist_options, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        if(which == 0){
-                                            if(automaticModeTabs.validarFormulario(0)){
-                                                progress.show();
-
-                                                //start a new thread to process job
-                                                new Thread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        int position = db.getNextPosition();
-
-                                                        byte[] image = Tools.getByteArray(automaticModeTabs.getImage());
-
-                                                        // Obtenemos el nombre de la nueva playlist
-                                                        String name = automaticModeTabs.getName();
-
-                                                        // Obtenemos el tempo seleccionado
-                                                        int tempo = automaticModeTabs.getTempo();
-
-                                                        // Obtenemos las categorías seleccionadas
-                                                        String genre = automaticModeTabs.getCategory();
-
-                                                        // Obtenemos la duración máxima seleccionada
-                                                        int duration = automaticModeTabs.getDuration();
-
-                                                        //Obtenemos la duración de cada canción
-                                                        float song_duration = automaticModeTabs.getSongDuration();
-
-                                                        float acoustiness = automaticModeTabs.getAcousticness();
-
-                                                        float danceability = automaticModeTabs.getDanceability();
-
-                                                        float energy = automaticModeTabs.getEnergy();
-
-                                                        float instrumentalness = automaticModeTabs.getInstrumentalness();
-
-                                                        float liveness = automaticModeTabs.getLiveness();
-
-                                                        float loudness = automaticModeTabs.getLoudness();
-
-                                                        int popularity = automaticModeTabs.getPopularity();
-
-                                                        float speechiness = automaticModeTabs.getSpeechiness();
-
-                                                        float valence = automaticModeTabs.getValence();
-
-                                                        String date_start = automaticModeTabs.getYearStart();
-
-                                                        String date_end = automaticModeTabs.getYearEnd();
-
-                                                        // Procedemos a llamar a la API para obtener las canciones
-                                                        UUID newId = java.util.UUID.randomUUID();
-                                                        AttPlaylist newPlaylist = new AttPlaylist(newId.toString(), position,
-                                                                name,tempo,duration,song_duration, date_start, date_end, image,genre, Calendar.getInstance().getTime(),
-                                                                acoustiness,danceability,energy,instrumentalness,liveness,
-                                                                loudness,popularity,speechiness,valence);
-                                                        mActionListener.searchRecomendations(newPlaylist,0);
-                                                    }
-                                                }).start();
-                                            }
-                                        }else if(which == 1){
-                                            if(automaticModeTabs.validarFormulario(1)){
-                                                playlist_list_dialog.show();
-                                            }
-                                        }
-                                    }
-                                });
-                        builder.show();
-                }
-            }
-        });
-
-        playlist_list_dialog = new MaterialDialog.Builder(MainActivity.this)
-                .title(R.string.select_playlist)
-                .customView(R.layout.playlist_list_short,false)
-                .negativeText(R.string.disagree)
-                .build();
-
-        playlist_list_dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                adapter_playlist_list = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, db.getPlaylistsNames());
-                playlist_list_view.setAdapter(adapter_playlist_list);
-                adapter_playlist_list.notifyDataSetChanged();
-            }
-        });
-
-        empty_playlist_list = playlist_list_dialog.getCustomView().findViewById(R.id.empty_short_playlist_list_view);
-
-        playlist_list_view = playlist_list_dialog.getCustomView().findViewById(R.id.short_playlist_list);
-        adapter_playlist_list = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, db.getPlaylistsNames());
-        playlist_list_view.setAdapter(adapter_playlist_list);
-
-        playlist_list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String playlist = adapter_playlist_list.getItem(i);
-                if(db.playlistNameExists(playlist)){
-                    AttPlaylist selected_playlist = db.getPlaylistByName(playlist);
-                    selected_playlist.setDuration(automaticModeTabs.getDuration());
-                    mActionListener.searchRecomendations(selected_playlist,1);
-                    playlist_list_dialog.dismiss();
-                }
-            }
-        });
-
-        if(adapter_playlist_list.getCount() == 0){
-            playlist_list_view.setVisibility(View.GONE);
-            empty_playlist_list.setVisibility(View.VISIBLE);
-        }else{
-            playlist_list_view.setVisibility(View.VISIBLE);
-            empty_playlist_list.setVisibility(View.GONE);
-        }
-
         mPlaybackControls = findViewById(R.id.playback_controls);
-        mPlayPause = findViewById(R.id.play_pause);
-        mPlayPause.setEnabled(true);
-        mPlayPause.setOnClickListener(mPlaybackButtonListener);
 
         mTitle = findViewById(R.id.title);
         mSubtitle = findViewById(R.id.artist);
@@ -493,7 +326,29 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_playlists) {
+        if (id == R.id.nav_create_playlist){
+            // Si pulsamos el botón mostramos el dialogo de selección de modo
+            if(playListFragment.isVisible()){
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle(R.string.select_mode)
+                        .setItems(R.array.modes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                if(which == 0){
+                                    getSupportFragmentManager().beginTransaction()
+                                            .addToBackStack(automaticModeTabs.getClass().getName())
+                                            .replace(R.id.fragmentView, automaticModeTabs, automaticModeTabs.getClass().getName())
+                                            .commit();
+                                }else if(which == 1){
+                                    getSupportFragmentManager().beginTransaction()
+                                            .addToBackStack(manualMode.getClass().getName())
+                                            .replace(R.id.fragmentView, manualMode, manualMode.getClass().getName())
+                                            .commit();
+                                }
+                            }
+                        });
+                builder.show();
+            }
+        }else if (id == R.id.nav_playlists) {
             getSupportFragmentManager().beginTransaction()
                     .addToBackStack(playListFragment.getClass().getName())
                     .replace(R.id.fragmentView, playListFragment, playListFragment.getClass().getName())
@@ -623,7 +478,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void showListPlaylist() {
-        progress.dismiss();
         if (!playListFragment.isVisible()) {
             // Si el fragmento no está visible lo mostramos
             getSupportFragmentManager().beginTransaction()
@@ -635,7 +489,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void showError(String message) {
-        progress.dismiss();
+
     }
 
     @Override
@@ -664,4 +518,9 @@ public class MainActivity extends AppCompatActivity
 
                 }
     };
+
+    @Override
+    public void dismissProgress() {
+        automaticModeTabs.dismissProgress();
+    }
 }

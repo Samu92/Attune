@@ -1,6 +1,7 @@
 package es.app.attune.attune.Fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -11,12 +12,14 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -25,6 +28,7 @@ import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
@@ -34,13 +38,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 
 import es.app.attune.attune.Classes.DatabaseFunctions;
+import es.app.attune.attune.Classes.SearchInterfaces;
+import es.app.attune.attune.Database.AttPlaylist;
+import es.app.attune.attune.Modules.Tools;
 import es.app.attune.attune.R;
 
 import static android.app.Activity.RESULT_OK;
 
-public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedListener {
+public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedListener, SearchInterfaces.ResultNewPlaylist {
 
     private OnFragmentInteractionListener mListener;
 
@@ -60,15 +68,28 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     private CheckBox date_checkbox;
     private EditText date_start;
     private EditText date_end;
+    private Button create_playlist_button;
+    private TextView txt_loading;
+    private MaterialDialog playlist_list_dialog;
+
+    private ArrayAdapter<String> adapter_playlist_list;
+
+    private TextView empty_playlist_list;
+    private ListView playlist_list_view;
+
+    private static SearchInterfaces.ActionListener mLocalActionListener;
+    private AdvancedParameters advancedParameterFragment;
+    private MaterialDialog progress;
 
     public NewPlayList() {
         // Required empty public constructor
     }
 
     // TODO: Rename and change types and number of parameters
-    public static NewPlayList newInstance(DatabaseFunctions database) {
+    public static NewPlayList newInstance(DatabaseFunctions database, SearchInterfaces.ActionListener mActionListener) {
         NewPlayList fragment = new NewPlayList();
         db = database;
+        mLocalActionListener = mActionListener;
         return fragment;
     }
 
@@ -140,6 +161,12 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        progress = new MaterialDialog.Builder(getActivity())
+                .customView(R.layout.loading_layout, false)
+                .build();
+        TextView txt_loading = progress.getView().findViewById(R.id.txt_loading);
+        txt_loading.setText(R.string.playlist_creating);
 
         image = getView().findViewById(R.id.image_playlist);
         Glide.with(getContext())
@@ -280,6 +307,134 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
                 }
             }
         });
+
+        playlist_list_dialog = new MaterialDialog.Builder(getContext())
+                .title(R.string.select_playlist)
+                .customView(R.layout.playlist_list_short,false)
+                .negativeText(R.string.disagree)
+                .build();
+
+        playlist_list_dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                adapter_playlist_list = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, db.getPlaylistsNames());
+                playlist_list_view.setAdapter(adapter_playlist_list);
+                adapter_playlist_list.notifyDataSetChanged();
+            }
+        });
+
+        empty_playlist_list = playlist_list_dialog.getCustomView().findViewById(R.id.empty_short_playlist_list_view);
+
+        playlist_list_view = playlist_list_dialog.getCustomView().findViewById(R.id.short_playlist_list);
+        adapter_playlist_list = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, db.getPlaylistsNames());
+        playlist_list_view.setAdapter(adapter_playlist_list);
+
+        playlist_list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String playlist = adapter_playlist_list.getItem(i);
+                if(db.playlistNameExists(playlist)){
+                    AttPlaylist selected_playlist = db.getPlaylistByName(playlist);
+                    selected_playlist.setDuration(getDuration());
+                    progress.show();
+                    mLocalActionListener.searchRecomendations(selected_playlist,1);
+                    playlist_list_dialog.dismiss();
+                }
+            }
+        });
+
+        if(adapter_playlist_list.getCount() == 0){
+            playlist_list_view.setVisibility(View.GONE);
+            empty_playlist_list.setVisibility(View.VISIBLE);
+        }else{
+            playlist_list_view.setVisibility(View.VISIBLE);
+            empty_playlist_list.setVisibility(View.GONE);
+        }
+
+        create_playlist_button = (Button) getView().findViewById(R.id.create_playlist_button);
+        create_playlist_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle(R.string.select_playlist_option)
+                        .setItems(R.array.create_playlist_options, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                if(which == 0){
+                                    if(ValidarFormulario(0)){
+                                        //start a new thread to process job
+                                        new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                int position = db.getNextPosition();
+
+                                                byte[] image = Tools.getByteArray(getImage());
+
+                                                // Obtenemos el nombre de la nueva playlist
+                                                String name = getName();
+
+                                                // Obtenemos el tempo seleccionado
+                                                int tempo = getTempo();
+
+                                                // Obtenemos las categorías seleccionadas
+                                                String genre = getCategory();
+
+                                                // Obtenemos la duración máxima seleccionada
+                                                int duration = getDuration();
+
+                                                //Obtenemos la duración de cada canción
+                                                float song_duration = getSongDuration();
+
+                                                float acoustiness = advancedParameterFragment.getAcousticness();
+
+                                                float danceability = advancedParameterFragment.getDanceability();
+
+                                                float energy = advancedParameterFragment.getEnergy();
+
+                                                float instrumentalness = advancedParameterFragment.getInstrumentalness();
+
+                                                float liveness = advancedParameterFragment.getLiveness();
+
+                                                float loudness = advancedParameterFragment.getLoudness();
+
+                                                int popularity = advancedParameterFragment.getPopularity();
+
+                                                float speechiness = advancedParameterFragment.getSpeechiness();
+
+                                                float valence = advancedParameterFragment.getValence();
+
+                                                String date_start = getYearStart();
+
+                                                String date_end = getYearEnd();
+
+                                                // Procedemos a llamar a la API para obtener las canciones
+                                                UUID newId = java.util.UUID.randomUUID();
+                                                AttPlaylist newPlaylist = new AttPlaylist(newId.toString(), position,
+                                                        name,tempo,duration,song_duration, date_start, date_end, image,genre, Calendar.getInstance().getTime(),
+                                                        acoustiness,danceability,energy,instrumentalness,liveness,
+                                                        loudness,popularity,speechiness,valence);
+
+                                                getActivity().runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        //Cambiar controles
+                                                        progress.show();
+                                                    }
+                                                });
+
+                                                mLocalActionListener.searchRecomendations(newPlaylist,0);
+                                            }
+                                        }).start();
+                                    }
+                                }else if(which == 1){
+                                    if(ValidarFormulario(1)){
+                                        playlist_list_dialog.show();
+                                    }
+                                }
+                            }
+                        });
+                builder.show();
+            }
+        });
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -316,6 +471,14 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
 
     }
 
+    public void setAdvancedParametersFragment(AdvancedParameters fragmentAdvancedParameters) {
+        this.advancedParameterFragment = fragmentAdvancedParameters;
+    }
+
+    @Override
+    public void dismissProgress() {
+        progress.dismiss();
+    }
 
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name

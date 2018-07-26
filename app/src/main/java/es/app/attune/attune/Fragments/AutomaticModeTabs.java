@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 import es.app.attune.attune.Classes.DatabaseFunctions;
+import es.app.attune.attune.Classes.SearchInterfaces;
 import es.app.attune.attune.R;
 
 public class AutomaticModeTabs extends Fragment {
@@ -41,11 +42,14 @@ public class AutomaticModeTabs extends Fragment {
         // Required empty public constructor
     }
 
-    public static AutomaticModeTabs newInstance(DatabaseFunctions database) {
+    public static AutomaticModeTabs newInstance(DatabaseFunctions database, SearchInterfaces.ActionListener mActionListener) {
         AutomaticModeTabs fragment = new AutomaticModeTabs();
         db = database;
-        fragmentNewPlaylist = NewPlayList.newInstance(db);
+        fragmentNewPlaylist = NewPlayList.newInstance(db, mActionListener);
         fragmentAdvancedParameters = AdvancedParameters.newInstance(db);
+
+        fragmentNewPlaylist.setAdvancedParametersFragment(fragmentAdvancedParameters);
+        fragmentAdvancedParameters.setNewPlaylistFragment(fragmentNewPlaylist);
         return fragment;
     }
 
@@ -146,6 +150,9 @@ public class AutomaticModeTabs extends Fragment {
 
     public String getYearEnd() { return fragmentNewPlaylist.getYearEnd();}
 
+    public void dismissProgress() {
+        fragmentNewPlaylist.dismissProgress();
+    }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();

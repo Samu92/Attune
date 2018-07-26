@@ -67,6 +67,10 @@
     <string name="obligatory_name">El nombre es obligatorio.</string>
     <string name="duration">Duración</string>
     <string name="playlist_creating">Creando playlist...</string>
+    <string name="create_new_playlist">Crear nueva playlist</string>
+    <string name="playlists_menu">Playlists</string>
+    <string name="txt_share">Compartir</string>
+    <string name="txt_playlist_create">Crear playlist</string>
     <string-array name="modes">
         <item>Automático</item>
         <item>Manual</item>

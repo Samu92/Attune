@@ -20,4 +20,10 @@
     <dimen name="media_item_height">72dp</dimen>
     <dimen name="media_item_icon_margin_start">12dp</dimen>
     <dimen name="media_item_text_margin_start">60dp</dimen>
+
+    <dimen name="parallax_image_height">320dp</dimen>
+    <dimen name="parallax_image_height_ancor">360dp</dimen>
+
+    <!-- Bottom control panel-->
+    <dimen name="bottom_control_panel">220dp</dimen>
 </resources>

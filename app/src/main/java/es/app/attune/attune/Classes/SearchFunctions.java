@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +34,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
     private final SearchInterfaces.ResultPlaylist mResultPlaylist;
     private final SearchInterfaces.ResultGenres mResultGenres;
     private final SearchInterfaces.ResultUserData mResultUserData;
+    private final SearchInterfaces.ResultNewPlaylist mResultNewPlaylist;
     private float mTempo;
     private String mGenre;
     private float mDuration;
@@ -48,11 +51,12 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
 
     private String mCurrentQuery;
 
-    public SearchFunctions(Context context, SearchInterfaces.ResultPlaylist result, SearchInterfaces.ResultGenres result_genres, SearchInterfaces.ResultUserData result_userdata) {
+    public SearchFunctions(Context context, SearchInterfaces.ResultPlaylist result, SearchInterfaces.ResultGenres result_genres, SearchInterfaces.ResultUserData result_userdata, SearchInterfaces.ResultNewPlaylist resultNewPlaylist) {
         mContext = context;
         mResultPlaylist = result;
         mResultGenres = result_genres;
         mResultUserData = result_userdata;
+        mResultNewPlaylist = resultNewPlaylist;
 
         // Inicializamos la sesión de base de datos
         daoSession = ((App) context.getApplicationContext()).getDaoSession();
@@ -139,9 +143,11 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                         playlist.setDuration((int) playlist_duration);
                         db.insertNewPlaylist(playlist,songs);
                         mResultPlaylist.showListPlaylist();
+                        mResultNewPlaylist.dismissProgress();
                     }else if(mode == 1){
                         db.insertSongsInPlaylist(playlist,songs);
                         mResultPlaylist.showListPlaylist();
+                        mResultNewPlaylist.dismissProgress();
                     }
                 }
 

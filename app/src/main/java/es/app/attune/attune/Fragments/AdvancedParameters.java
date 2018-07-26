@@ -48,6 +48,7 @@ public class AdvancedParameters extends Fragment {
     private CheckBox check_popularity;
     private CheckBox check_speechiness;
     private CheckBox check_valence;
+    private NewPlayList newPlaylistFragment;
 
 
     public float getAcousticness() {
@@ -459,4 +460,7 @@ public class AdvancedParameters extends Fragment {
         return valid;
     }
 
+    public void setNewPlaylistFragment(NewPlayList fragmentNewPlaylist) {
+        this.newPlaylistFragment = fragmentNewPlaylist;
+    }
 }

@@ -5,9 +5,14 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/nav_create_playlist"
+            android:icon="@drawable/ic_menu_share"
+            android:title="@string/create_new_playlist" />
+
+        <item
             android:id="@+id/nav_playlists"
             android:icon="@drawable/ic_playlist_play_white_24px"
-            android:title="Playlists" />
+            android:title="@string/playlists_menu" />
     </group>
 
     <item android:title="Communicate">
@@ -15,7 +20,7 @@
             <item
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_menu_share"
-                android:title="Compartir" />
+                android:title="@string/txt_share" />
         </menu>
     </item>
 

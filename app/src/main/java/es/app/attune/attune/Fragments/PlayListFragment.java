@@ -20,6 +20,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import es.app.attune.attune.Classes.DatabaseFunctions;
+import es.app.attune.attune.Classes.SearchInterfaces;
 import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.R;
 

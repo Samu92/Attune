@@ -1,5 +1,7 @@
 package es.app.attune.attune.Classes;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+
 import java.util.List;
 
 import es.app.attune.attune.Database.AttPlaylist;
@@ -20,6 +22,10 @@ public class SearchInterfaces {
         void showError(String message);
 
         void addDataToSearchList(List<Song> items);
+    }
+
+    public interface ResultNewPlaylist{
+        void dismissProgress();
     }
 
     public interface ResultGenres{
