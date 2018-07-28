@@ -42,7 +42,7 @@
     <string name="currently_playing_song">Song currently playing</string>
     <string name="currently_playing_artist">Artist of currently playing song</string>
     <string name="currently_playing_extra_info">Extra info for currently playing song</string>
-    <string name="no_data_available_playlist">No hay ninguna lista de reproducción creada, pulsa en el + para crear una nueva.</string>
+    <string name="no_data_available_playlist">No hay ninguna lista de reproducción creada, abre el menú de la izquierda para crear una nueva.</string>
     <string name="automatic_search">Búsqueda automática</string>
     <string name="manual_search">Búsqueda manual</string>
     <string name="select_genre_list">No hay ninguna categoría seleccionada</string>

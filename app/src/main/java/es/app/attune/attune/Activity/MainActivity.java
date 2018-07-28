@@ -2,6 +2,7 @@ package es.app.attune.attune.Activity;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -15,7 +16,6 @@ import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -24,29 +24,23 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.spotify.sdk.android.player.Spotify;
 
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import es.app.attune.attune.AttunePlayer.PlayerService;
@@ -62,10 +56,8 @@ import es.app.attune.attune.Fragments.NewPlayList;
 import es.app.attune.attune.Fragments.AutomaticModeTabs;
 import es.app.attune.attune.Fragments.PlayListFragment;
 import es.app.attune.attune.Fragments.SongsListFragment;
-import es.app.attune.attune.Modules.Tools;
 import es.app.attune.attune.R;
 import kaaes.spotify.webapi.android.models.UserPrivate;
-import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -93,12 +85,6 @@ public class MainActivity extends AppCompatActivity
     PlayerService mService;
     boolean mBound = false;
 
-    // Reproductor
-    private TextView mTitle;
-    private TextView mSubtitle;
-    private ImageView mAlbumArt;
-    private ViewGroup mPlaybackControls;
-
     private String token;
 
     TextView navEmail;
@@ -110,6 +96,10 @@ public class MainActivity extends AppCompatActivity
     private MaterialDialog edit_playlist_dialog;
 
     private AttPlaylist selected_playlist;
+
+    private static SlidingUpPanelLayout playerUI;
+    private static ImageView play_pause_button;
+    private static ImageView song_cover;
 
     public static Intent createIntent(Context context) {
         return new Intent(context, MainActivity.class);
@@ -170,12 +160,6 @@ public class MainActivity extends AppCompatActivity
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_MEDIA);
         }
 
-        mPlaybackControls = findViewById(R.id.playback_controls);
-
-        mTitle = findViewById(R.id.title);
-        mSubtitle = findViewById(R.id.artist);
-        mAlbumArt = findViewById(R.id.album_art);
-
         edit_playlist_dialog = new MaterialDialog.Builder(MainActivity.this)
                 .title("Nueva playlist")
                 .customView(R.layout.new_playlist_short, false)
@@ -234,6 +218,52 @@ public class MainActivity extends AppCompatActivity
                         PICK_IMAGE_REQUEST);
             }
         });
+
+        playerUI = (SlidingUpPanelLayout) findViewById(R.id.sliding_panel);
+        playerUI.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+            @Override
+            public void onPanelSlide(View panel, float slideOffset) {
+
+            }
+
+            @Override
+            public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
+
+            }
+        });
+
+        /* Controles del reproductor */
+        play_pause_button = (ImageView) findViewById(R.id.play_pause_button);
+        play_pause_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(mService.playPauseState()){
+                    play_pause_button.setImageResource(R.drawable.ic_pause_blue_36dp);
+                }else{
+                    play_pause_button.setImageResource(R.drawable.ic_play_arrow_blue_36dp);
+                }
+            }
+        });
+
+        ImageView previous_song_button = (ImageView) findViewById(R.id.previous_song);
+        previous_song_button.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                mService.skipToPreviousSong();
+            }
+        });
+
+        ImageView next_song_button = (ImageView) findViewById(R.id.next_song);
+        next_song_button.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                mService.skipToNextSong();
+            }
+        });
+        /* ****************************** */
+
+        song_cover = (ImageView) findViewById(R.id.image_player);
+
     }
 
     @Override
@@ -278,6 +308,8 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+        }else if(playerUI.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED){
+            playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         }else{
             if(playListFragment.isVisible()){
                 Intent a = new Intent(Intent.ACTION_MAIN);
@@ -289,6 +321,7 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -325,6 +358,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
 
         if (id == R.id.nav_create_playlist){
             // Si pulsamos el botón mostramos el dialogo de selección de modo
@@ -427,9 +461,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onListFragmentInteraction(final AttPlaylist item, boolean reproducir) {
-        if (reproducir) {
-
-        }else {
             // Hemos recibido un click en una de las playlist
             songsListFragment = SongsListFragment.newInstance(db, item.getId());
             // Mostramos la lista de canciones
@@ -440,7 +471,7 @@ public class MainActivity extends AppCompatActivity
                             public void onClick(DialogInterface dialog, int which) {
                                 if (which == 0) {
                                     // Reproducción
-
+                                    mService.playPlaylist(item);
                                 } else if (which == 1) {
                                     // Si el fragmento no está visible lo mostramos
                                     getSupportFragmentManager().beginTransaction()
@@ -456,12 +487,11 @@ public class MainActivity extends AppCompatActivity
                         });
                 builder.show();
             }
-        }
     }
 
     @Override
     public void onListFragmentInteraction(Song item) {
-        mService.playSong(item.getUrlSpotify());
+        mService.playSong(item);
     }
 
 
@@ -522,5 +552,27 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void dismissProgress() {
         automaticModeTabs.dismissProgress();
+    }
+
+    public static void pause(){
+        play_pause_button.setImageResource(R.drawable.ic_play_arrow_blue_36dp);
+    }
+
+    public static void play(){
+        play_pause_button.setImageResource(R.drawable.ic_pause_blue_36dp);
+    }
+
+    public static void notifyPlayer(Song currentSong){
+        Glide.with(App.getContext())
+                .load(currentSong.getImage())
+                .into(song_cover);
+    }
+
+    public static void openPanel(){
+        playerUI.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+    }
+
+    public static void closePanel(){
+        playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
     }
 }

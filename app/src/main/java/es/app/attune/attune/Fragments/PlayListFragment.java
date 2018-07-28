@@ -43,6 +43,7 @@ public class PlayListFragment extends Fragment {
     private TextView empty;
 
     public PlayListFragment() {
+
     }
 
     // TODO: Customize parameter initialization

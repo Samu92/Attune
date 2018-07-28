@@ -8,6 +8,9 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import es.app.attune.attune.Database.AttPlaylist;
+import es.app.attune.attune.Database.Song;
+
 public class PlayerService extends Service {
 
     private static final String TAG = "PlayerService";
@@ -45,8 +48,30 @@ public class PlayerService extends Service {
         return START_STICKY;
     }
 
-    public void playSong(String url){
-        mPlayer.play(url);
+    public void playSong(Song item){
+        mPlayer.play(item);
+    }
+
+    public void playPlaylist(AttPlaylist item) {
+        mPlayer.setQueue(item);
+    }
+
+    public boolean playPauseState(){
+        if(mPlayer.isPlaying()){
+            mPlayer.pause();
+            return false;
+        }else{
+            mPlayer.resume();
+            return true;
+        }
+    }
+
+    public void skipToPreviousSong() {
+        mPlayer.skipToPreviousSong();
+    }
+
+    public void skipToNextSong() {
+        mPlayer.skipToNextSong();
     }
 
     @Nullable
@@ -54,7 +79,6 @@ public class PlayerService extends Service {
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
-
 
 
     @Override
