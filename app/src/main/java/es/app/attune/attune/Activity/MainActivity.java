@@ -3,6 +3,9 @@ package es.app.attune.attune.Activity;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,14 +13,17 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.media.session.MediaSession;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -27,9 +33,13 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.RemoteViews;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -37,14 +47,24 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import com.spotify.sdk.android.player.PlaybackState;
 import com.spotify.sdk.android.player.Spotify;
+
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import es.app.attune.attune.AttunePlayer.NotificationService;
 import es.app.attune.attune.AttunePlayer.PlayerService;
 import es.app.attune.attune.Classes.App;
+import es.app.attune.attune.Classes.Constants;
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Classes.SearchFunctions;
 import es.app.attune.attune.Classes.SearchInterfaces;
@@ -57,6 +77,8 @@ import es.app.attune.attune.Fragments.AutomaticModeTabs;
 import es.app.attune.attune.Fragments.PlayListFragment;
 import es.app.attune.attune.Fragments.SongsListFragment;
 import es.app.attune.attune.R;
+import info.abdolahi.CircularMusicProgressBar;
+import info.abdolahi.OnCircularSeekBarChangeListener;
 import kaaes.spotify.webapi.android.models.UserPrivate;
 
 public class MainActivity extends AppCompatActivity
@@ -99,7 +121,18 @@ public class MainActivity extends AppCompatActivity
 
     private static SlidingUpPanelLayout playerUI;
     private static ImageView play_pause_button;
-    private static ImageView song_cover;
+    private static ImageView play_pause_button_expand;
+    private static ImageView previous_song_button;
+    private static ImageView next_song_button;
+    private static ImageView previous_song_button_expand;
+    private static ImageView next_song_button_expand;
+    private static CircularMusicProgressBar song_cover;
+    private static TextView song_title;
+    private static TextView song_artist;
+    private static LinearLayout playerControlsShort;
+    private static int i = 0;
+
+    private ScheduledExecutorService scheduler;
 
     public static Intent createIntent(Context context) {
         return new Intent(context, MainActivity.class);
@@ -220,6 +253,7 @@ public class MainActivity extends AppCompatActivity
         });
 
         playerUI = (SlidingUpPanelLayout) findViewById(R.id.sliding_panel);
+        playerControlsShort = (LinearLayout) findViewById(R.id.playback_controls);
         playerUI.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
             public void onPanelSlide(View panel, float slideOffset) {
@@ -228,43 +262,138 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
-
+                if(newState == SlidingUpPanelLayout.PanelState.DRAGGING){
+                    if(previousState == SlidingUpPanelLayout.PanelState.EXPANDED){
+                        playerControlsShort.setVisibility(View.VISIBLE);
+                    }else{
+                        playerControlsShort.setVisibility(View.GONE);
+                    }
+                }
             }
         });
+        playerUI.setTouchEnabled(false);
+
 
         /* Controles del reproductor */
-        play_pause_button = (ImageView) findViewById(R.id.play_pause_button);
+        play_pause_button = (ImageView) findViewById(R.id.play_pause_button_slide);
         play_pause_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+            if(mService != null){
                 if(mService.playPauseState()){
                     play_pause_button.setImageResource(R.drawable.ic_pause_blue_36dp);
                 }else{
                     play_pause_button.setImageResource(R.drawable.ic_play_arrow_blue_36dp);
                 }
             }
-        });
-
-        ImageView previous_song_button = (ImageView) findViewById(R.id.previous_song);
-        previous_song_button.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                mService.skipToPreviousSong();
             }
         });
 
-        ImageView next_song_button = (ImageView) findViewById(R.id.next_song);
+        previous_song_button = (ImageView) findViewById(R.id.previous_song);
+        previous_song_button.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                if(mService != null){
+                    mService.skipToPreviousSong();
+                }
+            }
+        });
+
+        next_song_button = (ImageView) findViewById(R.id.next_song);
         next_song_button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                mService.skipToNextSong();
+                if(mService != null){
+                    mService.skipToNextSong();
+                }
+            }
+        });
+
+        previous_song_button_expand = (ImageView) findViewById(R.id.previous_song_expand);
+        previous_song_button_expand.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                if(mService != null){
+                    mService.skipToPreviousSong();
+                }
+            }
+        });
+
+        next_song_button_expand = (ImageView) findViewById(R.id.next_song_expand);
+        next_song_button_expand.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                if(mService != null){
+                    mService.skipToNextSong();
+                }
+            }
+        });
+
+        play_pause_button_expand = (ImageView) findViewById(R.id.play_pause_button_slide_expand);
+        play_pause_button_expand.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(mService != null){
+                    if(mService.playPauseState()){
+                        play_pause_button_expand.setImageResource(R.drawable.ic_pause_blue_36dp);
+                    }else{
+                        play_pause_button_expand.setImageResource(R.drawable.ic_play_arrow_blue_36dp);
+                    }
+                }
             }
         });
         /* ****************************** */
 
-        song_cover = (ImageView) findViewById(R.id.image_player);
+        song_cover = (CircularMusicProgressBar) findViewById(R.id.image_player);
 
+        song_title = (TextView) findViewById(R.id.song_title_player);
+        song_artist = (TextView) findViewById(R.id.song_artist_player);
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (mService != null) {
+                    PlaybackState state = mService.getPlaybackState();
+                    if(!mService.currentsSongEmpty()){
+                        MainActivity.sendCurrentPosition(mService.getCurrentSong(),state.positionMs);
+                    }
+                }
+                handler.postDelayed(this, 1000);
+            }
+        }, 1000);
+
+        song_cover.setOnCircularBarChangeListener(new OnCircularSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(CircularMusicProgressBar circularBar, int progress, boolean fromUser) {
+                if(fromUser){
+                    Log.i("CLICKED", "CLICK");
+                    mService.seekToPosition(progress);
+                }
+            }
+
+            @Override
+            public void onClick(CircularMusicProgressBar circularBar) {
+                Log.i("CLICKED", "CLICK");
+            }
+
+            @Override
+            public void onLongPress(CircularMusicProgressBar circularBar) {
+                Log.i("CLICKED", "CLICK");
+            }
+        });
     }
+
+    // And your clearstage() must be implemented like this:
+    private static Runnable clearstage() {
+        return new Runnable() {
+            @Override
+            public void run() {
+                // Code goes here...
+            }
+        };
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -303,12 +432,19 @@ public class MainActivity extends AppCompatActivity
         super.onPostCreate(savedInstanceState);
     }
 
+    public void startNotificationService() {
+        Intent serviceIntent = new Intent(App.getContext(), NotificationService.class);
+        serviceIntent.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
+        startService(serviceIntent);
+    }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         }else if(playerUI.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED){
+            playerControlsShort.setVisibility(View.VISIBLE);
             playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         }else{
             if(playListFragment.isVisible()){
@@ -359,6 +495,7 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        playerControlsShort.setVisibility(View.VISIBLE);
 
         if (id == R.id.nav_create_playlist){
             // Si pulsamos el botón mostramos el dialogo de selección de modo
@@ -472,6 +609,7 @@ public class MainActivity extends AppCompatActivity
                                 if (which == 0) {
                                     // Reproducción
                                     mService.playPlaylist(item);
+                                    startNotificationService();
                                 } else if (which == 1) {
                                     // Si el fragmento no está visible lo mostramos
                                     getSupportFragmentManager().beginTransaction()
@@ -492,6 +630,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onListFragmentInteraction(Song item) {
         mService.playSong(item);
+        startNotificationService();
     }
 
 
@@ -556,23 +695,39 @@ public class MainActivity extends AppCompatActivity
 
     public static void pause(){
         play_pause_button.setImageResource(R.drawable.ic_play_arrow_blue_36dp);
+        play_pause_button_expand.setImageResource(R.drawable.ic_play_arrow_blue_36dp);
     }
 
     public static void play(){
         play_pause_button.setImageResource(R.drawable.ic_pause_blue_36dp);
+        play_pause_button_expand.setImageResource(R.drawable.ic_pause_blue_36dp);
     }
 
     public static void notifyPlayer(Song currentSong){
         Glide.with(App.getContext())
                 .load(currentSong.getImage())
+                .apply(RequestOptions.noAnimation())
                 .into(song_cover);
+        song_title.setText(currentSong.getName());
+        song_artist.setText(currentSong.getArtist());
     }
 
     public static void openPanel(){
-        playerUI.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+        if(!(playerUI.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED)){
+            playerControlsShort.setVisibility(View.GONE);
+            playerUI.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+        }
     }
 
     public static void closePanel(){
+        playerControlsShort.setVisibility(View.VISIBLE);
         playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+    }
+
+    public static void sendCurrentPosition(Song mCurrentSong, long positionMs) {
+        if(positionMs != 0){
+            Log.i("CURRENT POSITION", "TOTAL: " + String.valueOf(mCurrentSong.getDuration()/1000) + " - CURRENT:" +  String.valueOf(positionMs/1000));
+            song_cover.setValue((100*(positionMs/1000))/(mCurrentSong.getDuration()/1000));
+        }
     }
 }

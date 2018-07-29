@@ -92,10 +92,13 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                 public void onComplete(List<Track> items, AudioFeaturesTracks audioFeaturesTracks, Map<String, String> dates) {
                     long playlist_duration = 0;
                     List<Song> songs = new ArrayList<Song>();
+                    int i = 0;
                     for (Track track: items) {
                         UUID newUUID = java.util.UUID.randomUUID();
                         String newId = newUUID.toString();
-                        int position = db.getSongNextPosition(playlist.getId());
+                        //int position = db.getSongNextPosition(playlist.getId());
+                        int position = i;
+                        i += 1;
                         String playlistId = playlist.getId();
                         String trackId = track.id;
                         String spotifyId = track.uri;

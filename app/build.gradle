@@ -90,5 +90,7 @@ dependencies {
 
     implementation 'com.sothree.slidinguppanel:library:3.4.0'
 
+    implementation 'com.github.aliab:circular-music-progressbar:v1.3.0'
+
     testImplementation 'junit:junit:4.12'
 }

@@ -8,6 +8,14 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.spotify.sdk.android.player.Metadata;
+import com.spotify.sdk.android.player.PlaybackState;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import es.app.attune.attune.Activity.MainActivity;
 import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.Database.Song;
 
@@ -48,6 +56,8 @@ public class PlayerService extends Service {
         return START_STICKY;
     }
 
+
+
     public void playSong(Song item){
         mPlayer.play(item);
     }
@@ -66,6 +76,18 @@ public class PlayerService extends Service {
         }
     }
 
+    public long getTrackPosition() {
+        return mPlayer.getPositionTrack();
+    }
+
+    public Song getCurrentTrack() {
+        return mPlayer.getCurrentSong();
+    }
+
+    public void seekToPosition(int progress) {
+        mPlayer.seekToPosition(progress);
+    }
+
     public void skipToPreviousSong() {
         mPlayer.skipToPreviousSong();
     }
@@ -73,6 +95,19 @@ public class PlayerService extends Service {
     public void skipToNextSong() {
         mPlayer.skipToNextSong();
     }
+
+    public PlaybackState getPlaybackState() {
+       return  mPlayer.getPlaybackState();
+    }
+
+    public boolean currentsSongEmpty() {
+        return mPlayer.currentsSongEmpty();
+    }
+
+    public Song getCurrentSong() {
+        return mPlayer.getCurrentSong();
+    }
+
 
     @Nullable
     @Override

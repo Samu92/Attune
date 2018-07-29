@@ -1,21 +1,40 @@
 package es.app.attune.attune.AttunePlayer;
 
+import android.app.Application;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.Error;
+import com.spotify.sdk.android.player.Metadata;
+import com.spotify.sdk.android.player.PlaybackState;
 import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.Spotify;
+import com.spotify.sdk.android.player.SpotifyPlayer;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import es.app.attune.attune.Activity.MainActivity;
+import es.app.attune.attune.Classes.App;
+import es.app.attune.attune.Classes.AttuneBroadcastReceiver;
+import es.app.attune.attune.Classes.Constants;
 import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.Database.Song;
+import es.app.attune.attune.R;
 
 /**
  * Created by Samuel on 08/03/2018.
@@ -31,8 +50,13 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
 
     private List<Song> currentSongs;
 
+    private Intent switchIntent;
+
+
+
     public AttunePlayer() {
         currentSongs = new ArrayList<Song>();
+        switchIntent = new Intent("es.app.attune.ACTION_PLAY");
     }
 
     @Override
@@ -47,6 +71,19 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
     public void setQueue(AttPlaylist item) {
         currentSongs.clear();
         currentSongs.addAll(item.getSongs());
+        Collections.sort(currentSongs, new Comparator<Song>() {
+            @Override
+            public int compare(Song o1, Song o2) {
+                Song song1 = o1;
+                Song song2 = o2;
+
+                if(song1.getPosition() > song2.getPosition()){
+                    return 1;
+                }else{
+                    return -1;
+                }
+            }
+        });
         mSpotifyPlayer.playUri(null, currentSongs.get(0).getUrlSpotify(),0,0);
         mCurrentSong = 0;
     }
@@ -62,9 +99,6 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
         if(currentSongs.size() > 1){
             if(mCurrentSong < currentSongs.size() - 1){
                 mCurrentSong += 1;
-                mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(),0,0);
-            }else{
-                mCurrentSong = 0;
                 mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(),0,0);
             }
         }
@@ -156,7 +190,6 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
 
         if(playerEvent.equals(PlayerEvent.kSpPlaybackNotifyPause)){
             MainActivity.pause();
-            MainActivity.closePanel();
         }
 
         if(playerEvent.equals(PlayerEvent.kSpPlaybackNotifyPlay)){
@@ -168,10 +201,51 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
         if(playerEvent.equals(PlayerEvent.kSpPlaybackNotifyMetadataChanged)){
             MainActivity.notifyPlayer(currentSongs.get(mCurrentSong));
         }
+
+        if(playerEvent.equals(PlayerEvent.kSpPlaybackEventAudioFlush)){
+
+        }
+
+        if(playerEvent.equals(PlayerEvent.kSpPlaybackNotifyTrackChanged)){
+            if((mCurrentSong < currentSongs.size() - 1) && !mSpotifyPlayer.getPlaybackState().isPlaying){
+                mCurrentSong += 1;
+                mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(),0,0);
+            }
+        }
+
+        if(playerEvent.equals(PlayerEvent.kSpPlaybackNotifyTrackDelivered)){
+
+        }
     }
 
     @Override
     public void onPlaybackError(Error error) {
         Log.d("PlayBackEvent","");
+    }
+
+    public long getPositionTrack(){
+        return mSpotifyPlayer.getPlaybackState().positionMs;
+    }
+
+    public Song getCurrentSong() {
+        if(!currentSongs.isEmpty()){
+            return currentSongs.get(mCurrentSong);
+        }else{
+            return null;
+        }
+    }
+
+    public PlaybackState getPlaybackState() {
+        return mSpotifyPlayer.getPlaybackState();
+    }
+
+    public boolean currentsSongEmpty() {
+        return currentSongs.isEmpty();
+    }
+
+    public void seekToPosition(int progress) {
+        long total = getCurrentSong().getDuration();
+        long ms = (progress*1000);
+        mSpotifyPlayer.seekToPosition(null, (int) ms);
     }
 }

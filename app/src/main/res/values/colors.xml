@@ -694,4 +694,17 @@
     <color name="md_falcon_500_50">#80384e77</color>
     <color name="md_falcon_500_75">#c0384e77</color>
     <color name="md_falcon_A400_25">#40598bae</color>
+    <!-- A transparent black -->
+    <color name="transparent_black">#aa000000</color>
+
+    <!-- selected tab text -->
+    <color name="selected_tabtext">#bb000000</color>
+
+    <!-- non selected tab text -->
+    <color name="unselected_tabtext">#77000000</color>
+    <color name="shuffle_grey">#ffdedede</color>
+    <color name="background_grey">#ffdedede</color>
+
+    <!-- Black -->
+    <color name="black">#ff000000</color>
 </resources>
