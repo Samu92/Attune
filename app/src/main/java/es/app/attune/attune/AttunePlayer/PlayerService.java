@@ -1,29 +1,46 @@
 package es.app.attune.attune.AttunePlayer;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.View;
+import android.widget.RemoteViews;
+import android.widget.Toast;
 
-import com.spotify.sdk.android.player.Metadata;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.NotificationTarget;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.spotify.sdk.android.player.PlaybackState;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
+import es.app.attune.attune.Activity.LoginActivity;
 import es.app.attune.attune.Activity.MainActivity;
+import es.app.attune.attune.Classes.App;
+import es.app.attune.attune.Classes.Constants;
 import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.Database.Song;
+import es.app.attune.attune.Modules.Tools;
+import es.app.attune.attune.R;
 
 public class PlayerService extends Service {
 
+    Notification status;
     private static final String TAG = "PlayerService";
     private final IBinder mBinder = new PlayerBinder();
     private AttunePlayer mPlayer = new AttunePlayer();
+    private RemoteViews bigViews;
+    private RemoteViews views;
 
     public static Intent getIntent(Context context) {
         return new Intent(context, PlayerService.class);
@@ -47,23 +64,138 @@ public class PlayerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if(null == intent){
+        if(null == intent) {
             String source = null == intent ? "intent" : "action";
-            Log.e (TAG, source + " was null, flags=" + flags + " bits=" + Integer.toBinaryString (flags));
+            Log.e(TAG, source + " was null, flags=" + flags + " bits=" + Integer.toBinaryString(flags));
         }else{
-            mPlayer.createMediaPlayer(intent.getExtras().getString("token"),PlayerService.this);
+            if (intent.getAction().equals(Constants.ACTION.STARTFOREGROUND_ACTION)) {
+                MainActivity.openPanel();
+            } else if (intent.getAction().equals(Constants.ACTION.PREV_ACTION)) {
+                Log.i(TAG, "Clicked Previous");
+                skipToPreviousSong();
+            } else if (intent.getAction().equals(Constants.ACTION.PLAY_ACTION)) {
+                Log.i(TAG, "Clicked Play");
+                if(mPlayer.isPlaying()){
+                    mPlayer.pause();
+                }else{
+                    mPlayer.resume();
+                }
+            } else if (intent.getAction().equals(Constants.ACTION.NEXT_ACTION)) {
+                Log.i(TAG, "Clicked Next");
+                skipToNextSong();
+            } else if (intent.getAction().equals(
+                    Constants.ACTION.STOPFOREGROUND_ACTION)) {
+                Log.i(TAG, "Received Stop Foreground Intent");
+                stopForeground(true);
+                stopSelf();
+            } else if(intent.getAction().equals(Constants.ACTION.MAIN_ACTION)){
+                mPlayer.createMediaPlayer(intent.getExtras().getString("token"),PlayerService.this);
+            }
         }
         return START_STICKY;
     }
 
+    private void showNotification(final Song item) {
+        // Using RemoteViews to bind custom layouts into Notification
+        views = new RemoteViews(getPackageName(),
+                R.layout.status_bar);
+        bigViews = new RemoteViews(getPackageName(),
+                R.layout.status_bar_expanded);
+
+        // showing default album image
+        views.setViewVisibility(R.id.status_bar_icon, View.VISIBLE);
+        views.setViewVisibility(R.id.status_bar_album_art, View.GONE);
+
+        Intent notificationIntent = new Intent(this, LoginActivity.class);
+        notificationIntent.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                notificationIntent, 0);
+
+        Intent previousIntent = new Intent(this, PlayerService.class);
+        previousIntent.setAction(Constants.ACTION.PREV_ACTION);
+        PendingIntent ppreviousIntent = PendingIntent.getService(this, 0,
+                previousIntent, 0);
+
+        Intent playIntent = new Intent(this, PlayerService.class);
+        playIntent.setAction(Constants.ACTION.PLAY_ACTION);
+        PendingIntent pplayIntent = PendingIntent.getService(this, 0,
+                playIntent, 0);
+
+        Intent nextIntent = new Intent(this, PlayerService.class);
+        nextIntent.setAction(Constants.ACTION.NEXT_ACTION);
+        PendingIntent pnextIntent = PendingIntent.getService(this, 0,
+                nextIntent, 0);
+
+        Intent closeIntent = new Intent(this, PlayerService.class);
+        closeIntent.setAction(Constants.ACTION.STOPFOREGROUND_ACTION);
+        PendingIntent pcloseIntent = PendingIntent.getService(this, 0,
+                closeIntent, 0);
+
+        views.setOnClickPendingIntent(R.id.status_bar_play, pplayIntent);
+        bigViews.setOnClickPendingIntent(R.id.status_bar_play, pplayIntent);
+
+        views.setOnClickPendingIntent(R.id.status_bar_next, pnextIntent);
+        bigViews.setOnClickPendingIntent(R.id.status_bar_next, pnextIntent);
+
+        views.setOnClickPendingIntent(R.id.status_bar_prev, ppreviousIntent);
+        bigViews.setOnClickPendingIntent(R.id.status_bar_prev, ppreviousIntent);
+
+        views.setOnClickPendingIntent(R.id.status_bar_collapse, pcloseIntent);
+        bigViews.setOnClickPendingIntent(R.id.status_bar_collapse, pcloseIntent);
+
+        views.setImageViewResource(R.id.status_bar_play,
+                R.drawable.apollo_holo_dark_pause);
+        bigViews.setImageViewResource(R.id.status_bar_play,
+                R.drawable.apollo_holo_dark_pause);
+
+        views.setTextViewText(R.id.status_bar_track_name, item.getName());
+        bigViews.setTextViewText(R.id.status_bar_track_name, item.getName());
+
+        views.setTextViewText(R.id.status_bar_artist_name, item.getArtist());
+        bigViews.setTextViewText(R.id.status_bar_artist_name, item.getArtist());
+
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                Glide.with(App.getContext())
+                        .asBitmap()
+                        .load(item.getImage())
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                                bigViews.setImageViewBitmap(R.id.status_bar_album_art, resource);
+                                status = new Notification.Builder(App.getContext()).build();
+                                status.contentView = views;
+                                status.bigContentView = bigViews;
+                                status.flags = Notification.FLAG_ONGOING_EVENT;
+                                status.icon = R.mipmap.ic_launcher;
+                                status.contentIntent = pendingIntent;
+                                startForeground(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE, status);
+                            }
+                        });
+            }
+        });
+    }
+
+    public boolean isInitialized() {
+        return mPlayer.isInitialized();
+    }
+
+    public boolean isPlaying() {
+        return mPlayer.isPlaying();
+    }
 
 
     public void playSong(Song item){
         mPlayer.play(item);
+        showNotification(item);
     }
 
     public void playPlaylist(AttPlaylist item) {
         mPlayer.setQueue(item);
+        showNotification(getCurrentSong());
     }
 
     public boolean playPauseState(){
@@ -90,10 +222,12 @@ public class PlayerService extends Service {
 
     public void skipToPreviousSong() {
         mPlayer.skipToPreviousSong();
+        showNotification(getCurrentSong());
     }
 
     public void skipToNextSong() {
         mPlayer.skipToNextSong();
+        showNotification(getCurrentSong());
     }
 
     public PlaybackState getPlaybackState() {

@@ -2,10 +2,6 @@ package es.app.attune.attune.Activity;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.Application;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,7 +9,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.media.session.MediaSession;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,7 +18,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -33,35 +27,26 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.RemoteViews;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.jackandphantom.circularprogressbar.CircleProgressbar;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.spotify.sdk.android.player.PlaybackState;
 import com.spotify.sdk.android.player.Spotify;
 
-import org.w3c.dom.Text;
-
 import java.io.IOException;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import es.app.attune.attune.AttunePlayer.NotificationService;
 import es.app.attune.attune.AttunePlayer.PlayerService;
 import es.app.attune.attune.Classes.App;
 import es.app.attune.attune.Classes.Constants;
@@ -71,14 +56,12 @@ import es.app.attune.attune.Classes.SearchInterfaces;
 import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.Database.DaoSession;
 import es.app.attune.attune.Database.Song;
+import es.app.attune.attune.Fragments.AutomaticModeTabs;
 import es.app.attune.attune.Fragments.ManualMode;
 import es.app.attune.attune.Fragments.NewPlayList;
-import es.app.attune.attune.Fragments.AutomaticModeTabs;
 import es.app.attune.attune.Fragments.PlayListFragment;
 import es.app.attune.attune.Fragments.SongsListFragment;
 import es.app.attune.attune.R;
-import info.abdolahi.CircularMusicProgressBar;
-import info.abdolahi.OnCircularSeekBarChangeListener;
 import kaaes.spotify.webapi.android.models.UserPrivate;
 
 public class MainActivity extends AppCompatActivity
@@ -126,11 +109,13 @@ public class MainActivity extends AppCompatActivity
     private static ImageView next_song_button;
     private static ImageView previous_song_button_expand;
     private static ImageView next_song_button_expand;
-    private static CircularMusicProgressBar song_cover;
+    //private static CircularMusicProgressBar song_cover;
+    private static CircleProgressbar song_cover;
     private static TextView song_title;
     private static TextView song_artist;
     private static LinearLayout playerControlsShort;
     private static int i = 0;
+    private static CircleImageView song_cover_image;
 
     private ScheduledExecutorService scheduler;
 
@@ -265,13 +250,15 @@ public class MainActivity extends AppCompatActivity
                 if(newState == SlidingUpPanelLayout.PanelState.DRAGGING){
                     if(previousState == SlidingUpPanelLayout.PanelState.EXPANDED){
                         playerControlsShort.setVisibility(View.VISIBLE);
+                        playerUI.setTouchEnabled(true);
                     }else{
                         playerControlsShort.setVisibility(View.GONE);
+                        playerUI.setTouchEnabled(false);
                     }
                 }
             }
         });
-        playerUI.setTouchEnabled(false);
+        playerUI.setTouchEnabled(true);
 
 
         /* Controles del reproductor */
@@ -344,7 +331,28 @@ public class MainActivity extends AppCompatActivity
         });
         /* ****************************** */
 
-        song_cover = (CircularMusicProgressBar) findViewById(R.id.image_player);
+        song_cover = (CircleProgressbar) findViewById(R.id.circle_progress_player);
+        song_cover.setOnProgressbarChangeListener(new CircleProgressbar.OnProgressbarChangeListener() {
+            @Override
+            public void onProgressChanged(CircleProgressbar circleSeekbar, float progress, boolean fromUser) {
+                if(fromUser){
+                    Log.i("SeekToPosition", String.valueOf(progress));
+                    mService.seekToPosition((int) progress);
+                }
+            }
+
+            @Override
+            public void onStartTracking(CircleProgressbar circleSeekbar) {
+
+            }
+
+            @Override
+            public void onStopTracking(CircleProgressbar circleSeekbar) {
+
+            }
+        });
+
+        song_cover_image = (CircleImageView) findViewById(R.id.image_player_center);
 
         song_title = (TextView) findViewById(R.id.song_title_player);
         song_artist = (TextView) findViewById(R.id.song_artist_player);
@@ -354,44 +362,16 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run() {
                 if (mService != null) {
-                    PlaybackState state = mService.getPlaybackState();
-                    if(!mService.currentsSongEmpty()){
-                        MainActivity.sendCurrentPosition(mService.getCurrentSong(),state.positionMs);
+                    if(mService.isInitialized()){
+                        PlaybackState state = mService.getPlaybackState();
+                        if(!mService.currentsSongEmpty()){
+                            MainActivity.sendCurrentPosition(mService.getCurrentSong(),state.positionMs);
+                        }
                     }
                 }
                 handler.postDelayed(this, 1000);
             }
         }, 1000);
-
-        song_cover.setOnCircularBarChangeListener(new OnCircularSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(CircularMusicProgressBar circularBar, int progress, boolean fromUser) {
-                if(fromUser){
-                    Log.i("CLICKED", "CLICK");
-                    mService.seekToPosition(progress);
-                }
-            }
-
-            @Override
-            public void onClick(CircularMusicProgressBar circularBar) {
-                Log.i("CLICKED", "CLICK");
-            }
-
-            @Override
-            public void onLongPress(CircularMusicProgressBar circularBar) {
-                Log.i("CLICKED", "CLICK");
-            }
-        });
-    }
-
-    // And your clearstage() must be implemented like this:
-    private static Runnable clearstage() {
-        return new Runnable() {
-            @Override
-            public void run() {
-                // Code goes here...
-            }
-        };
     }
 
 
@@ -426,16 +406,11 @@ public class MainActivity extends AppCompatActivity
         // Playback controls configuration:
         // Initialize service player
         Intent player = new Intent(getApplicationContext(), PlayerService.class);
+        player.setAction(Constants.ACTION.MAIN_ACTION);
         player.putExtra("token",token);
         startService(player);
 
         super.onPostCreate(savedInstanceState);
-    }
-
-    public void startNotificationService() {
-        Intent serviceIntent = new Intent(App.getContext(), NotificationService.class);
-        serviceIntent.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
-        startService(serviceIntent);
     }
 
     @Override
@@ -494,31 +469,30 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-        playerControlsShort.setVisibility(View.VISIBLE);
 
         if (id == R.id.nav_create_playlist){
             // Si pulsamos el botón mostramos el dialogo de selección de modo
-            if(playListFragment.isVisible()){
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle(R.string.select_mode)
-                        .setItems(R.array.modes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                if(which == 0){
-                                    getSupportFragmentManager().beginTransaction()
-                                            .addToBackStack(automaticModeTabs.getClass().getName())
-                                            .replace(R.id.fragmentView, automaticModeTabs, automaticModeTabs.getClass().getName())
-                                            .commit();
-                                }else if(which == 1){
-                                    getSupportFragmentManager().beginTransaction()
-                                            .addToBackStack(manualMode.getClass().getName())
-                                            .replace(R.id.fragmentView, manualMode, manualMode.getClass().getName())
-                                            .commit();
-                                }
-                            }
-                        });
-                builder.show();
+            if(playerUI.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED){
+                closePanel();
             }
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setTitle(R.string.select_mode)
+                    .setItems(R.array.modes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            if(which == 0){
+                                getSupportFragmentManager().beginTransaction()
+                                        .addToBackStack(automaticModeTabs.getClass().getName())
+                                        .replace(R.id.fragmentView, automaticModeTabs, automaticModeTabs.getClass().getName())
+                                        .commit();
+                            }else if(which == 1){
+                                getSupportFragmentManager().beginTransaction()
+                                        .addToBackStack(manualMode.getClass().getName())
+                                        .replace(R.id.fragmentView, manualMode, manualMode.getClass().getName())
+                                        .commit();
+                            }
+                        }
+                    });
+            builder.show();
         }else if (id == R.id.nav_playlists) {
             getSupportFragmentManager().beginTransaction()
                     .addToBackStack(playListFragment.getClass().getName())
@@ -556,21 +530,20 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onStart() {
+        super.onStart();
         // Bind to LocalService
         Intent intent = new Intent(this, PlayerService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-
-        super.onStart();
     }
 
     @Override
     protected void onStop() {
+        super.onStop();
         // Unbind from the service
         if (mBound) {
             unbindService(mConnection);
             mBound = false;
         }
-        super.onStop();
     }
 
     /** Defines callbacks for service binding, passed to bindService() */
@@ -583,6 +556,12 @@ public class MainActivity extends AppCompatActivity
             PlayerService.PlayerBinder binder = (PlayerService.PlayerBinder) service;
             mService = binder.getService();
             mBound = true;
+            if(mService.getCurrentSong() != null){
+                notifyPlayer(mService.getCurrentSong());
+                if(mService.isPlaying()){
+                    openPanel();
+                }
+            }
         }
 
         @Override
@@ -609,7 +588,6 @@ public class MainActivity extends AppCompatActivity
                                 if (which == 0) {
                                     // Reproducción
                                     mService.playPlaylist(item);
-                                    startNotificationService();
                                 } else if (which == 1) {
                                     // Si el fragmento no está visible lo mostramos
                                     getSupportFragmentManager().beginTransaction()
@@ -630,7 +608,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onListFragmentInteraction(Song item) {
         mService.playSong(item);
-        startNotificationService();
     }
 
 
@@ -707,7 +684,7 @@ public class MainActivity extends AppCompatActivity
         Glide.with(App.getContext())
                 .load(currentSong.getImage())
                 .apply(RequestOptions.noAnimation())
-                .into(song_cover);
+                .into(song_cover_image);
         song_title.setText(currentSong.getName());
         song_artist.setText(currentSong.getArtist());
     }
@@ -724,10 +701,27 @@ public class MainActivity extends AppCompatActivity
         playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
     }
 
+    public static void enableSlidingPanel() {
+        playerControlsShort.setVisibility(View.VISIBLE);
+        playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+    }
+
+    public static void disableSlidingPanel() {
+        playerControlsShort.setVisibility(View.VISIBLE);
+        playerUI.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+    }
+
     public static void sendCurrentPosition(Song mCurrentSong, long positionMs) {
         if(positionMs != 0){
             Log.i("CURRENT POSITION", "TOTAL: " + String.valueOf(mCurrentSong.getDuration()/1000) + " - CURRENT:" +  String.valueOf(positionMs/1000));
-            song_cover.setValue((100*(positionMs/1000))/(mCurrentSong.getDuration()/1000));
+            //song_cover.setProgress((100*(positionMs/1000))/(mCurrentSong.getDuration()/1000));
+            song_cover.setProgress(positionMs/1000);
         }
     }
+
+    public static void initializeProgressCircle(Song mCurrentSong){
+        song_cover.setProgress(0);
+        song_cover.setMaxProgress(mCurrentSong.getDuration()/1000);
+    }
+
 }

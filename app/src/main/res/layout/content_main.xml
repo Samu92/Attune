@@ -41,7 +41,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:clickable="true"
-            android:focusable="false"
+            android:focusable="true"
             android:background="#ffffff">
 
             <LinearLayout
@@ -85,37 +85,34 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <info.abdolahi.CircularMusicProgressBar
-                    xmlns:app="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/image_player"
-                    android:layout_width="240dp"
-                    android:layout_height="240dp"
-                    android:layout_centerHorizontal="true"
-                    android:layout_margin="30dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    app:border_color="#046dae"
-                    app:border_width="10dp"
-                    app:centercircle_diammterer="1"
-                    app:progress_color="#80CBC4"
-                    app:progress_startAngle="90"
-                    app:draw_anticlockwise="false" />
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/image_player_center"
+                    android:layout_width="230dp"
+                    android:layout_height="230dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:layout_marginBottom="30dp"
+                    android:layout_marginTop="35dp"
+                    android:layout_centerHorizontal="true"/>
 
-                <!--ImageView
-                    android:id="@+id/image_player"
+                <com.jackandphantom.circularprogressbar.CircleProgressbar
+                    android:id="@+id/circle_progress_player"
                     android:layout_width="240dp"
                     android:layout_height="240dp"
-                    android:layout_margin="30dp"
                     android:layout_centerHorizontal="true"
-                    android:contentDescription="@string/cover_art_description"
-                    android:scaleType="centerCrop" /-->
+                    android:layout_margin="30dp"
+                    app:cpb_roundedCorner="true"
+                    app:cpb_foregroundProgressWidth="25"
+                    app:cpb_foregroundProgressColor="#1864c2"
+                    app:cpb_touchEnabled="true"
+                    />
 
                 <TextView
                     android:id="@+id/song_title_player"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:layout_below="@id/image_player"
+                    android:layout_below="@id/circle_progress_player"
                     android:textSize="30sp" />
 
                 <TextView

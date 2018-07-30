@@ -8,14 +8,13 @@ import es.app.attune.attune.R;
 
 public class Constants {
     public interface ACTION {
-        public static String MAIN_ACTION = "com.marothiatechs.customnotification.action.main";
-        public static String INIT_ACTION = "com.marothiatechs.customnotification.action.init";
-        public static String PREV_ACTION = "com.marothiatechs.customnotification.action.prev";
-        public static String PLAY_ACTION = "com.marothiatechs.customnotification.action.play";
-        public static String NEXT_ACTION = "com.marothiatechs.customnotification.action.next";
-        public static String STARTFOREGROUND_ACTION = "com.marothiatechs.customnotification.action.startforeground";
-        public static String STOPFOREGROUND_ACTION = "com.marothiatechs.customnotification.action.stopforeground";
-
+        public static String MAIN_ACTION = "es.attune.customnotification.action.main";
+        public static String INIT_ACTION = "es.attune.customnotification.action.init";
+        public static String PREV_ACTION = "es.attune.customnotification.action.prev";
+        public static String PLAY_ACTION = "es.attune.customnotification.action.play";
+        public static String NEXT_ACTION = "es.attune.customnotification.action.next";
+        public static String STARTFOREGROUND_ACTION = "es.attune.customnotification.action.startforeground";
+        public static String STOPFOREGROUND_ACTION = "es.attune.customnotification.action.stopforeground";
     }
 
     public interface NOTIFICATION_ID {
@@ -27,7 +26,7 @@ public class Constants {
         BitmapFactory.Options options = new BitmapFactory.Options();
         try {
             bm = BitmapFactory.decodeResource(context.getResources(),
-                    R.drawable.bg_default_album_art, options);
+                    R.mipmap.ic_launcher, options);
         } catch (Error ee) {
         } catch (Exception e) {
         }

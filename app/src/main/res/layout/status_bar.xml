@@ -14,9 +14,9 @@
         android:id="@+id/status_bar_icon"
         android:layout_width="@dimen/status_bar_album_art"
         android:layout_height="@dimen/status_bar_album_art"
-        android:background="@drawable/notify_panel_notification_icon_bg"
+        android:background="@mipmap/ic_launcher"
         android:scaleType="center"
-        android:src="@drawable/ic_launcher"
+        android:src="@mipmap/ic_launcher"
         android:visibility="gone" />
 
     <LinearLayout

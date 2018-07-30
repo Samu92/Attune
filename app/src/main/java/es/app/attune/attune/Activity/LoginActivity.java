@@ -15,6 +15,7 @@ import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 import java.util.concurrent.TimeUnit;
 
+import es.app.attune.attune.Classes.Constants;
 import es.app.attune.attune.Classes.CredentialsHandler;
 import es.app.attune.attune.R;
 
@@ -103,6 +104,7 @@ public class LoginActivity extends AppCompatActivity {
     private void startMainActivity(String token) {
         Intent intent = MainActivity.createIntent(this);
         intent.putExtra(MainActivity.EXTRA_TOKEN, token);
+        intent.setAction(Constants.ACTION.MAIN_ACTION);
         startActivity(intent);
         finish();
     }
