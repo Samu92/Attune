@@ -10,7 +10,6 @@
         android:name="es.app.attune.attune.Fragments.SongsListFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="68dp"
         tools:context="es.app.attune.attune.Fragments.SongsListFragment"
         tools:listitem="@layout/fragment_songs" />
 

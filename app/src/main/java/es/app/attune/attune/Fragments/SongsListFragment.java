@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import es.app.attune.attune.Activity.MainActivity;
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Database.Song;
 import es.app.attune.attune.R;
@@ -30,7 +31,7 @@ public class SongsListFragment extends Fragment {
     private int mColumnCount = 1;
     private SongsListFragment.OnListFragmentInteractionListener mListener;
     private static DatabaseFunctions db;
-    private RecyclerView recyclerView;
+    private static RecyclerView recyclerView;
     private SongListRecyclerViewAdapter adapter;
     private static String playlistId;
     private TextView empty;
@@ -93,6 +94,18 @@ public class SongsListFragment extends Fragment {
                 recyclerView.setVisibility(View.VISIBLE);
                 empty.setVisibility(View.GONE);
             }
+
+            ViewGroup.MarginLayoutParams marginLayoutParams =
+                    (ViewGroup.MarginLayoutParams) recyclerView.getLayoutParams();
+            if(MainActivity.getSlideVisible()){
+                marginLayoutParams.setMargins(0, 0, 0, 200);
+                recyclerView.setLayoutParams(marginLayoutParams);
+                recyclerView.requestLayout();
+            }else{
+                marginLayoutParams.setMargins(0, 0, 0, 0);
+                recyclerView.setLayoutParams(marginLayoutParams);
+                recyclerView.requestLayout();
+            }
         }
         return view;
     }
@@ -139,11 +152,21 @@ public class SongsListFragment extends Fragment {
         mListener = null;
     }
 
-    public void scrollToLastPosition() {
-        recyclerView.scrollToPosition(this.recyclerView.getScrollBarSize() - 1);
+    public static void setMarginBottomList(int mode){
+        if(recyclerView != null){
+            ViewGroup.MarginLayoutParams marginLayoutParams =
+                    (ViewGroup.MarginLayoutParams) recyclerView.getLayoutParams();
+            if(mode == 0){
+                marginLayoutParams.setMargins(0, 0, 0, 0);
+                recyclerView.setLayoutParams(marginLayoutParams);
+                recyclerView.requestLayout();
+            }else if(mode == 1){
+                marginLayoutParams.setMargins(0, 0, 0, 200);
+                recyclerView.setLayoutParams(marginLayoutParams);
+                recyclerView.requestLayout();
+            }
+        }
     }
-
-
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated

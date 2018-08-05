@@ -18,7 +18,11 @@ import es.app.attune.attune.Database.Genre;
 import es.app.attune.attune.Database.GenreDao;
 import es.app.attune.attune.Database.Song;
 import es.app.attune.attune.Database.SongDao;
+import es.app.attune.attune.Database.User;
+import es.app.attune.attune.Database.UserDao;
 import es.app.attune.attune.Modules.Tools;
+import es.app.attune.attune.R;
+import kaaes.spotify.webapi.android.models.UserPrivate;
 
 public class DatabaseFunctions {
 
@@ -26,12 +30,14 @@ public class DatabaseFunctions {
     private GenreDao genreDao;
     private AttPlaylistDao attplaylistDao;
     private SongDao songDao;
+    private UserDao userDao;
 
     public DatabaseFunctions(DaoSession session) {
         this.session = session;
         attplaylistDao = this.session.getAttPlaylistDao();
         songDao = this.session.getSongDao();
         genreDao = this.session.getGenreDao();
+        userDao = this.session.getUserDao();
     }
 
     public void insertGenres(List<String> items){
@@ -47,7 +53,7 @@ public class DatabaseFunctions {
     public List<String> getGenres(){
         List<Genre> genres = genreDao.loadAll();
         List<String> result = new ArrayList<>();
-        result.add("Ninguna categoría seleccionada");
+        result.add(App.getContext().getString(R.string.select_genre));
         for(Genre item : genres){
             result.add(item.getName());
         }
@@ -55,17 +61,21 @@ public class DatabaseFunctions {
     }
 
     public List<AttPlaylist> getPlaylists(){
+        String currentUser = getCurrentUser();
         QueryBuilder<AttPlaylist> q = attplaylistDao.queryBuilder();
-        q.orderAsc(AttPlaylistDao.Properties.Position);
+        q.where(AttPlaylistDao.Properties.UserId.eq(currentUser)).orderAsc(AttPlaylistDao.Properties.Position);
         List<AttPlaylist> list = q.list();
         return list;
     }
 
     public ArrayList<String> getPlaylistsNames() {
+        String currentUser = getCurrentUser();
+        QueryBuilder<AttPlaylist> q = attplaylistDao.queryBuilder();
+        q.where(AttPlaylistDao.Properties.UserId.eq(currentUser)).orderAsc(AttPlaylistDao.Properties.Position);
+        List<AttPlaylist> list = q.list();
         ArrayList<String> temp = new ArrayList<String>();
-        List<AttPlaylist> tempP =  attplaylistDao.loadAll();
-        for (AttPlaylist playlist: tempP) {
-            temp.add(playlist.getName());
+        for (AttPlaylist item: q.list()) {
+            temp.add(item.getName());
         }
         return temp;
     }
@@ -209,5 +219,30 @@ public class DatabaseFunctions {
         attplaylistDao.updateInTx(temp);
     }
 
+    public void insertCurrentUser(UserPrivate user){
+        User temp = new User(user.id,user.display_name,user.email);
+        userDao.deleteAll();
+        userDao.insertInTx(temp);
+    }
 
+    public String getCurrentUser() {
+        QueryBuilder<User> q = userDao.queryBuilder();
+        q.limit(1);
+        if(q.list().size() > 0){
+            User user = q.list().get(0);
+            return user.getId();
+        }else{
+            return "";
+        }
+    }
+
+    public String getPlaylistNameById(String id) {
+        if(id != ""){
+            QueryBuilder<AttPlaylist> q = attplaylistDao.queryBuilder();
+            q.where(AttPlaylistDao.Properties.Position.isNotNull(),AttPlaylistDao.Properties.Id.like(id)).limit(1);
+            return q.list().get(0).getName();
+        }else{
+            return "";
+        }
+    }
 }

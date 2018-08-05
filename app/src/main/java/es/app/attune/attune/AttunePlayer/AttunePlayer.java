@@ -40,7 +40,6 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
     public AttunePlayer() {
         currentSongs = new ArrayList<Song>();
         switchIntent = new Intent("es.app.attune.ACTION_PLAY");
-        MainActivity.disableSlidingPanel();
     }
 
     @Override
@@ -181,7 +180,6 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
         if(playerEvent.equals(PlayerEvent.kSpPlaybackNotifyPlay)){
             MainActivity.play();
             MainActivity.notifyPlayer(currentSongs.get(mCurrentSong));
-            MainActivity.openPanel();
             MainActivity.initializeProgressCircle(currentSongs.get(mCurrentSong));
         }
 

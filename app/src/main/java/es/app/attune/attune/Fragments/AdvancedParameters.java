@@ -29,15 +29,15 @@ import es.app.attune.attune.R;
 public class AdvancedParameters extends Fragment {
 
     private static DatabaseFunctions db;
-    private BubbleSeekBar acousticness;
-    private BubbleSeekBar danceability;
-    private BubbleSeekBar energy;
-    private BubbleSeekBar instrumentalness;
-    private BubbleSeekBar liveness;
-    private BubbleSeekBar loudness;
-    private BubbleSeekBar popularity;
-    private BubbleSeekBar speechiness;
-    private BubbleSeekBar valence;
+    private static BubbleSeekBar acousticness;
+    private static BubbleSeekBar danceability;
+    private static BubbleSeekBar energy;
+    private static BubbleSeekBar instrumentalness;
+    private static BubbleSeekBar liveness;
+    private static BubbleSeekBar loudness;
+    private static BubbleSeekBar popularity;
+    private static BubbleSeekBar speechiness;
+    private static BubbleSeekBar valence;
 
     private CheckBox check_acoustiness;
     private CheckBox check_danceability;
@@ -51,7 +51,7 @@ public class AdvancedParameters extends Fragment {
     private NewPlayList newPlaylistFragment;
 
 
-    public float getAcousticness() {
+    public static float getAcousticness() {
         if(acousticness.isEnabled()) {
             return acousticness.getProgressFloat();
         }
@@ -60,7 +60,7 @@ public class AdvancedParameters extends Fragment {
         }
     }
 
-    public float getDanceability() {
+    public static float getDanceability() {
         if(danceability.isEnabled()) {
             return danceability.getProgressFloat();
         }
@@ -69,7 +69,7 @@ public class AdvancedParameters extends Fragment {
         }
     }
 
-    public float getEnergy() {
+    public static float getEnergy() {
         if(energy.isEnabled()){
             return energy.getProgressFloat();
         }else{
@@ -77,7 +77,7 @@ public class AdvancedParameters extends Fragment {
         }
     }
 
-    public float getInstrumentalness() {
+    public static float getInstrumentalness() {
         if(instrumentalness.isEnabled()){
             return instrumentalness.getProgressFloat();
         }else{
@@ -85,7 +85,7 @@ public class AdvancedParameters extends Fragment {
         }
     }
 
-    public float getLiveness() {
+    public static float getLiveness() {
         if(liveness.isEnabled()){
             return liveness.getProgressFloat();
         }else{
@@ -93,7 +93,7 @@ public class AdvancedParameters extends Fragment {
         }
     }
 
-    public float getLoudness() {
+    public static float getLoudness() {
         if(loudness.isEnabled()){
             return loudness.getProgressFloat();
         }else{
@@ -101,7 +101,7 @@ public class AdvancedParameters extends Fragment {
         }
     }
 
-    public int getPopularity() {
+    public static int getPopularity() {
         if(popularity.isEnabled()){
             return popularity.getProgress();
         }else{
@@ -109,7 +109,7 @@ public class AdvancedParameters extends Fragment {
         }
     }
 
-    public float getSpeechiness() {
+    public static float getSpeechiness() {
         if(speechiness.isEnabled()){
             return speechiness.getProgressFloat();
         }else{
@@ -117,7 +117,7 @@ public class AdvancedParameters extends Fragment {
         }
     }
 
-    public float getValence() {
+    public static float getValence() {
         if(valence.isEnabled()){
             return valence.getProgressFloat();
         }else{

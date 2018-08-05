@@ -21,6 +21,9 @@ public class AttPlaylist {
     private String id;
 
     @NotNull
+    private String userId;
+
+    @NotNull
     private int position;
 
     @ToMany(referencedJoinProperty = "idPlaylist")
@@ -80,15 +83,16 @@ public class AttPlaylist {
     @Generated(hash = 1939289955)
     private transient AttPlaylistDao myDao;
 
-    @Generated(hash = 1360871653)
-    public AttPlaylist(@NotNull String id, int position, @NotNull String name,
-            float tempo, int duration, float song_duration,
+    @Generated(hash = 232960083)
+    public AttPlaylist(@NotNull String id, @NotNull String userId, int position,
+            @NotNull String name, float tempo, int duration, float song_duration,
             @NotNull String playlist_start_date, @NotNull String playlist_end_date,
             @NotNull byte[] image, @NotNull String genre,
             @NotNull Date creation_date, float acousticness, float danceability,
             float energy, float instrumentalness, float liveness, float loudness,
             int popularity, float speechiness, float valence) {
         this.id = id;
+        this.userId = userId;
         this.position = position;
         this.name = name;
         this.tempo = tempo;
@@ -120,6 +124,14 @@ public class AttPlaylist {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getUserId() {
+        return this.userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public int getPosition() {
@@ -344,7 +356,4 @@ public class AttPlaylist {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getAttPlaylistDao() : null;
     }
-
-  
-
 }

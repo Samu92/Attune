@@ -95,4 +95,11 @@
     <string name="cd_previous">Skip backwards</string>
     <string name="cd_play">Play and pause</string>
     <string name="cd_next">Skip forwards</string>
+    <string name="playlist_loading">Recuperando playlists...</string>
+    <string name="no_connection">Sin conexión</string>
+    <string name="select_genre">Seleccione una categoría</string>
+    <string name="validate_genres_valid">Al menos debes seleccionar una categoría</string>
+    <string name="new_playlist">Nueva playlist</string>
+    <string name="playlist_created">Playlist creada correctamente</string>
+    <string name="song_added">Canción añadida correctamente a </string>
 </resources>

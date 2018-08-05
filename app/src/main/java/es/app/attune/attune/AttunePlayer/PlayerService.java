@@ -1,7 +1,6 @@
 package es.app.attune.attune.AttunePlayer;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -15,11 +14,8 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.NotificationTarget;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.spotify.sdk.android.player.PlaybackState;
@@ -30,7 +26,6 @@ import es.app.attune.attune.Classes.App;
 import es.app.attune.attune.Classes.Constants;
 import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.Database.Song;
-import es.app.attune.attune.Modules.Tools;
 import es.app.attune.attune.R;
 
 public class PlayerService extends Service {
@@ -166,6 +161,7 @@ public class PlayerService extends Service {
                             @Override
                             public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
                                 bigViews.setImageViewBitmap(R.id.status_bar_album_art, resource);
+                                views.setImageViewBitmap(R.id.status_bar_album_art,resource);
                                 status = new Notification.Builder(App.getContext()).build();
                                 status.contentView = views;
                                 status.bigContentView = bigViews;

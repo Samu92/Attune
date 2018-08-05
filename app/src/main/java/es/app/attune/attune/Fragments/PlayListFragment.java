@@ -19,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import es.app.attune.attune.Activity.MainActivity;
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Classes.SearchInterfaces;
 import es.app.attune.attune.Database.AttPlaylist;
@@ -38,8 +39,8 @@ public class PlayListFragment extends Fragment {
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
     private static DatabaseFunctions db;
-    private RecyclerView recyclerView;
-    private PlayListRecyclerViewAdapter adapter;
+    private static RecyclerView recyclerView;
+    private static PlayListRecyclerViewAdapter adapter;
     private TextView empty;
 
     public PlayListFragment() {
@@ -75,6 +76,7 @@ public class PlayListFragment extends Fragment {
             if (getArguments() != null) {
                 mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
             }
+
             adapter = new PlayListRecyclerViewAdapter(db.getPlaylists(), mListener, getContext());
 
             Context context = view.getContext();
@@ -109,6 +111,18 @@ public class PlayListFragment extends Fragment {
                 empty.setVisibility(View.GONE);
             }
 
+
+            ViewGroup.MarginLayoutParams marginLayoutParams =
+                    (ViewGroup.MarginLayoutParams) recyclerView.getLayoutParams();
+            if(MainActivity.getSlideVisible()){
+                marginLayoutParams.setMargins(0, 0, 0, 200);
+                recyclerView.setLayoutParams(marginLayoutParams);
+                recyclerView.requestLayout();
+            }else{
+                marginLayoutParams.setMargins(0, 0, 0, 0);
+                recyclerView.setLayoutParams(marginLayoutParams);
+                recyclerView.requestLayout();
+            }
         }
     }
 
@@ -182,8 +196,24 @@ public class PlayListFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
-    public void update() {
+    public static void update() {
         adapter.notifyDataSetChanged();
+    }
+
+    public static void setMarginBottomList(int mode){
+        if(recyclerView != null){
+            ViewGroup.MarginLayoutParams marginLayoutParams =
+                    (ViewGroup.MarginLayoutParams) recyclerView.getLayoutParams();
+            if(mode == 0){
+                marginLayoutParams.setMargins(0, 0, 0, 0);
+                recyclerView.setLayoutParams(marginLayoutParams);
+                recyclerView.requestLayout();
+            }else if(mode == 1){
+                marginLayoutParams.setMargins(0, 0, 0, 200);
+                recyclerView.setLayoutParams(marginLayoutParams);
+                recyclerView.requestLayout();
+            }
+        }
     }
 
     public interface OnListFragmentInteractionListener {

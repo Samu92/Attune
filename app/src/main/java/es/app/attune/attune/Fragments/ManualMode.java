@@ -8,6 +8,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -17,6 +19,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -63,6 +66,8 @@ import static android.app.Activity.RESULT_OK;
  */
 public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetListener {
 
+    private static ConnectivityManager manager;
+
     private static DatabaseFunctions db;
     private SearchView searchView;
     private static SearchInterfaces.ActionListener mActionListener;
@@ -76,7 +81,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
 
     private SearchResultsAdapter mAdapter;
 
-    private RecyclerView resultsList;
+    private static RecyclerView resultsList;
 
     private MaterialDialog material;
 
@@ -99,6 +104,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
     private ListView playlist_list_view;
     private MaterialDialog playlist_list_dialog;
     private MaterialDialog new_playlist_dialog;
+    private MaterialDialog result;
 
     private TextView empty_playlist_list;
 
@@ -117,6 +123,12 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
     private static final int PICK_IMAGE_REQUEST = 100;
 
     private ImageView image;
+
+    private TextView txt_result;
+
+    private ArrayAdapter<String> adapter_playlist_list;
+
+    private ArrayAdapter<String> adapter;
 
     public ManualMode() {
         // Required empty public constructor
@@ -142,14 +154,18 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
         if(fecha_edicion == 0){
             year_start = i;
             editText_start.setText(String.valueOf(i));
-            //editText_start.setText(String.valueOf(i2) + "/" + String.valueOf(i1+1) + "/" + String.valueOf(i));
         }
 
         if(fecha_edicion == 1){
             year_end = i;
             editText_end.setText(String.valueOf(i));
-            //editText_end.setText(String.valueOf(i2) + "/" + String.valueOf(i1) + "/" + String.valueOf(i));
         }
+    }
+
+    public static boolean isOnline(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
     }
 
     private class ScrollListener extends ResultListScrollListener {
@@ -160,7 +176,11 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
 
         @Override
         public void onLoadMore() {
-            mActionListener.loadMoreResults();
+            if(isOnline(getContext())){
+                mActionListener.loadMoreResults();
+            }else{
+                Log.e("Connection", getString(R.string.no_connection));
+            }
         }
     }
 
@@ -214,7 +234,14 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
 
         genre = "";
 
-       material = new MaterialDialog.Builder(getActivity())
+        result = new MaterialDialog.Builder(getActivity())
+                .customView(R.layout.finish_notification, false)
+                .cancelable(true)
+                .positiveText(R.string.agree)
+                .build();
+        txt_result = result.getView().findViewById(R.id.txt_done);
+
+        material = new MaterialDialog.Builder(getActivity())
                 .title(R.string.title_filter)
                 .customView(R.layout.filter_dialog_layout, true)
                 .positiveText(R.string.agree)
@@ -330,36 +357,8 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                reset();
-                if(query.equals("")){
-                    query = "year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
-                    if(genresSpinner.getSelectedItemPosition() != 0){
-                        if(!genre.equals("")){
-                            query += " genre:" + genre;
-                        }
-                    }
-                }else{
-                    query += "* year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
-                    if(genresSpinner.getSelectedItemPosition() != 0){
-                        if(!genre.equals("")){
-                            query += " genre:" + genre;
-                        }
-                    }
-                }
-
-                progressManualBar.setVisibility(View.VISIBLE);
-                empty.setVisibility(View.GONE);
-                mActionListener.search(query);
-                searchView.clearFocus();
-
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String query) {
-                if(query.equals("")){
+                if(isOnline(getContext())){
                     reset();
-
                     if(query.equals("")){
                         query = "year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
                         if(genresSpinner.getSelectedItemPosition() != 0){
@@ -379,10 +378,46 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                     progressManualBar.setVisibility(View.VISIBLE);
                     empty.setVisibility(View.GONE);
                     mActionListener.search(query);
-                    //searchView.clearFocus();
+                    searchView.clearFocus();
 
                     return true;
                 }else{
+                    Log.e("Connection", getString(R.string.no_connection));
+                    return false;
+                }
+            }
+
+            @Override
+            public boolean onQueryTextChange(String query) {
+                if(isOnline(getContext())){
+                    if(query.equals("")){
+                        reset();
+
+                        if(query.equals("")){
+                            query = "year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
+                            if(genresSpinner.getSelectedItemPosition() != 0){
+                                if(!genre.equals("")){
+                                    query += " genre:" + genre;
+                                }
+                            }
+                        }else{
+                            query += "* year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
+                            if(genresSpinner.getSelectedItemPosition() != 0){
+                                if(!genre.equals("")){
+                                    query += " genre:" + genre;
+                                }
+                            }
+                        }
+
+                        progressManualBar.setVisibility(View.VISIBLE);
+                        empty.setVisibility(View.GONE);
+                        mActionListener.search(query);
+                        return true;
+                    }else{
+                        return false;
+                    }
+                }else{
+                    Log.e("Connection", getString(R.string.no_connection));
                     return false;
                 }
             }
@@ -393,7 +428,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
         genresSpinner.setTitle(getString(R.string.add_genre));
         genresSpinner.setPositiveButton(getString(R.string.accept));
 
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, db.getGenres());
+        adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, db.getGenres());
 
         // Apply the adapter to the spinner
         genresSpinner.setAdapter(adapter);
@@ -461,8 +496,16 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                 .negativeText(R.string.disagree)
                 .build();
 
+        playlist_list_dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                adapter_playlist_list = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, db.getPlaylistsNames());
+                playlist_list_view.setAdapter(adapter_playlist_list);
+            }
+        });
+
         new_playlist_dialog = new MaterialDialog.Builder(getActivity())
-                .title("Nueva playlist")
+                .title(R.string.new_playlist)
                 .customView(R.layout.new_playlist_short, false)
                 .positiveText(R.string.agree)
                 .negativeText(R.string.disagree)
@@ -515,8 +558,9 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                             float valence = 0;
 
                             // Procedemos a llamar a la API para obtener las canciones
-                            UUID newId = java.util.UUID.randomUUID();
-                            AttPlaylist newPlaylist = new AttPlaylist(newId.toString(), position,
+                            UUID newId = UUID.randomUUID();
+                            String user = db.getCurrentUser();
+                            AttPlaylist newPlaylist = new AttPlaylist(newId.toString(), user, position,
                                     name,tempo,duration,song_duration,"","",image,genre, Calendar.getInstance().getTime(),
                                     acoustiness,danceability,energy,instrumentalness,liveness,
                                     loudness,popularity,speechiness,valence);
@@ -526,6 +570,8 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                             }else{
                                 db.createNewPlaylist(newPlaylist,selected_song);
                                 new_playlist_dialog.dismiss();
+                                txt_result.setText(R.string.playlist_created);
+                                result.show();
                             }
                         }else{
                             edit_name.setError(getString(R.string.obligatory_name));
@@ -566,7 +612,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
         empty_playlist_list = playlist_list_dialog.getCustomView().findViewById(R.id.empty_short_playlist_list_view);
 
         playlist_list_view = playlist_list_dialog.getCustomView().findViewById(R.id.short_playlist_list);
-        final ArrayAdapter<String> adapter_playlist_list = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, db.getPlaylistsNames());
+        adapter_playlist_list = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, db.getPlaylistsNames());
         playlist_list_view.setAdapter(adapter_playlist_list);
 
         playlist_list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -575,6 +621,8 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                 String playlist = adapter_playlist_list.getItem(i);
                 db.insertSongInPlaylist(selected_song,playlist);
                 playlist_list_dialog.dismiss();
+                txt_result.setText(getString(R.string.song_added) + playlist);
+                result.show();
             }
         });
 
@@ -609,6 +657,18 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
             resultsList.setVisibility(View.VISIBLE);
             empty.setVisibility(View.GONE);
         }
+
+        ViewGroup.MarginLayoutParams marginLayoutParams =
+                (ViewGroup.MarginLayoutParams) resultsList.getLayoutParams();
+        if(MainActivity.getSlideVisible()){
+            marginLayoutParams.setMargins(0, 0, 0, 200);
+            resultsList.setLayoutParams(marginLayoutParams);
+            resultsList.requestLayout();
+        }else{
+            marginLayoutParams.setMargins(0, 0, 0, 0);
+            resultsList.setLayoutParams(marginLayoutParams);
+            resultsList.requestLayout();
+        }
     }
 
     private void reset() {
@@ -629,6 +689,22 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
         void onListFragmentInteraction(Song item);
     }
 
+    public static void setMarginBottomList(int mode){
+        if(resultsList != null){
+            ViewGroup.MarginLayoutParams marginLayoutParams =
+                    (ViewGroup.MarginLayoutParams) resultsList.getLayoutParams();
+            if(mode == 0){
+                marginLayoutParams.setMargins(0, 0, 0, 0);
+                resultsList.setLayoutParams(marginLayoutParams);
+                resultsList.requestLayout();
+            }else if(mode == 1){
+                marginLayoutParams.setMargins(0, 0, 0, 200);
+                resultsList.setLayoutParams(marginLayoutParams);
+                resultsList.requestLayout();
+            }
+        }
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -636,8 +712,6 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
             case PICK_IMAGE_REQUEST:
                 if(resultCode == RESULT_OK){
                     Uri selectedImage = data.getData();
-
-                    // method 1
                     try {
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), selectedImage);
                         Glide.with(getContext())

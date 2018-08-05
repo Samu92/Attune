@@ -14,6 +14,7 @@ import java.util.UUID;
 import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.Database.DaoSession;
 import es.app.attune.attune.Database.Song;
+import es.app.attune.attune.Fragments.NewPlayList;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTracks;
@@ -79,88 +80,163 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
 
     @Override
     public void searchRecomendations(final AttPlaylist playlist, final int mode) {
-        final float tempo  = playlist.getTempo();
-        String genre = playlist.getGenre();
+        if(mode == 0){
+            final float tempo  = playlist.getTempo();
+            String genre = playlist.getGenre();
 
-        if (tempo != 0 && !genre.isEmpty()) {
-            mTempo = tempo;
-            mGenre = genre;
+            if (tempo != 0 && !genre.isEmpty()) {
+                mTempo = tempo;
+                mGenre = genre;
 
-            mResultPlaylist.reset();
-            mSearchListener = new SearchSpotify.CompleteListener() {
-                @Override
-                public void onComplete(List<Track> items, AudioFeaturesTracks audioFeaturesTracks, Map<String, String> dates) {
-                    long playlist_duration = 0;
-                    List<Song> songs = new ArrayList<Song>();
-                    int i = 0;
-                    for (Track track: items) {
-                        UUID newUUID = java.util.UUID.randomUUID();
-                        String newId = newUUID.toString();
-                        //int position = db.getSongNextPosition(playlist.getId());
-                        int position = i;
-                        i += 1;
-                        String playlistId = playlist.getId();
-                        String trackId = track.id;
-                        String spotifyId = track.uri;
-                        String genreId = playlist.getGenre();
-                        String name = track.name;
-                        long duration = track.duration_ms;
-                        String artist = track.artists.get(0).name;
-                        String imageUri = track.album.images.get(0).url;
-                        String previewUrl = track.preview_url;
-                        float acousticness = 0;
-                        float danceability = 0;
-                        float energy = 0;
-                        float instrumentalness = 0;
-                        float liveness = 0;
-                        float loudness = 0;
-                        int popularity = 0;
-                        float speechiness = 0;
-                        float valence = 0;
-                        float tempo = 0;
-                        String date = dates.get(track.id);
-                        for (AudioFeaturesTrack feature: audioFeaturesTracks.audio_features) {
-                            if(track.id.equals(feature.id)){
-                                tempo = feature.tempo;
-                                acousticness = feature.acousticness;
-                                danceability = feature.danceability;
-                                energy = feature.energy;
-                                instrumentalness = feature.instrumentalness;
-                                liveness = feature.liveness;
-                                loudness = feature.loudness;
-                                popularity = track.popularity;
-                                speechiness = feature.speechiness;
-                                valence = feature.valence;
+                mResultPlaylist.reset();
+                mSearchListener = new SearchSpotify.CompleteListener() {
+                    @Override
+                    public void onComplete(List<Track> items, AudioFeaturesTracks audioFeaturesTracks, Map<String, String> dates) {
+                        long playlist_duration = 0;
+                        List<Song> songs = new ArrayList<Song>();
+                        int i = 0;
+                        for (Track track: items) {
+                            UUID newUUID = java.util.UUID.randomUUID();
+                            String newId = newUUID.toString();
+                            //int position = db.getSongNextPosition(playlist.getId());
+                            int position = i;
+                            i += 1;
+                            String playlistId = playlist.getId();
+                            String trackId = track.id;
+                            String spotifyId = track.uri;
+                            String genreId = playlist.getGenre();
+                            String name = track.name;
+                            long duration = track.duration_ms;
+                            String artist = track.artists.get(0).name;
+                            String imageUri = track.album.images.get(0).url;
+                            String previewUrl = track.preview_url;
+                            float acousticness = 0;
+                            float danceability = 0;
+                            float energy = 0;
+                            float instrumentalness = 0;
+                            float liveness = 0;
+                            float loudness = 0;
+                            int popularity = 0;
+                            float speechiness = 0;
+                            float valence = 0;
+                            float tempo = 0;
+                            String date = dates.get(track.id);
+                            for (AudioFeaturesTrack feature: audioFeaturesTracks.audio_features) {
+                                if(track.id.equals(feature.id)){
+                                    tempo = feature.tempo;
+                                    acousticness = feature.acousticness;
+                                    danceability = feature.danceability;
+                                    energy = feature.energy;
+                                    instrumentalness = feature.instrumentalness;
+                                    liveness = feature.liveness;
+                                    loudness = feature.loudness;
+                                    popularity = track.popularity;
+                                    speechiness = feature.speechiness;
+                                    valence = feature.valence;
+                                }
                             }
+
+                            playlist_duration += track.duration_ms;
+
+                            Song song = new Song(newId,position,playlistId,trackId,spotifyId,
+                                    genreId,name,track.duration_ms,tempo,artist,imageUri,previewUrl,
+                                    acousticness,danceability,energy,instrumentalness,liveness,
+                                    loudness,popularity,speechiness,valence,date);
+                            songs.add(song);
                         }
 
-                        playlist_duration += track.duration_ms;
-
-                        Song song = new Song(newId,position,playlistId,trackId,spotifyId,
-                                genreId,name,track.duration_ms,tempo,artist,imageUri,previewUrl,
-                                acousticness,danceability,energy,instrumentalness,liveness,
-                                loudness,popularity,speechiness,valence,date);
-                        songs.add(song);
-                    }
-                    if(mode == 0){
                         playlist.setDuration((int) playlist_duration);
                         db.insertNewPlaylist(playlist,songs);
                         mResultPlaylist.showListPlaylist();
                         mResultNewPlaylist.dismissProgress();
-                    }else if(mode == 1){
+                    }
+
+                    @Override
+                    public void onError(Throwable error) {
+                        logError(error.getMessage());
+                        mResultPlaylist.showError(error.getMessage());
+                    }
+                };
+                mSearchPager.getRecomendationPlaylist(playlist, SIZE, mSearchListener, 0);
+            }
+        }else if(mode == 1){
+            final float tempo  = NewPlayList.getTempo();
+            String genre = NewPlayList.getCategory();
+
+            if (tempo != 0 && !genre.isEmpty()) {
+                mTempo = tempo;
+                mGenre = genre;
+
+                mResultPlaylist.reset();
+                mSearchListener = new SearchSpotify.CompleteListener() {
+                    @Override
+                    public void onComplete(List<Track> items, AudioFeaturesTracks audioFeaturesTracks, Map<String, String> dates) {
+                        long playlist_duration = 0;
+                        List<Song> songs = new ArrayList<Song>();
+                        int i = 0;
+                        for (Track track: items) {
+                            UUID newUUID = java.util.UUID.randomUUID();
+                            String newId = newUUID.toString();
+                            //int position = db.getSongNextPosition(playlist.getId());
+                            int position = i;
+                            i += 1;
+                            String playlistId = playlist.getId();
+                            String trackId = track.id;
+                            String spotifyId = track.uri;
+                            String genreId = playlist.getGenre();
+                            String name = track.name;
+                            long duration = track.duration_ms;
+                            String artist = track.artists.get(0).name;
+                            String imageUri = track.album.images.get(0).url;
+                            String previewUrl = track.preview_url;
+                            float acousticness = 0;
+                            float danceability = 0;
+                            float energy = 0;
+                            float instrumentalness = 0;
+                            float liveness = 0;
+                            float loudness = 0;
+                            int popularity = 0;
+                            float speechiness = 0;
+                            float valence = 0;
+                            float tempo = 0;
+                            String date = dates.get(track.id);
+                            for (AudioFeaturesTrack feature: audioFeaturesTracks.audio_features) {
+                                if(track.id.equals(feature.id)){
+                                    tempo = feature.tempo;
+                                    acousticness = feature.acousticness;
+                                    danceability = feature.danceability;
+                                    energy = feature.energy;
+                                    instrumentalness = feature.instrumentalness;
+                                    liveness = feature.liveness;
+                                    loudness = feature.loudness;
+                                    popularity = track.popularity;
+                                    speechiness = feature.speechiness;
+                                    valence = feature.valence;
+                                }
+                            }
+
+                            playlist_duration += track.duration_ms;
+
+                            Song song = new Song(newId,position,playlistId,trackId,spotifyId,
+                                    genreId,name,track.duration_ms,tempo,artist,imageUri,previewUrl,
+                                    acousticness,danceability,energy,instrumentalness,liveness,
+                                    loudness,popularity,speechiness,valence,date);
+                            songs.add(song);
+                        }
+
                         db.insertSongsInPlaylist(playlist,songs);
                         mResultPlaylist.showListPlaylist();
                         mResultNewPlaylist.dismissProgress();
                     }
-                }
 
-                @Override
-                public void onError(Throwable error) {
-                    logError(error.getMessage());
-                    mResultPlaylist.showError(error.getMessage());
-                }
-            };
-            mSearchPager.getRecomendationPlaylist(playlist, SIZE, mSearchListener);
+                    @Override
+                    public void onError(Throwable error) {
+                        logError(error.getMessage());
+                        mResultPlaylist.showError(error.getMessage());
+                    }
+                };
+                mSearchPager.getRecomendationPlaylist(playlist, SIZE, mSearchListener, 1);
+            }
         }
     }
 
@@ -277,40 +353,6 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
         };
         mSearchPager.getUserDataCall(mUserDataListener);
     }
-
-    /*
-    @Override
-    public void resume() {
-        mContext.stopService(PlayerService.getIntent(mContext));
-    }
-
-    @Override
-    public void pause() {
-        mContext.startService(PlayerService.getIntent(mContext));
-    }
-
-    @Override
-    public void selectTrack(Song item) {
-        String previewUrl = item.getPreviewUrl();
-
-        if (previewUrl == null) {
-            logMessage("Track doesn't have a preview");
-            return;
-        }
-
-        if (mPlayer == null) return;
-
-        String currentTrackUrl = mPlayer.getCurrentTrack();
-
-        if (currentTrackUrl == null || !currentTrackUrl.equals(previewUrl)) {
-            mPlayer.play(previewUrl);
-        } else if (mPlayer.isPlaying()) {
-            mPlayer.pause();
-        } else {
-            mPlayer.resume();
-        }
-    }
-    */
 
     private void logError(String msg) {
         Toast.makeText(mContext, "Error: " + msg, Toast.LENGTH_SHORT).show();

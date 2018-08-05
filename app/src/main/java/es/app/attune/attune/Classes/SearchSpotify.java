@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 import es.app.attune.attune.Database.AttPlaylist;
+import es.app.attune.attune.Fragments.AdvancedParameters;
+import es.app.attune.attune.Fragments.NewPlayList;
 import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.SpotifyService;
@@ -44,8 +46,18 @@ public class SearchSpotify {
     private String mYear_start;
     private String mYear_end;
     private Map<String,String> dates;
+    private String mGenre;
     private int partition_step;
     private int steps_size;
+    private float mAcousticness;
+    private float mDanceability;
+    private float mEnergy;
+    private float mInstrumentalness;
+    private float mLiveness;
+    private float mLoudness;
+    private int mPopularity;
+    private float mSpeechiness;
+    private float mValence;
 
     public interface CompleteListener {
         void onComplete(List<Track> items, AudioFeaturesTracks audioFeaturesTracks, Map<String, String> dates);
@@ -72,15 +84,46 @@ public class SearchSpotify {
         dates = new HashMap<String,String>();
     }
 
-    public void getRecomendationPlaylist(AttPlaylist playlist, int size, CompleteListener listener){
-        mCurrentOffset = 0;
-        mSize = size;
-        mTempo = playlist.getTempo();
-        mDuration = playlist.getDuration();
-        mYear_start = playlist.getPlaylist_start_date();
-        mYear_end = playlist.getPlaylist_end_date();
-        getDataPlaylist(playlist,
-                0, size, listener);
+    public void getRecomendationPlaylist(AttPlaylist playlist, int size, CompleteListener listener, int mode){
+        if(mode == 0){
+            mCurrentOffset = 0;
+            mSize = size;
+            mTempo = playlist.getTempo();
+            mDuration = playlist.getDuration();
+            mYear_start = playlist.getPlaylist_start_date();
+            mYear_end = playlist.getPlaylist_end_date();
+            mGenre = playlist.getGenre();
+            mAcousticness = playlist.getAcousticness();
+            mDanceability = playlist.getDanceability();
+            mEnergy = playlist.getEnergy();
+            mInstrumentalness = playlist.getInstrumentalness();
+            mLiveness = playlist.getLiveness();
+            mLoudness = playlist.getLoudness();
+            mPopularity = playlist.getPopularity();
+            mSpeechiness = playlist.getSpeechiness();
+            mValence = playlist.getValence();
+            getDataPlaylist(playlist,
+                    0, size, listener);
+        }else if (mode == 1){
+            mCurrentOffset = 0;
+            mSize = size;
+            mTempo = NewPlayList.getTempo();
+            mDuration = NewPlayList.getDuration();
+            mYear_start = NewPlayList.getYearStart();
+            mYear_end = NewPlayList.getYearEnd();
+            mGenre = NewPlayList.getCategory();
+            mAcousticness = AdvancedParameters.getAcousticness();
+            mDanceability = AdvancedParameters.getDanceability();
+            mEnergy = AdvancedParameters.getEnergy();
+            mInstrumentalness = AdvancedParameters.getInstrumentalness();
+            mLiveness = AdvancedParameters.getLiveness();
+            mLoudness = AdvancedParameters.getLoudness();
+            mPopularity = AdvancedParameters.getPopularity();
+            mSpeechiness = AdvancedParameters.getSpeechiness();
+            mValence = AdvancedParameters.getValence();
+            getDataPlaylist(playlist,
+                    0, size, listener);
+        }
     }
 
     public void getGenres(final GenresListener listener){
@@ -97,18 +140,18 @@ public class SearchSpotify {
         options.put(SpotifyService.OFFSET, offset);
         options.put(SpotifyService.LIMIT, limit);
         options.put(SpotifyService.MARKET, "ES");
-        options.put("seed_genres",playlist.getGenre());
-        options.put("target_tempo",playlist.getTempo());
-        if(playlist.getSong_duration() > 0) options.put("target_duration_ms",((int) playlist.getSong_duration()*60000));
-        if(playlist.getAcousticness() != -1) options.put("target_acousticness",playlist.getAcousticness());
-        if(playlist.getDanceability() != -1) options.put("target_danceability",playlist.getDanceability());
-        if(playlist.getEnergy() != -1) options.put("target_energy",playlist.getEnergy());
-        if(playlist.getInstrumentalness() != -1) options.put("target_instrumentalness", playlist.getInstrumentalness());
-        if(playlist.getLiveness() != -1) options.put("target_liveness",playlist.getLiveness());
-        if(playlist.getLoudness() != -1) options.put("target_loudness",playlist.getLoudness());
-        if(playlist.getPopularity() != -1) options.put("target_popularity",playlist.getPopularity());
-        if(playlist.getSpeechiness() != -1) options.put("target_speechiness",playlist.getSpeechiness());
-        if(playlist.getValence() != -1) options.put("target_valence",playlist.getValence());
+        options.put("seed_genres",mGenre);
+        options.put("target_tempo",mTempo);
+        if(playlist.getSong_duration() > 0) options.put("target_duration_ms",((int) mDuration*60000));
+        if(playlist.getAcousticness() != -1) options.put("target_acousticness",mAcousticness);
+        if(playlist.getDanceability() != -1) options.put("target_danceability",mDanceability);
+        if(playlist.getEnergy() != -1) options.put("target_energy",mEnergy);
+        if(playlist.getInstrumentalness() != -1) options.put("target_instrumentalness", mInstrumentalness);
+        if(playlist.getLiveness() != -1) options.put("target_liveness",mLiveness);
+        if(playlist.getLoudness() != -1) options.put("target_loudness",mLoudness);
+        if(playlist.getPopularity() != -1) options.put("target_popularity",mPopularity);
+        if(playlist.getSpeechiness() != -1) options.put("target_speechiness",mSpeechiness);
+        if(playlist.getValence() != -1) options.put("target_valence",mValence);
 
         mSpotifyApi.getRecommendations(options, new Callback<Recommendations>() {
             @Override
@@ -168,8 +211,6 @@ public class SearchSpotify {
                 listener.onError(error);
             }
         });
-
-
     }
 
     private void getDataGenres(final GenresListener listener){

@@ -243,8 +243,11 @@
             android:id="@+id/create_playlist_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
             android:layout_marginBottom="70dp"
             android:layout_below="@id/song_duration_seekbar"
+            android:background="@drawable/rounded_button"
+            android:textColor="@color/white"
             android:text="@string/txt_playlist_create"/>
     </RelativeLayout>
 </ScrollView>

@@ -5,21 +5,20 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_create_playlist"
-            android:icon="@drawable/ic_menu_share"
-            android:title="@string/create_new_playlist" />
-
-        <item
             android:id="@+id/nav_playlists"
-            android:icon="@drawable/ic_playlist_play_white_24px"
+            android:icon="@drawable/ic_view_list_black_24dp"
             android:title="@string/playlists_menu" />
+        <item
+            android:id="@+id/nav_create_playlist"
+            android:icon="@drawable/ic_add_black_24dp"
+            android:title="@string/create_new_playlist" />
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="Comparte la aplicación">
         <menu>
             <item
                 android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
+                android:icon="@drawable/ic_share_black_24dp"
                 android:title="@string/txt_share" />
         </menu>
     </item>

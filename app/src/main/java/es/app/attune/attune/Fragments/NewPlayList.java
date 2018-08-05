@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -13,6 +15,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +40,7 @@ import com.xw.repo.BubbleSeekBar;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,11 +56,13 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
 
     private OnFragmentInteractionListener mListener;
 
+    private static ConnectivityManager manager;
+
     // UI
     private ImageView image;
     private EditText name;
-    private BubbleSeekBar tempo;
-    private BubbleSeekBar playlist_duration;
+    private static BubbleSeekBar tempo;
+    private static BubbleSeekBar playlist_duration;
     private BubbleSeekBar song_duration;
     private CheckBox check_song_duration;
     private SearchableSpinner searchableSpinner;
@@ -65,11 +71,12 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     private static final int PICK_IMAGE_REQUEST = 100;
     private static List<String> genres_list;
     private TextView empty_genre_list;
-    private CheckBox date_checkbox;
-    private EditText date_start;
-    private EditText date_end;
+    private static CheckBox date_checkbox;
+    private static EditText date_start;
+    private static EditText date_end;
     private Button create_playlist_button;
     private TextView txt_loading;
+    private TextView txt_error;
     private MaterialDialog playlist_list_dialog;
 
     private ArrayAdapter<String> adapter_playlist_list;
@@ -80,6 +87,14 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     private static SearchInterfaces.ActionListener mLocalActionListener;
     private AdvancedParameters advancedParameterFragment;
     private MaterialDialog progress;
+    private MaterialDialog error;
+
+    private ListView genres_list_view;
+    private ArrayAdapter<String> genres_list_adapter;
+
+    private ArrayAdapter<String> adapter;
+
+
 
     public NewPlayList() {
         // Required empty public constructor
@@ -104,11 +119,11 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
         return name.getText().toString();
     }
 
-    public int getTempo() {
+    public static int getTempo() {
         return tempo.getProgress();
     }
 
-    public String getCategory() {
+    public static String getCategory() {
         String genres = "";
         for (String item: genres_list
              ) {
@@ -118,7 +133,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
         return genres;
     }
 
-    public int getDuration(){ return playlist_duration.getProgress();}
+    public static int getDuration(){ return playlist_duration.getProgress();}
 
     public float getSongDuration() {
         if(check_song_duration.isChecked()){
@@ -128,7 +143,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
         }
     }
 
-    public String getYearStart() {
+    public static String getYearStart() {
         if(date_checkbox.isChecked()){
             return date_start.getText().toString();
         }else{
@@ -136,7 +151,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
         }
     }
 
-    public String getYearEnd() {
+    public static String getYearEnd() {
         if(date_checkbox.isChecked()){
             return date_end.getText().toString();
         }else{
@@ -144,10 +159,15 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
         }
     }
 
+    public static boolean isOnline(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         genres_list = new ArrayList<String>();
-
         super.onCreate(savedInstanceState);
     }
 
@@ -164,9 +184,19 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
 
         progress = new MaterialDialog.Builder(getActivity())
                 .customView(R.layout.loading_layout, false)
+                .cancelable(false)
                 .build();
+
         TextView txt_loading = progress.getView().findViewById(R.id.txt_loading);
         txt_loading.setText(R.string.playlist_creating);
+
+        error = new MaterialDialog.Builder(getActivity())
+                .customView(R.layout.error_layout, false)
+                .cancelable(true)
+                .positiveText(R.string.agree)
+                .build();
+
+        txt_error = error.getView().findViewById(R.id.txt_error);
 
         image = getView().findViewById(R.id.image_playlist);
         Glide.with(getContext())
@@ -222,19 +252,18 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
         searchableSpinner.setTitle(getString(R.string.add_genre));
         searchableSpinner.setPositiveButton(getString(R.string.accept));
 
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, db.getGenres());
+        adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, db.getGenres());
 
-        final ListView genres_list_view = getView().findViewById(R.id.genres_list);
-        final ArrayAdapter<String> genres_list_adapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_list_item_1, genres_list);
+        genres_list_view = getView().findViewById(R.id.genres_list);
+        genres_list_adapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_list_item_1, genres_list);
 
         genres_list_view.setAdapter(genres_list_adapter);
 
+        genres_list.clear();
+        genres_list_adapter.notifyDataSetChanged();
+
         // Apply the adapter to the spinner
         searchableSpinner.setAdapter(adapter);
-
-        searchableSpinner.setOnItemSelectedListener(this);
-
-        searchableSpinner.setSelection(-1);
 
         searchableSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -246,6 +275,8 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
                             genres_list_adapter.notifyDataSetChanged();
                             genres_list_view.setVisibility(View.VISIBLE);
                             empty_genre_list.setVisibility(View.GONE);
+                            searchableSpinner.setSelection(0);
+                            searchableSpinner.setSelected(false);
                         }
                     }
                 }
@@ -257,15 +288,6 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
             }
         });
 
-        empty_genre_list = getView().findViewById(R.id.empty_list_genre);
-        if(genres_list_adapter.isEmpty()){
-            genres_list_view.setVisibility(View.GONE);
-            empty_genre_list.setVisibility(View.VISIBLE);
-        }else{
-            genres_list_view.setVisibility(View.VISIBLE);
-            empty_genre_list.setVisibility(View.GONE);
-        }
-
         genres_list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -274,9 +296,20 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
                 if(genres_list_adapter.isEmpty()){
                     genres_list_view.setVisibility(View.GONE);
                     empty_genre_list.setVisibility(View.VISIBLE);
+                    searchableSpinner.setSelection(0);
+                    searchableSpinner.setSelected(false);
                 }
             }
         });
+
+        empty_genre_list = getView().findViewById(R.id.empty_list_genre);
+        if(genres_list_adapter.isEmpty()){
+            genres_list_view.setVisibility(View.GONE);
+            empty_genre_list.setVisibility(View.VISIBLE);
+        }else{
+            genres_list_view.setVisibility(View.VISIBLE);
+            empty_genre_list.setVisibility(View.GONE);
+        }
 
         ScrollView mContainer = getView().findViewById(R.id.scroll_new_playlist);
         mContainer.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
@@ -355,84 +388,89 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
         create_playlist_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setTitle(R.string.select_playlist_option)
-                        .setItems(R.array.create_playlist_options, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                if(which == 0){
-                                    if(ValidarFormulario(0)){
-                                        //start a new thread to process job
-                                        new Thread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                int position = db.getNextPosition();
+                if(isOnline(getContext())){
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setTitle(R.string.select_playlist_option)
+                            .setItems(R.array.create_playlist_options, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if(which == 0){
+                                        if(ValidarFormulario(0)){
+                                            //start a new thread to process job
+                                            new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    int position = db.getNextPosition();
 
-                                                byte[] image = Tools.getByteArray(getImage());
+                                                    byte[] image = Tools.getByteArray(getImage());
 
-                                                // Obtenemos el nombre de la nueva playlist
-                                                String name = getName();
+                                                    // Obtenemos el nombre de la nueva playlist
+                                                    String name = getName();
 
-                                                // Obtenemos el tempo seleccionado
-                                                int tempo = getTempo();
+                                                    // Obtenemos el tempo seleccionado
+                                                    int tempo = getTempo();
 
-                                                // Obtenemos las categorías seleccionadas
-                                                String genre = getCategory();
+                                                    // Obtenemos las categorías seleccionadas
+                                                    String genre = getCategory();
 
-                                                // Obtenemos la duración máxima seleccionada
-                                                int duration = getDuration();
+                                                    // Obtenemos la duración máxima seleccionada
+                                                    int duration = getDuration();
 
-                                                //Obtenemos la duración de cada canción
-                                                float song_duration = getSongDuration();
+                                                    //Obtenemos la duración de cada canción
+                                                    float song_duration = getSongDuration();
 
-                                                float acoustiness = advancedParameterFragment.getAcousticness();
+                                                    float acoustiness = advancedParameterFragment.getAcousticness();
 
-                                                float danceability = advancedParameterFragment.getDanceability();
+                                                    float danceability = advancedParameterFragment.getDanceability();
 
-                                                float energy = advancedParameterFragment.getEnergy();
+                                                    float energy = advancedParameterFragment.getEnergy();
 
-                                                float instrumentalness = advancedParameterFragment.getInstrumentalness();
+                                                    float instrumentalness = advancedParameterFragment.getInstrumentalness();
 
-                                                float liveness = advancedParameterFragment.getLiveness();
+                                                    float liveness = advancedParameterFragment.getLiveness();
 
-                                                float loudness = advancedParameterFragment.getLoudness();
+                                                    float loudness = advancedParameterFragment.getLoudness();
 
-                                                int popularity = advancedParameterFragment.getPopularity();
+                                                    int popularity = advancedParameterFragment.getPopularity();
 
-                                                float speechiness = advancedParameterFragment.getSpeechiness();
+                                                    float speechiness = advancedParameterFragment.getSpeechiness();
 
-                                                float valence = advancedParameterFragment.getValence();
+                                                    float valence = advancedParameterFragment.getValence();
 
-                                                String date_start = getYearStart();
+                                                    String date_start = getYearStart();
 
-                                                String date_end = getYearEnd();
+                                                    String date_end = getYearEnd();
 
-                                                // Procedemos a llamar a la API para obtener las canciones
-                                                UUID newId = java.util.UUID.randomUUID();
-                                                AttPlaylist newPlaylist = new AttPlaylist(newId.toString(), position,
-                                                        name,tempo,duration,song_duration, date_start, date_end, image,genre, Calendar.getInstance().getTime(),
-                                                        acoustiness,danceability,energy,instrumentalness,liveness,
-                                                        loudness,popularity,speechiness,valence);
+                                                    // Procedemos a llamar a la API para obtener las canciones
+                                                    UUID newId = java.util.UUID.randomUUID();
+                                                    String user = db.getCurrentUser();
+                                                    AttPlaylist newPlaylist = new AttPlaylist(newId.toString(), user, position,
+                                                            name,tempo,duration,song_duration, date_start, date_end, image,genre, Calendar.getInstance().getTime(),
+                                                            acoustiness,danceability,energy,instrumentalness,liveness,
+                                                            loudness,popularity,speechiness,valence);
 
-                                                getActivity().runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        //Cambiar controles
-                                                        progress.show();
-                                                    }
-                                                });
+                                                    getActivity().runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            //Cambiar controles
+                                                            progress.show();
+                                                        }
+                                                    });
 
-                                                mLocalActionListener.searchRecomendations(newPlaylist,0);
-                                            }
-                                        }).start();
-                                    }
-                                }else if(which == 1){
-                                    if(ValidarFormulario(1)){
-                                        playlist_list_dialog.show();
+                                                    mLocalActionListener.searchRecomendations(newPlaylist,0);
+                                                }
+                                            }).start();
+                                        }
+                                    }else if(which == 1){
+                                        if(ValidarFormulario(1)){
+                                            playlist_list_dialog.show();
+                                        }
                                     }
                                 }
-                            }
-                        });
-                builder.show();
+                            });
+                    builder.show();
+                }else{
+                    Log.e("Connection",getString(R.string.no_connection));
+                }
             }
         });
     }
@@ -494,22 +532,23 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
         if(mode == 0){
             if(name.getText().toString().isEmpty() ){
                 valid = false;
-                name.requestFocus();
-                name.setError(getString(R.string.validate_name));
+                txt_error.setText(getString(R.string.validate_name));
+                error.show();
                 return valid;
             }else{
                 if(db.playlistNameExists(name.getText().toString())){
                     valid = false;
-                    name.requestFocus();
-                    name.setError(getString(R.string.validate_name_exists));
+                    txt_error.setText(getString(R.string.validate_name_exists));
+                    error.show();
                     return valid;
                 }
             }
         }
 
-        if(searchableSpinner.getSelectedItemPosition() == 0){
+        if(genres_list.size() == 0){
             valid = false;
-            searchableSpinner.requestFocus();
+            txt_error.setText(getString(R.string.validate_genres_valid));
+            error.show();
             return valid;
         }
 

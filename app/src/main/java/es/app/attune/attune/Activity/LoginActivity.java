@@ -2,6 +2,8 @@ package es.app.attune.attune.Activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -30,6 +32,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE = 1337;
 
+    private static ConnectivityManager manager;
+
     private static final String[] scopes = new String[]{"user-read-private","user-read-email","playlist-read","streaming","user-read-playback-state","user-read-currently-playing",
             "user-modify-playback-state","user-library-read","playlist-read-private",
             "user-library-modify","playlist-modify-public","playlist-modify-private"};
@@ -38,19 +42,23 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Intent intent = getIntent();
-        boolean logout =  intent.getBooleanExtra("logout", false);
+        if(isOnline(this)){
+            Intent intent = getIntent();
+            boolean logout =  intent.getBooleanExtra("logout", false);
 
-        String token = CredentialsHandler.getToken(this);
-        if (token == null) {
-            setContentView(R.layout.activity_login);
-        } else {
-            if(!logout){
-                startMainActivity(token);
-            }else{
+            String token = CredentialsHandler.getToken(this);
+            if (token == null) {
                 setContentView(R.layout.activity_login);
-                CredentialsHandler.setToken(this,"",1, TimeUnit.SECONDS);
+            } else {
+                if(!logout){
+                    startMainActivity(token);
+                }else{
+                    setContentView(R.layout.activity_login);
+                    CredentialsHandler.setToken(this,"",1, TimeUnit.SECONDS);
+                }
             }
+        }else{
+            setContentView(R.layout.activity_login);
         }
     }
 
@@ -66,12 +74,14 @@ public class LoginActivity extends AppCompatActivity {
 
 
     public void onLoginButtonClicked(View view) {
-        final AuthenticationRequest request = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI)
-                .setShowDialog(true)
-                .setScopes(scopes)
-                .build();
+        if(isOnline(this)){
+            final AuthenticationRequest request = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI)
+                    .setShowDialog(true)
+                    .setScopes(scopes)
+                    .build();
 
-        AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+            AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+        }
     }
 
     @Override
@@ -99,6 +109,12 @@ public class LoginActivity extends AppCompatActivity {
                     logError("Auth result: " + response.getType());
             }
         }
+    }
+
+    public static boolean isOnline(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
     }
 
     private void startMainActivity(String token) {
