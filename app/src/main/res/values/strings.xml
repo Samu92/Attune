@@ -93,9 +93,10 @@
     </string-array>
     <string-array name="song_options">
         <item>Reproducir</item>
-        <item>Asignar efecto</item>
+        <item>Editar efecto</item>
     </string-array>
     <string-array name="effect_options">
+        <item>Sin efecto</item>
         <item>Fade</item>
         <item>Solapamiento</item>
     </string-array>
@@ -111,7 +112,7 @@
     <string name="new_playlist">Nueva playlist</string>
     <string name="playlist_created">Playlist creada correctamente</string>
     <string name="song_added">Canción añadida correctamente a </string>
-    <string name="txt_no_connection">Sin conexión a internet, por favor conéctese a una red Wifi para usar la aplicación.</string>
+    <string name="txt_no_connection">Sin conexión, por favor conéctese a internet para usar correctamente la aplicación.</string>
     <string name="share_text">Conoce Attune, la app donde podrás crear tus propias playlists musicales. Descargala gratis en: http://www.attune.es</string>
     <string name="playlist_exported">Playlist exportada con éxito</string>
     <string name="premium_needed">Necesitas una cuenta premium para reproducir canciones.</string>
@@ -119,4 +120,9 @@
     <string name="select_song_option">Opciones de la canción</string>
     <string name="select_effect_option">Efecto de transición</string>
     <string name="tempo">Tempo:</string>
+    <string name="effect_no_effect">Efecto: Sin efecto</string>
+    <string name="effect_fade">Efecto: Fade</string>
+    <string name="effect_overlap">Efecto: Overlap</string>
+    <string name="separator">-</string>
+    <string name="zero">0</string>
 </resources>

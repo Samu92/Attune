@@ -92,10 +92,11 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
         holder.subtitle.setText(artists);
 
         String image = item.getImage();
-        if (image != null) {
-            Picasso.with(mContext).load(image).into(holder.image);
+        if (image != null && !image.equals("")) {
+            Picasso.with(mContext).load(image).placeholder(R.drawable.baseline_add_photo_alternate_white_48).into(holder.image);
+        }else{
+            Picasso.with(mContext).load(R.drawable.baseline_add_photo_alternate_white_48).into(holder.image);
         }
-
         holder.tempo.setText("Bpm: " + String.valueOf(item.getTempo()));
         holder.date.setText(mContext.getString(R.string.date) + " " + item.getDate());
         holder.duration.setText(mContext.getString(R.string.duration) + " " + Tools.timeConversion((int) item.getDuration()/1000));

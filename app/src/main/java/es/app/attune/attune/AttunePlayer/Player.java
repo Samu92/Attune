@@ -27,4 +27,6 @@ public interface Player {
     void createMediaPlayer(String token, Context context);
 
     void setQueue(AttPlaylist item);
+
+    void setQueue(AttPlaylist item, Song song);
 }

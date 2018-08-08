@@ -38,7 +38,6 @@ public class AdvancedParameters extends Fragment {
     private static BubbleSeekBar popularity;
     private static BubbleSeekBar speechiness;
     private static BubbleSeekBar valence;
-
     private CheckBox check_acoustiness;
     private CheckBox check_danceability;
     private CheckBox check_energy;
@@ -49,7 +48,6 @@ public class AdvancedParameters extends Fragment {
     private CheckBox check_speechiness;
     private CheckBox check_valence;
     private NewPlayList newPlaylistFragment;
-
 
     public static float getAcousticness() {
         if(acousticness.isEnabled()) {

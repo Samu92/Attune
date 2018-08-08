@@ -69,9 +69,8 @@ public class CredentialsHandler {
         SharedPreferences sharedPref = getSharedPreferences(appContext);
 
         String refresh_token = sharedPref.getString(REFRESH_TOKEN, null);
-        long expiresAt = sharedPref.getLong(EXPIRES_AT, 0L);
 
-        if (refresh_token == null || expiresAt < System.currentTimeMillis()) {
+        if (refresh_token == null) {
             return null;
         }
 
@@ -91,4 +90,23 @@ public class CredentialsHandler {
         return code;
     }
 
+    public static boolean hasAccess(Context context) {
+        Context appContext = context.getApplicationContext();
+        SharedPreferences sharedPref = getSharedPreferences(appContext);
+
+        String refresh_code = sharedPref.getString(REFRESH_TOKEN, null);
+
+        if(refresh_code == null){
+            return  false;
+        }else{
+            return  true;
+        }
+    }
+
+    public static void removeCredentials(Context context) {
+        SharedPreferences preferences = getSharedPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.apply();
+    }
 }

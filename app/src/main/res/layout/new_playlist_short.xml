@@ -8,8 +8,6 @@
         android:id="@+id/image_new_manual_playlist"
         android:layout_width="130dp"
         android:layout_height="130dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
         android:scaleType="fitCenter"
         android:adjustViewBounds="true"
         android:layout_marginBottom="20dp"
@@ -20,7 +18,6 @@
         android:id="@+id/txt_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/image_playlist"
         android:layout_marginBottom="10dp"
         android:text="@string/playlist_name" />
 

@@ -71,7 +71,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
             spotifyApi.setAccessToken(accessToken);
         } else {
             logError("No valid access token");
-            Toast.makeText(mContext,"No valid access token", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(mContext,"No valid access token", Toast.LENGTH_SHORT).show();
         }
         mSearchPager = new SearchSpotify(spotifyApi.getService());
     }
@@ -240,7 +240,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
 
     @Override
     public void search(String searchQuery, final float mTempoFilter) {
-        //if (searchQuery != null && !searchQuery.isEmpty()) {
+        if (searchQuery != null && !searchQuery.isEmpty()) {
             logMessage("query text submit " + searchQuery);
             mCurrentQuery = searchQuery;
             //mView.reset();
@@ -261,10 +261,10 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                         long duration = track.duration_ms;
                         String artist = track.artists.get(0).name;
                         String imageUri = "";
-                        if(track.album.images.get(0).url.equals("")){
-                            imageUri = "";
-                        }else{
+                        if(track.album.images.size() > 0){
                             imageUri = track.album.images.get(0).url;
+                        }else{
+                            imageUri = "";
                         }
                         String previewUrl = track.preview_url;
                         float acousticness = 0;
@@ -322,7 +322,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                 }
             };
             mSearchPager.getFirstPage(searchQuery, PAGE_SIZE, mManualSearchListener);
-        //}
+        }
     }
 
     @Override
@@ -377,12 +377,12 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
     }
 
     private void logError(String msg) {
-        Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
         Log.e(TAG, msg);
     }
 
     private void logMessage(String msg) {
-        Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
         Log.d(TAG, msg);
     }
 

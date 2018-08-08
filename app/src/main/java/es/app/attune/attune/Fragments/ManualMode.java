@@ -68,73 +68,46 @@ import static android.app.Activity.RESULT_OK;
 public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetListener {
 
     private static ConnectivityManager manager;
-
     private static DatabaseFunctions db;
     private SearchView searchView;
     private static SearchInterfaces.ActionListener mActionListener;
-
     private static final String KEY_CURRENT_QUERY = "CURRENT_QUERY";
-
     private LinearLayoutManager mLayoutManager;
     private static ScrollListener mScrollListener;
-
     private ManualMode.OnListFragmentInteractionListener mListener;
-
     private static SearchResultsAdapter mAdapter;
-
     private static RecyclerView resultsList;
-
     private MaterialDialog material;
-
     private SearchableSpinner genresSpinner;
-
     private static List<String> genres_list;
-
     private int fecha_edicion = 0;
     private EditText editText_start;
     private EditText editText_end;
-
     private int year_start;
     private int year_end;
     private String genre;
     private float mTempoFilter;
-
     private static TextView empty;
-
     private static ProgressBar progressManualBar;
-
     private ListView playlist_list_view;
     private MaterialDialog playlist_list_dialog;
     private MaterialDialog new_playlist_dialog;
     private MaterialDialog result;
-
     private TextView empty_playlist_list;
-
     private LinearLayout filter_layout;
-
     private AppCompatCheckBox filter_date_check;
-
     private RecyclerView filter_list;
     private ArrayList<String> filter_array;
     private FilterAdapter filterAdapter;
-
     private TextView empty_filter_list;
-
     private Song selected_song;
-
     private static final int PICK_IMAGE_REQUEST = 100;
-
     private ImageView image;
-
     private TextView txt_result;
-
     private ArrayAdapter<String> adapter_playlist_list;
-
     private ArrayAdapter<String> adapter;
-
     private MaterialDialog offline;
     private TextView txt_offline;
-
     private AppCompatCheckBox filter_tempo_check;
     private BubbleSeekBar filter_tempo;
 
@@ -716,7 +689,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                 String playlist = adapter_playlist_list.getItem(i);
                 db.insertSongInPlaylist(selected_song,playlist);
                 playlist_list_dialog.dismiss();
-                txt_result.setText(getString(R.string.song_added) + playlist);
+                txt_result.setText(getString(R.string.song_added) + " " + playlist);
                 result.show();
             }
         });
@@ -751,18 +724,6 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
         }else{
             resultsList.setVisibility(View.VISIBLE);
             empty.setVisibility(View.GONE);
-        }
-
-        ViewGroup.MarginLayoutParams marginLayoutParams =
-                (ViewGroup.MarginLayoutParams) resultsList.getLayoutParams();
-        if(MainActivity.getSlideVisible()){
-            marginLayoutParams.setMargins(0, 0, 0, 200);
-            resultsList.setLayoutParams(marginLayoutParams);
-            resultsList.requestLayout();
-        }else{
-            marginLayoutParams.setMargins(0, 0, 0, 0);
-            resultsList.setLayoutParams(marginLayoutParams);
-            resultsList.requestLayout();
         }
     }
 

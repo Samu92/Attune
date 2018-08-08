@@ -2,6 +2,7 @@ package es.app.attune.attune.Activity;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,6 +11,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
+import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -21,6 +23,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -35,6 +38,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -51,6 +55,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import es.app.attune.attune.AttunePlayer.PlayerService;
+import es.app.attune.attune.Classes.CredentialsHandler;
 import es.app.attune.attune.Fragments.SongListRecyclerViewAdapter;
 import es.app.attune.attune.Services.RenewService;
 import es.app.attune.attune.Classes.App;
@@ -82,38 +87,26 @@ public class MainActivity extends AppCompatActivity
     private static final int REQUEST_CODE = 1337;
     private static final int MY_PERMISSIONS_REQUEST_READ_MEDIA = 10 ;
     private static final int PICK_IMAGE_REQUEST = 100;
-
     private static ConnectivityManager manager;
-
-    // Fragments
     private PlayListFragment playListFragment;
     private SongsListFragment songsListFragment;
     private static AutomaticModeTabs automaticModeTabs;
     private static ManualMode manualMode;
-
-    //GreenDao
     private DaoSession daoSession;
     private static DatabaseFunctions db;
     private static SearchInterfaces.ActionListener mActionListener;
-
     static PlayerService mService;
     static RenewService mRenewService;
     boolean mBound = false;
     boolean mRenewBound = false;
-
     private String token;
-
     TextView navEmail;
     TextView navUserName;
     CircleImageView navImageView;
-
     private ImageView image;
     private TextView txt_edit_playlist;
-
     private MaterialDialog edit_playlist_dialog;
-
     private AttPlaylist selected_playlist;
-
     private static SlidingUpPanelLayout playerUI;
     private static ImageView play_pause_button;
     private static ImageView play_pause_button_expand;
@@ -127,34 +120,18 @@ public class MainActivity extends AppCompatActivity
     private static TextView song_title;
     private static TextView song_artist;
     private static LinearLayout playerControlsShort;
-    private static int i = 0;
     private static CircleImageView song_cover_image;
-
     private MaterialDialog progress;
-
-    private ScheduledExecutorService scheduler;
-
     private static UserPrivate mPrivateUser;
-
     private static MaterialDialog result;
     private static TextView txt_result;
-
     private static TextView numeric_progress;
     private static TextView numeric_total_progress;
-
     private static TextView numeric_progress_short;
     private static TextView numeric_total_progress_short;
-
     private Handler handler;
-    private Handler refreshHandler;
-
     private static MaterialDialog error;
     private static TextView txt_error;
-
-    private int expiration_time;
-
-    private AudioManager audio;
-
     private MaterialDialog offline;
     private TextView txt_offline;
 
@@ -179,9 +156,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        Intent intent = getIntent();
-        token = intent.getStringExtra(EXTRA_TOKEN);
-
+        token = CredentialsHandler.getToken(this);
         mActionListener = new SearchFunctions(this, this, this, this, this);
         mActionListener.init(token);
 
@@ -320,14 +295,14 @@ public class MainActivity extends AppCompatActivity
         play_pause_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(mService != null){
-                    if(mService.playPauseState()){
-                        play_pause_button.setImageResource(R.drawable.ic_pause_blue_36dp);
-                    }else{
-                        play_pause_button.setImageResource(R.drawable.ic_play_arrow_blue_36dp);
+                    if(mService != null){
+                        if(mService.playPauseState()){
+                            play_pause_button.setImageResource(R.drawable.ic_pause_blue_36dp);
+                        }else{
+                            play_pause_button.setImageResource(R.drawable.ic_play_arrow_blue_36dp);
+                        }
                     }
                 }
-            }
         });
 
         previous_song_button = (ImageView) findViewById(R.id.previous_song);
@@ -335,7 +310,12 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 if(mService != null){
-                    mService.skipToPreviousSong();
+                    if(isOnline(getContext())){
+                        mService.skipToPreviousSong();
+                    }else{
+                        txt_offline.setText(R.string.txt_no_connection);
+                        offline.show();
+                    }
                 }
             }
         });
@@ -345,7 +325,12 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 if(mService != null){
-                    mService.skipToNextSong();
+                    if(isOnline(getContext())){
+                        mService.skipToNextSong();
+                    }else{
+                        txt_offline.setText(R.string.txt_no_connection);
+                        offline.show();
+                    }
                 }
             }
         });
@@ -355,7 +340,12 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 if(mService != null){
-                    mService.skipToPreviousSong();
+                    if(isOnline(getContext())){
+                        mService.skipToPreviousSong();
+                    }else{
+                        txt_offline.setText(R.string.txt_no_connection);
+                        offline.show();
+                    }
                 }
             }
         });
@@ -365,7 +355,12 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 if(mService != null){
-                    mService.skipToNextSong();
+                    if(isOnline(getContext())){
+                        mService.skipToNextSong();
+                    }else{
+                        txt_offline.setText(R.string.txt_no_connection);
+                        offline.show();
+                    }
                 }
             }
         });
@@ -400,8 +395,15 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onProgressChanged(CircleProgressbar circleSeekbar, float progress, boolean fromUser) {
                 if(fromUser){
-                    Log.i("SeekToPosition", String.valueOf(progress));
-                    mService.seekToPosition((int) progress);
+                    if(mService != null){
+                        if(isOnline(getContext())){
+                            Log.i("SeekToPosition", String.valueOf(progress));
+                            mService.seekToPosition((int) progress);
+                        }else{
+                            txt_offline.setText(R.string.txt_no_connection);
+                            offline.show();
+                        }
+                    }
                 }
             }
 
@@ -460,33 +462,18 @@ public class MainActivity extends AppCompatActivity
                 .build();
         txt_offline = offline.getView().findViewById(R.id.txt_error);
 
-        audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-
         playerUI.setTouchEnabled(false);
     }
-
-    /*@Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        super.onKeyDown(keyCode,event);
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_VOLUME_UP:
-                //audio.setStreamVolume(AudioManager.STREAM_MUSIC,5,0);
-                return true;
-            case KeyEvent.KEYCODE_VOLUME_DOWN:
-                //audio.setStreamVolume(AudioManager.STREAM_MUSIC,0,0);
-                return true;
-            default:
-                return false;
-        }
-    }*/
 
     private void initialize() {
         new Handler().post(new Runnable() {
             public void run() {
-                getSupportFragmentManager().beginTransaction()
-                        .addToBackStack(playListFragment.getClass().getName())
-                        .replace(R.id.fragmentView, playListFragment, playListFragment.getClass().getName())
-                        .commit();
+                if(!isFinishing()){
+                    getSupportFragmentManager().beginTransaction()
+                            .addToBackStack(playListFragment.getClass().getName())
+                            .replace(R.id.fragmentView, playListFragment, playListFragment.getClass().getName())
+                            .commit();
+                }
             }
         });
     }
@@ -565,9 +552,9 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
+        /*if (id == R.id.action_settings) {
             return true;
-        }
+        }*/
 
         if(id == R.id.close_session){
             Spotify.destroyPlayer(this);
@@ -575,6 +562,7 @@ public class MainActivity extends AppCompatActivity
             intent.putExtra("logout",true);
             startActivity(intent);
             mService.playPauseState();
+            CredentialsHandler.removeCredentials(this);
             finish();
         }
 
@@ -600,11 +588,13 @@ public class MainActivity extends AppCompatActivity
                                         .addToBackStack(automaticModeTabs.getClass().getName())
                                         .replace(R.id.fragmentView, automaticModeTabs, automaticModeTabs.getClass().getName())
                                         .commit();
+                                closePanel();
                             }else if(which == 1){
                                 getSupportFragmentManager().beginTransaction()
                                         .addToBackStack(manualMode.getClass().getName())
                                         .replace(R.id.fragmentView, manualMode, manualMode.getClass().getName())
                                         .commit();
+                                closePanel();
                             }
                         }
                     });
@@ -614,6 +604,7 @@ public class MainActivity extends AppCompatActivity
                     .addToBackStack(playListFragment.getClass().getName())
                     .replace(R.id.fragmentView, playListFragment, playListFragment.getClass().getName())
                     .commit();
+            closePanel();
         } else if (id == R.id.nav_share) {
             String share_text = getString(R.string.share_text);
             Intent whatsappIntent = new Intent(Intent.ACTION_SEND);
@@ -651,6 +642,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        if(mRenewService != null){
+            mRenewService.renewToken();
+        }
     }
 
     @Override
@@ -759,21 +753,30 @@ public class MainActivity extends AppCompatActivity
                             public void onClick(DialogInterface dialog, int which) {
                                 if (which == 0) {
                                     // Reproducir
-                                    mService.playSong(item);
+                                    selected_playlist = db.getPlaylistById(item.getIdPlaylist());
+                                    if(selected_playlist != null){
+                                        mService.playSongFromPlaylist(selected_playlist, item);
+                                    }
                                 } else if (which == 1) {
                                     // Asignar efecto
                                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                                     builder.setTitle(R.string.select_effect_option)
                                             .setItems(R.array.effect_options, new DialogInterface.OnClickListener() {
                                                 public void onClick(DialogInterface dialog, int which) {
-                                                    if (which == 0) {
-                                                        // Fade
+                                                    if(which == 0){
                                                         item.setEffect_type(0);
                                                         db.updateSongEffect(item);
+                                                        SongsListFragment.updateAdapter();
                                                     } else if (which == 1) {
-                                                        // Solapamiento
+                                                        // Fade
                                                         item.setEffect_type(1);
                                                         db.updateSongEffect(item);
+                                                        SongsListFragment.updateAdapter();
+                                                    } else if (which == 2) {
+                                                        // Solapamiento
+                                                        item.setEffect_type(2);
+                                                        db.updateSongEffect(item);
+                                                        SongsListFragment.updateAdapter();
                                                     }
                                                 }
                                             });
@@ -818,7 +821,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void showError(Throwable message) {
-        if(message.getMessage().equals("401 Unauthorized")){
+        String msg = message.getMessage();
+        if(msg.equals("401 Unauthorized") || msg.equals(("410 The access token expired"))){
             mRenewService.renewToken();
         }else{
             txt_error.setText(message.getMessage());
@@ -837,7 +841,11 @@ public class MainActivity extends AppCompatActivity
         mPrivateUser = user;
         progress.dismiss();
         if(user.product.equals("premium")){
-            navUserName.setText(user.display_name);
+            if(user.display_name != null){
+                navUserName.setText(user.display_name);
+            }else{
+                navUserName.setText("Attune");
+            }
             navEmail.setText(user.email);
             Glide.with(this)
                     .load(user.images.get(0).url)
@@ -845,7 +853,11 @@ public class MainActivity extends AppCompatActivity
             db.insertCurrentUser(user);
             initialize();
         }else{
-            navUserName.setText(user.display_name);
+            if(user.display_name != null){
+                navUserName.setText(user.display_name);
+            }else{
+                navUserName.setText("Attune");
+            }
             navEmail.setText(user.email);
             db.insertCurrentUser(user);
             initialize();
@@ -879,22 +891,21 @@ public class MainActivity extends AppCompatActivity
     }
 
     public static void closePanel(){
-        playerControlsShort.setVisibility(View.VISIBLE);
-        playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        if(mService.isPlaying()){
+            playerControlsShort.setVisibility(View.VISIBLE);
+            playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        }else if(playerUI.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED){
+            playerControlsShort.setVisibility(View.VISIBLE);
+            playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        }
     }
 
     public static void enableSlidingPanel() {
         playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-        PlayListFragment.setMarginBottomList(1);
-        SongsListFragment.setMarginBottomList(1);
-        ManualMode.setMarginBottomList(1);
     }
 
     public static void disableSlidingPanel() {
         playerUI.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-        PlayListFragment.setMarginBottomList(0);
-        SongsListFragment.setMarginBottomList(0);
-        ManualMode.setMarginBottomList(0);
     }
 
     public static void sendCurrentPosition(Song mCurrentSong, long positionMs) {
@@ -913,6 +924,27 @@ public class MainActivity extends AppCompatActivity
 
             numeric_progress_short.setText(String.format("%02d",minutes) + ":" + String.format("%02d",seconds));
             numeric_total_progress_short.setText(String.format("%02d",minutes_total) + ":" + String.format("%02d",seconds_total));
+
+            if(songFinishing(positionMs,mCurrentSong.getDuration())){
+                initializeEffect(mCurrentSong.getEffect_type());
+            }
+        }
+    }
+
+    public static boolean songFinishing(long positionMs, long totalMs){
+        if(positionMs >= (totalMs - 20000)){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public static void initializeEffect(int effect_type){
+        if(effect_type == 1){
+            // Iniciamos efecto fade in - fade out
+            mService.doEffect(effect_type);
+        }else{
+            mService.doEffect(effect_type);
         }
     }
 
@@ -931,7 +963,9 @@ public class MainActivity extends AppCompatActivity
     public static void showPlayer() {
         if(mService != null){
             if(mService.isPlaying()){
-                playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                if(playerUI.getPanelState() != SlidingUpPanelLayout.PanelState.EXPANDED){
+                    playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                }
             }
         }
     }

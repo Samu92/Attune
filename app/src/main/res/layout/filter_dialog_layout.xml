@@ -38,7 +38,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/txt_filter_date"
-        android:layout_toRightOf="@id/check_filter_date"
+        android:layout_toEndOf="@id/check_filter_date"
         android:inputType="datetime"
         android:enabled="false"
         app:met_mask="####"/>
@@ -48,12 +48,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/txt_filter_date"
-        android:layout_toRightOf="@id/txt_filter_start_date"
+        android:layout_toEndOf="@id/txt_filter_start_date"
         android:layout_alignBaseline="@id/txt_filter_start_date"
         android:layout_marginLeft="2dp"
         android:layout_marginRight="2dp"
         android:layout_marginBottom="15dp"
-        android:text="-"/>
+        android:text="@string/separator"/>
 
     <com.santalu.maskedittext.MaskEditText
         android:id="@+id/txt_filter_end_date"
@@ -61,8 +61,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/txt_filter_date"
         android:inputType="datetime"
-        android:layout_marginLeft="2dp"
-        android:layout_toRightOf="@id/txt_filter_separator"
+        android:layout_marginStart="2dp"
+        android:layout_toEndOf="@id/txt_filter_separator"
         android:enabled="false"
         app:met_mask="####"/>
 

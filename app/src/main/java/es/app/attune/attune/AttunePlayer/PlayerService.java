@@ -6,6 +6,8 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -14,7 +16,9 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
+import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -24,9 +28,12 @@ import es.app.attune.attune.Activity.LoginActivity;
 import es.app.attune.attune.Activity.MainActivity;
 import es.app.attune.attune.Classes.App;
 import es.app.attune.attune.Classes.Constants;
+import es.app.attune.attune.Classes.CredentialsHandler;
 import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.Database.Song;
 import es.app.attune.attune.R;
+
+import static es.app.attune.attune.Activity.MainActivity.isOnline;
 
 public class PlayerService extends Service {
 
@@ -36,6 +43,8 @@ public class PlayerService extends Service {
     private AttunePlayer mPlayer = new AttunePlayer();
     private RemoteViews bigViews;
     private RemoteViews views;
+    private AudioManager audio;
+    private boolean doingEffect;
 
     public static Intent getIntent(Context context) {
         return new Intent(context, PlayerService.class);
@@ -55,6 +64,8 @@ public class PlayerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        doingEffect = false;
+        audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
     }
 
     @Override
@@ -100,8 +111,10 @@ public class PlayerService extends Service {
                 stopForeground(true);
                 mPlayer.pause();
             } else if(intent.getAction().equals(Constants.ACTION.MAIN_ACTION)){
-                mPlayer.createMediaPlayer(intent.getExtras().getString("token"),PlayerService.this);
-                MainActivity.showPlayer();
+                if(CredentialsHandler.getToken(getApplicationContext()) != null ){
+                    mPlayer.createMediaPlayer(CredentialsHandler.getToken(getApplicationContext()),PlayerService.this);
+                    MainActivity.showPlayer();
+                }
             }
         }
         return START_STICKY;
@@ -179,6 +192,7 @@ public class PlayerService extends Service {
                             public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
                                 bigViews.setImageViewBitmap(R.id.status_bar_album_art, resource);
                                 views.setImageViewBitmap(R.id.status_bar_album_art,resource);
+                                views.setImageViewBitmap(R.id.status_bar_icon,resource);
                                 status = new Notification.Builder(App.getContext()).build();
                                 status.contentView = views;
                                 status.bigContentView = bigViews;
@@ -200,7 +214,6 @@ public class PlayerService extends Service {
         return mPlayer.isPlaying();
     }
 
-
     public void playSong(Song item){
         if(MainActivity.isAuthorized()){
             mPlayer.play(item);
@@ -214,6 +227,14 @@ public class PlayerService extends Service {
             showNotification(getCurrentSong());
         }
     }
+
+    public void playSongFromPlaylist(AttPlaylist selected_playlist, Song item) {
+        if(MainActivity.isAuthorized()){
+            mPlayer.setQueue(selected_playlist,item);
+            showNotification(getCurrentSong());
+        }
+    }
+
 
     public boolean playPauseState(){
         if(MainActivity.isAuthorized()) {
@@ -242,13 +263,17 @@ public class PlayerService extends Service {
     }
 
     public void skipToPreviousSong() {
-        mPlayer.skipToPreviousSong();
-        showNotification(getCurrentSong());
+        if(isOnline(App.getContext())){
+            mPlayer.skipToPreviousSong();
+            showNotification(getCurrentSong());
+        }
     }
 
     public void skipToNextSong() {
-        mPlayer.skipToNextSong();
-        showNotification(getCurrentSong());
+        if(isOnline(App.getContext())){
+            mPlayer.skipToNextSong();
+            showNotification(getCurrentSong());
+        }
     }
 
     public PlaybackState getPlaybackState() {
@@ -259,10 +284,101 @@ public class PlayerService extends Service {
         return mPlayer.currentsSongEmpty();
     }
 
+    private boolean isLastSong() {
+        Song lastSong = mPlayer.getLastSong();
+        if(getCurrentSong().equals(lastSong)){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+
     public Song getCurrentSong() {
         return mPlayer.getCurrentSong();
     }
 
+    public void doEffect(int effect_type) {
+        if(mPlayer.isPlaying()){
+            if(effect_type == 1){
+                if(!doingEffect){
+                    doingEffect = true;
+                    crossfade(2000);
+                }
+            }else if(effect_type == 2){
+                if(!doingEffect){
+                    doingEffect = true;
+                    overlap();
+                }
+            }
+        }
+    }
+
+    private void overlap() {
+        skipToNextSong();
+        doingEffect = false;
+    }
+
+    private void crossfade(final int duration) {
+        // Iniciamos fadeOut
+        final int deviceVolume = getDeviceVolume();
+        final Handler h = new Handler();
+        h.postDelayed(new Runnable() {
+            private int time = duration;
+            private int volume = 0;
+
+            @Override
+            public void run() {
+                // can call h again after work!
+                time -= 100;
+                volume = (deviceVolume * time) / duration;
+                audio.setStreamVolume(AudioManager.STREAM_MUSIC, volume,0);
+                if (time > 0)
+                    h.postDelayed(this, 100);
+                else{
+                    if(!isLastSong()){
+                        skipToNextSong();
+                        fadeIn(2000, deviceVolume);
+                    }else{
+                        playPauseState();
+                        doingEffect = false;
+                        audio.setStreamVolume(AudioManager.STREAM_MUSIC, deviceVolume,0);
+                        mPlayer.seekToPosition(0);
+                    }
+                }
+            }
+        }, 100); // 1 second delay (takes millis)
+    }
+
+    private void fadeIn(final int duration, int previousVolume) {
+        final int deviceVolume = previousVolume;
+        final Handler h = new Handler();
+        h.postDelayed(new Runnable() {
+            private int time = 0;
+            private int volume = 0;
+
+            @Override
+            public void run() {
+                time += 100;
+                volume = (deviceVolume * time) / duration;
+                audio.setStreamVolume(AudioManager.STREAM_MUSIC, volume,0);
+                if (time < duration)
+                    h.postDelayed(this, 100);
+                else
+                    doingEffect = false;
+            }
+        }, 100); // 1 second delay (takes millis)
+    }
+
+    public int getDeviceVolume() {
+        int volumeLevel = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
+        return volumeLevel;
+    }
+
+    public int getDeviceMaxVolume(){
+        int maxVolume = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        return maxVolume;
+    }
 
     @Nullable
     @Override

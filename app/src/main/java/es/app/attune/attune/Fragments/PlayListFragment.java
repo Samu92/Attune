@@ -225,22 +225,6 @@ public class PlayListFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
-    public static void setMarginBottomList(int mode){
-        if(recyclerView != null){
-            ViewGroup.MarginLayoutParams marginLayoutParams =
-                    (ViewGroup.MarginLayoutParams) recyclerView.getLayoutParams();
-            if(mode == 0){
-                marginLayoutParams.setMargins(0, 0, 0, 0);
-                recyclerView.setLayoutParams(marginLayoutParams);
-                recyclerView.requestLayout();
-            }else if(mode == 1){
-                marginLayoutParams.setMargins(0, 0, 0, 200);
-                recyclerView.setLayoutParams(marginLayoutParams);
-                recyclerView.requestLayout();
-            }
-        }
-    }
-
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
         void onListFragmentInteraction(AttPlaylist item, boolean reproducir);

@@ -55,15 +55,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:layout_marginRight="30dp"
+                    android:layout_marginEnd="30dp"
                     android:src="@drawable/ic_vertical_align_top_black_36dp"/>
 
                 <TextView
                     android:id="@+id/numeric_progress_short"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@id/separator_progress"
-                    android:layout_centerHorizontal="true"
                     android:layout_marginTop="10dp"
                     android:textSize="15sp"
                     android:textColor="@color/colorAccent"
@@ -74,34 +72,30 @@
                     android:id="@+id/separator_progress_short"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
                     android:layout_marginTop="10dp"
-                    android:text=" - "/>
+                    android:text="@string/separator"/>
 
                 <TextView
                     android:id="@+id/total_progress_short"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_toRightOf="@id/separator_progress"
                     android:layout_marginTop="10dp"
                     android:textSize="15sp"
                     android:textColor="@color/colorAccent"
                     android:textStyle="bold"
-                    android:text="0"/>
+                    android:text="@string/zero"/>
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="center_vertical|right"
+                    android:gravity="center_vertical|end"
                     android:orientation="horizontal">
 
                     <ImageView
                         android:id="@+id/previous_song"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="20dp"
                         android:clickable="true"
                         android:focusable="true"
                         android:src="@drawable/ic_skip_previous_blue_36dp"/>
@@ -110,7 +104,6 @@
                         android:id="@+id/play_pause_button_slide"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="20dp"
                         android:clickable="true"
                         android:focusable="true"
                         android:src="@drawable/ic_play_arrow_blue_36dp" />
@@ -119,7 +112,6 @@
                         android:id="@+id/next_song"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="20dp"
                         android:clickable="true"
                         android:focusable="true"
                         android:src="@drawable/ic_skip_next_blue_36dp"/>
@@ -137,11 +129,11 @@
                     android:id="@+id/numeric_progress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@id/separator_progress"
+                    android:layout_toStartOf="@id/separator_progress"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="10dp"
                     android:textSize="@dimen/text_size_medium"
-                    android:text="0"/>
+                    android:text="@string/zero"/>
 
                 <TextView
                     android:id="@+id/separator_progress"
@@ -149,17 +141,17 @@
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="10dp"
-                    android:text=" - "/>
+                    android:text="@string/separator"/>
 
                 <TextView
                     android:id="@+id/total_progress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:layout_toRightOf="@id/separator_progress"
+                    android:layout_toEndOf="@id/separator_progress"
                     android:layout_marginTop="10dp"
                     android:textSize="@dimen/text_size_medium"
-                    android:text="0"/>
+                    android:text="@string/zero"/>
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/image_player_center"
@@ -194,7 +186,6 @@
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:maxLines="1"
-                    android:autoSizeMaxTextSize="20sp"
                     android:layout_below="@id/circle_progress_player"
                     android:textSize="25sp"
                     android:textColor="@color/black"
@@ -206,7 +197,6 @@
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:maxLines="2"
-                    android:autoSizeMaxTextSize="20sp"
                     android:layout_below="@id/song_playlist_player"
                     android:textAlignment="center"
                     android:textColor="@color/black"
@@ -221,7 +211,6 @@
                     android:maxLines="1"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
-                    android:autoSizeMaxTextSize="15sp"
                     android:layout_below="@id/song_title_player"
                     android:textSize="20sp" />
 

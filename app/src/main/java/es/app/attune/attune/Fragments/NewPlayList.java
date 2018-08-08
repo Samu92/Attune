@@ -55,10 +55,7 @@ import static android.app.Activity.RESULT_OK;
 public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedListener, SearchInterfaces.ResultNewPlaylist {
 
     private OnFragmentInteractionListener mListener;
-
     private static ConnectivityManager manager;
-
-    // UI
     private ImageView image;
     private EditText name;
     private static BubbleSeekBar tempo;
@@ -80,23 +77,16 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     private MaterialDialog playlist_list_dialog;
     private MaterialDialog offline;
     private TextView txt_offline;
-
     private ArrayAdapter<String> adapter_playlist_list;
-
     private TextView empty_playlist_list;
     private ListView playlist_list_view;
-
     private static SearchInterfaces.ActionListener mLocalActionListener;
     private AdvancedParameters advancedParameterFragment;
     private MaterialDialog progress;
     private MaterialDialog error;
-
     private ListView genres_list_view;
     private ArrayAdapter<String> genres_list_adapter;
-
     private ArrayAdapter<String> adapter;
-
-
 
     public NewPlayList() {
         // Required empty public constructor

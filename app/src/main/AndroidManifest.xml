@@ -28,7 +28,7 @@
             android:label="@string/title_activity_login"
             android:screenOrientation="portrait"
             android:hardwareAccelerated="false"
-            android:theme="@style/AttuneLight">
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>

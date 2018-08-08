@@ -30,11 +30,8 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
 
     private com.spotify.sdk.android.player.SpotifyPlayer mSpotifyPlayer;
     private int mCurrentSong;
-
     private static final String CLIENT_ID = "8bcf4a1c62f64325a456b1bee9e857d9";
-
     private List<Song> currentSongs;
-
     private Intent switchIntent;
 
     public AttunePlayer() {
@@ -69,6 +66,28 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
         });
         mSpotifyPlayer.playUri(null, currentSongs.get(0).getUrlSpotify(),0,0);
         mCurrentSong = 0;
+    }
+
+    @Override
+    public void setQueue(AttPlaylist item, Song song) {
+        currentSongs.clear();
+        currentSongs.addAll(item.getSongs());
+        Collections.sort(currentSongs, new Comparator<Song>() {
+            @Override
+            public int compare(Song o1, Song o2) {
+                Song song1 = o1;
+                Song song2 = o2;
+
+                if(song1.getPosition() > song2.getPosition()){
+                    return 1;
+                }else{
+                    return -1;
+                }
+            }
+        });
+        int currentPosition = song.getPosition();
+        mSpotifyPlayer.playUri(null, currentSongs.get(currentPosition).getUrlSpotify(),0,0);
+        mCurrentSong = currentPosition;
     }
 
     public void skipToPreviousSong() {
@@ -181,6 +200,7 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
             MainActivity.play();
             MainActivity.notifyPlayer(currentSongs.get(mCurrentSong));
             MainActivity.initializeProgressCircle(currentSongs.get(mCurrentSong));
+            MainActivity.showPlayer();
         }
 
         if(playerEvent.equals(PlayerEvent.kSpPlaybackNotifyMetadataChanged)){
@@ -228,6 +248,14 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
         }
     }
 
+    public Song getLastSong() {
+        if(!currentSongs.isEmpty()){
+            return  currentSongs.get(currentSongs.size() - 1);
+        }else{
+            return null;
+        }
+    }
+
     public PlaybackState getPlaybackState() {
         return mSpotifyPlayer.getPlaybackState();
     }
@@ -241,4 +269,6 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
         long ms = (progress*1000);
         mSpotifyPlayer.seekToPosition(null, Math.abs((int) ms));
     }
+
+
 }

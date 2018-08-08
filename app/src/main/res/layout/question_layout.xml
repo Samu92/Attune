@@ -19,5 +19,5 @@
         android:layout_height="wrap_content"
         android:textSize="20sp"
         android:textStyle="normal"
-        android:layout_toRightOf="@id/question_icon"/>
+        android:layout_toEndOf="@id/question_icon"/>
 </RelativeLayout>

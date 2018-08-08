@@ -32,7 +32,7 @@ public class SongsListFragment extends Fragment {
     private SongsListFragment.OnListFragmentInteractionListener mListener;
     private static DatabaseFunctions db;
     private static RecyclerView recyclerView;
-    private SongListRecyclerViewAdapter adapter;
+    private static SongListRecyclerViewAdapter adapter;
     private static String playlistId;
     private TextView empty;
 
@@ -152,21 +152,10 @@ public class SongsListFragment extends Fragment {
         mListener = null;
     }
 
-    public static void setMarginBottomList(int mode){
-        if(recyclerView != null){
-            ViewGroup.MarginLayoutParams marginLayoutParams =
-                    (ViewGroup.MarginLayoutParams) recyclerView.getLayoutParams();
-            if(mode == 0){
-                marginLayoutParams.setMargins(0, 0, 0, 0);
-                recyclerView.setLayoutParams(marginLayoutParams);
-                recyclerView.requestLayout();
-            }else if(mode == 1){
-                marginLayoutParams.setMargins(0, 0, 0, 200);
-                recyclerView.setLayoutParams(marginLayoutParams);
-                recyclerView.requestLayout();
-            }
-        }
+    public static void updateAdapter() {
+        adapter.notifyDataSetChanged();
     }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated

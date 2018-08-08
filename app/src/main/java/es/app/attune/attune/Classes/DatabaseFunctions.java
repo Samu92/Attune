@@ -142,6 +142,7 @@ public class DatabaseFunctions {
     public void createNewPlaylist(AttPlaylist playlist ,Song item) {
         attplaylistDao.insertOrReplaceInTx(playlist);
         item.setIdPlaylist(playlist.getId());
+        item.setPosition(0);
         songDao.insertOrReplaceInTx(item);
         recalculatePlaylistDuration(playlist.getId());
     }
@@ -239,12 +240,22 @@ public class DatabaseFunctions {
     }
 
     public String getPlaylistNameById(String id) {
-        if(id != ""){
+        if(!id.equals("")){
             QueryBuilder<AttPlaylist> q = attplaylistDao.queryBuilder();
             q.where(AttPlaylistDao.Properties.Position.isNotNull(),AttPlaylistDao.Properties.Id.like(id)).limit(1);
             return q.list().get(0).getName();
         }else{
             return "";
+        }
+    }
+
+    public AttPlaylist getPlaylistById(String idPlaylist) {
+        if(!idPlaylist.equals("")){
+            QueryBuilder<AttPlaylist> q = attplaylistDao.queryBuilder();
+            q.where(AttPlaylistDao.Properties.Position.isNotNull(),AttPlaylistDao.Properties.Id.like(idPlaylist)).limit(1);
+            return q.list().get(0);
+        }else{
+            return null;
         }
     }
 

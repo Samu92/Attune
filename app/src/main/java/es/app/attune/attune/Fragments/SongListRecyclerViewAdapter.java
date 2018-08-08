@@ -75,6 +75,18 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
         }
 
         holder.mDateView.setText(context.getResources().getString(R.string.date) + mValues.get(position).getDate());
+
+        switch (mValues.get(position).getEffect_type()){
+            case 0:
+                holder.mEffectView.setText(R.string.effect_no_effect);
+                break;
+            case 1:
+                holder.mEffectView.setText(R.string.effect_fade);
+                break;
+            case 2:
+                holder.mEffectView.setText(R.string.effect_overlap);
+                break;
+        }
     }
 
     @Override
@@ -109,6 +121,7 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
         public final TextView mDurationView;
         public final ImageView image;
         public final TextView mDateView;
+        public final TextView mEffectView;
         public Song mItem;
 
         public ViewHolder(View view) {
@@ -120,6 +133,7 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
             mDurationView = view.findViewById(R.id.song_duration);
             image = view.findViewById(R.id.entity_song_image);
             mDateView = view.findViewById(R.id.song_date);
+            mEffectView = view.findViewById(R.id.song_effect);
         }
 
         @Override

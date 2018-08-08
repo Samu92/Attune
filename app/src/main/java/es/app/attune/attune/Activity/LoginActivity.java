@@ -39,14 +39,10 @@ public class LoginActivity extends AppCompatActivity {
     private static final String CLIENT_ID = "8bcf4a1c62f64325a456b1bee9e857d9";
     @SuppressWarnings("SpellCheckingInspection")
     private static final String REDIRECT_URI = "attune://callback";
-
     private static final int REQUEST_CODE = 1337;
-
     private static ConnectivityManager manager;
-
     private MaterialDialog offline;
     private TextView txt_offline;
-
     private static final String[] scopes = new String[]{"user-read-private","user-read-email","playlist-read","streaming","user-read-playback-state","user-read-currently-playing",
             "user-modify-playback-state","user-library-read","playlist-read-private",
             "user-library-modify","playlist-modify-public","playlist-modify-private"};
@@ -54,23 +50,11 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         if(isOnline(this)){
-            Intent intent = getIntent();
-            boolean logout =  intent.getBooleanExtra("logout", false);
-
-            // Obtenemos el token actual
-            String token = CredentialsHandler.getToken(this);
-
-            if (token == null) {
+            if(CredentialsHandler.hasAccess(this)){
+                startMainActivity();
+            }else{
                 setContentView(R.layout.activity_login);
-            } else {
-                if(!logout){
-                    startMainActivity(token);
-                }else{
-                    CredentialsHandler.setToken(this,"",1, TimeUnit.SECONDS, "", null);
-                    setContentView(R.layout.activity_login);
-                }
             }
         }else{
             setContentView(R.layout.activity_login);
@@ -119,12 +103,6 @@ public class LoginActivity extends AppCompatActivity {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
             switch (response.getType()) {
                 // Response was successful and contains auth token
-                case TOKEN:
-                    logMessage("Got token: " + response.getAccessToken());
-                    CredentialsHandler.setToken(this, response.getAccessToken(), response.getExpiresIn(), TimeUnit.SECONDS, "", null);
-                    startMainActivity(response.getAccessToken());
-                    break;
-
                 case CODE:
                     logMessage("Got code: " + response.getCode());
                     final String code = response.getCode();
@@ -143,7 +121,7 @@ public class LoginActivity extends AppCompatActivity {
                                 String responseString = response.body();
                                 SwapResponse gson = new Gson().fromJson(responseString, SwapResponse.class);
                                 CredentialsHandler.setToken(App.getContext(),gson.getAccess_token(),Integer.valueOf(gson.getExpires_in()),TimeUnit.SECONDS, gson.getRefresh_token(), code);
-                                startMainActivity(gson.getAccess_token());
+                                startMainActivity();
                             }
                         }
 
@@ -172,9 +150,9 @@ public class LoginActivity extends AppCompatActivity {
         return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
     }
 
-    private void startMainActivity(String token) {
+    private void startMainActivity() {
         Intent intent = MainActivity.createIntent(this);
-        intent.putExtra(MainActivity.EXTRA_TOKEN, token);
+        //intent.putExtra(MainActivity.EXTRA_TOKEN, token);
         intent.setAction(Constants.ACTION.MAIN_ACTION);
         startActivity(intent);
         finish();

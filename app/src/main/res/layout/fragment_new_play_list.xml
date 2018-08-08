@@ -64,37 +64,37 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/txt_filter_date"
-                android:layout_toRightOf="@id/check_new_playlist_date"
+                android:layout_toEndOf="@id/check_new_playlist_date"
                 android:layout_alignBaseline="@id/check_new_playlist_date" />
 
             <com.santalu.maskedittext.MaskEditText
                 android:id="@+id/txt_start_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/txt_filter_date"
+                android:layout_toEndOf="@id/txt_filter_date"
                 android:inputType="datetime"
                 android:enabled="false"
                 android:layout_alignBaseline="@id/check_new_playlist_date"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 app:met_mask="####"/>/>
 
             <TextView
                 android:id="@+id/txt_filter_separator"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/txt_start_date"
+                android:layout_toEndOf="@id/txt_start_date"
                 android:layout_alignBaseline="@id/check_new_playlist_date"
                 android:layout_marginLeft="2dp"
                 android:layout_marginRight="2dp"
-                android:text="-"/>
+                android:text="@string/separator"/>
 
             <com.santalu.maskedittext.MaskEditText
                 android:id="@+id/txt_end_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:inputType="datetime"
-                android:layout_marginLeft="2dp"
-                android:layout_toRightOf="@id/txt_filter_separator"
+                android:layout_marginStart="2dp"
+                android:layout_toEndOf="@id/txt_filter_separator"
                 android:enabled="false"
                 android:layout_alignBaseline="@id/check_new_playlist_date"
                 app:met_mask="####"/>
@@ -127,7 +127,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:scrollbars="vertical"
-                android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_marginBottom="15dp"
                 />
@@ -151,7 +150,7 @@
             android:layout_below="@id/genres_list_relative"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="15dp"
-            android:text="Tempo" />
+            android:text="@string/tempo" />
 
         <com.xw.repo.BubbleSeekBar
             android:id="@+id/bmp_seekbar"
@@ -212,7 +211,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@id/check_song_duration"
-            android:layout_toRightOf="@id/check_song_duration"
+            android:layout_toEndOf="@id/check_song_duration"
             android:layout_below="@id/duration_seekbar"
             android:text="@string/song_duration" />
 

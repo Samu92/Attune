@@ -25,7 +25,7 @@
             android:id="@+id/txt_acousticness"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/check_acousticness"
+            android:layout_toEndOf="@id/check_acousticness"
             android:layout_marginBottom="5dp"
             android:text="@string/acousticness" />
 
@@ -62,7 +62,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/acousticness"
-            android:layout_toRightOf="@id/check_danceability"
+            android:layout_toEndOf="@id/check_danceability"
             android:layout_marginBottom="5dp"
             android:text="@string/danceability" />
 
@@ -99,7 +99,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/danceability"
-            android:layout_toRightOf="@id/check_energy"
+            android:layout_toEndOf="@id/check_energy"
             android:text="@string/energy" />
 
         <com.xw.repo.BubbleSeekBar
@@ -135,7 +135,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/energy"
-            android:layout_toRightOf="@id/check_instrumentalness"
+            android:layout_toEndOf="@id/check_instrumentalness"
             android:text="@string/instrumentalness" />
 
         <com.xw.repo.BubbleSeekBar
@@ -171,7 +171,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/instrumentalness"
-            android:layout_toRightOf="@id/check_liveness"
+            android:layout_toEndOf="@id/check_liveness"
             android:text="@string/liveness" />
 
         <com.xw.repo.BubbleSeekBar
@@ -207,7 +207,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/liveness"
-            android:layout_toRightOf="@id/check_loudness"
+            android:layout_toEndOf="@id/check_loudness"
             android:text="@string/loudness" />
 
         <com.xw.repo.BubbleSeekBar
@@ -243,7 +243,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/loudness"
-            android:layout_toRightOf="@id/check_popularity"
+            android:layout_toEndOf="@id/check_popularity"
             android:text="@string/popularity" />
 
         <com.xw.repo.BubbleSeekBar
@@ -279,7 +279,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/popularity"
-            android:layout_toRightOf="@id/check_speachiness"
+            android:layout_toEndOf="@id/check_speachiness"
             android:text="@string/speachiness" />
 
         <com.xw.repo.BubbleSeekBar
@@ -316,7 +316,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/speachiness"
-            android:layout_toRightOf="@id/check_valence"
+            android:layout_toEndOf="@id/check_valence"
             android:text="@string/valence" />
 
         <com.xw.repo.BubbleSeekBar
