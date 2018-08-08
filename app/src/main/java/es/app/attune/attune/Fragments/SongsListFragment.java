@@ -179,7 +179,7 @@ public class SongsListFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(Song item);
+        void onListFragmentInteraction(Song item, boolean manual);
     }
 
 }

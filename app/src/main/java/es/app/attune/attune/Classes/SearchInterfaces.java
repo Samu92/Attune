@@ -1,7 +1,5 @@
 package es.app.attune.attune.Classes;
 
-import com.afollestad.materialdialogs.MaterialDialog;
-
 import java.util.List;
 
 import es.app.attune.attune.Database.AttPlaylist;
@@ -19,7 +17,7 @@ public class SearchInterfaces {
 
         void showListPlaylist();
 
-        void showError(String message);
+        void showError(Throwable message);
 
         void addDataToSearchList(List<Song> items);
     }
@@ -44,11 +42,13 @@ public class SearchInterfaces {
 
         void searchRecomendations(AttPlaylist newPlaylist, int i);
 
+        void exportToSpotify(String owner, AttPlaylist item);
+
         void getAvailableGenreSeeds();
 
         void getUserData();
 
-        void search(String searchQuery);
+        void search(String searchQuery, float mTempoFilter);
 
         void loadMoreResults();
 

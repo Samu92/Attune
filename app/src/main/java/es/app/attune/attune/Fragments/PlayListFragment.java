@@ -19,6 +19,9 @@ import android.widget.AdapterView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
+
 import es.app.attune.attune.Activity.MainActivity;
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Classes.SearchInterfaces;
@@ -42,6 +45,8 @@ public class PlayListFragment extends Fragment {
     private static RecyclerView recyclerView;
     private static PlayListRecyclerViewAdapter adapter;
     private TextView empty;
+    private MaterialDialog question;
+    private TextView txt_question;
 
     public PlayListFragment() {
 
@@ -130,22 +135,42 @@ public class PlayListFragment extends Fragment {
         ItemTouchHelper.SimpleCallback simpleCallback =
                 new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
                     @Override
-                    public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                    public boolean onMove(RecyclerView recyclerView, final RecyclerView.ViewHolder viewHolder, final RecyclerView.ViewHolder target) {
                         adapter.moveItem(viewHolder.getAdapterPosition(), target.getAdapterPosition(),db);
                         return true;
                     }
 
                     @Override
-                    public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                        adapter.deleteItem(viewHolder.getAdapterPosition(),db);
+                    public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
+                        question = new MaterialDialog.Builder(getActivity())
+                                .customView(R.layout.question_layout, false)
+                                .cancelable(true)
+                                .positiveText(R.string.agree)
+                                .negativeText(R.string.disagree)
+                                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                    @Override
+                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                        adapter.deleteItem(viewHolder.getAdapterPosition(),db);
+                                        if(adapter.getItemCount() == 0){
+                                            recyclerView.setVisibility(View.GONE);
+                                            empty.setVisibility(View.VISIBLE);
+                                        }else{
+                                            recyclerView.setVisibility(View.VISIBLE);
+                                            empty.setVisibility(View.GONE);
+                                        }
+                                    }
+                                })
+                                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                                    @Override
+                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                        adapter.notifyDataSetChanged();
+                                    }
+                                })
+                                .build();
+                        txt_question = question.getView().findViewById(R.id.txt_question);
+                        txt_question.setText(R.string.playlist_delete);
+                        question.show();
 
-                        if(adapter.getItemCount() == 0){
-                            recyclerView.setVisibility(View.GONE);
-                            empty.setVisibility(View.VISIBLE);
-                        }else{
-                            recyclerView.setVisibility(View.VISIBLE);
-                            empty.setVisibility(View.GONE);
-                        }
                     }
                 };
         return simpleCallback;

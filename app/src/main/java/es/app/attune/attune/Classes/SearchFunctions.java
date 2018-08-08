@@ -4,8 +4,6 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.MaterialDialog;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +27,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
     private static final String TAG = SearchFunctions.class.getSimpleName();
     public static final int SIZE = 50;
     private static final String CLIENT_ID = "";
-    private static final int PAGE_SIZE = 10;
+    private static final int PAGE_SIZE = 20;
 
     private final Context mContext;
     private final SearchInterfaces.ResultPlaylist mResultPlaylist;
@@ -73,8 +71,8 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
             spotifyApi.setAccessToken(accessToken);
         } else {
             logError("No valid access token");
+            Toast.makeText(mContext,"No valid access token", Toast.LENGTH_SHORT).show();
         }
-
         mSearchPager = new SearchSpotify(spotifyApi.getService());
     }
 
@@ -141,7 +139,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                             Song song = new Song(newId,position,playlistId,trackId,spotifyId,
                                     genreId,name,track.duration_ms,tempo,artist,imageUri,previewUrl,
                                     acousticness,danceability,energy,instrumentalness,liveness,
-                                    loudness,popularity,speechiness,valence,date);
+                                    loudness,popularity,speechiness,valence,0,date);
                             songs.add(song);
                         }
 
@@ -154,7 +152,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                     @Override
                     public void onError(Throwable error) {
                         logError(error.getMessage());
-                        mResultPlaylist.showError(error.getMessage());
+                        mResultPlaylist.showError(error);
                     }
                 };
                 mSearchPager.getRecomendationPlaylist(playlist, SIZE, mSearchListener, 0);
@@ -220,7 +218,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                             Song song = new Song(newId,position,playlistId,trackId,spotifyId,
                                     genreId,name,track.duration_ms,tempo,artist,imageUri,previewUrl,
                                     acousticness,danceability,energy,instrumentalness,liveness,
-                                    loudness,popularity,speechiness,valence,date);
+                                    loudness,popularity,speechiness,valence, 0,date);
                             songs.add(song);
                         }
 
@@ -232,7 +230,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                     @Override
                     public void onError(Throwable error) {
                         logError(error.getMessage());
-                        mResultPlaylist.showError(error.getMessage());
+                        mResultPlaylist.showError(error);
                     }
                 };
                 mSearchPager.getRecomendationPlaylist(playlist, SIZE, mSearchListener, 1);
@@ -241,7 +239,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
     }
 
     @Override
-    public void search(String searchQuery) {
+    public void search(String searchQuery, final float mTempoFilter) {
         //if (searchQuery != null && !searchQuery.isEmpty()) {
             logMessage("query text submit " + searchQuery);
             mCurrentQuery = searchQuery;
@@ -262,7 +260,12 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                         String name = track.name;
                         long duration = track.duration_ms;
                         String artist = track.artists.get(0).name;
-                        String imageUri = track.album.images.get(0).url;
+                        String imageUri = "";
+                        if(track.album.images.get(0).url.equals("")){
+                            imageUri = "";
+                        }else{
+                            imageUri = track.album.images.get(0).url;
+                        }
                         String previewUrl = track.preview_url;
                         float acousticness = 0;
                         float danceability = 0;
@@ -294,16 +297,28 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                         Song song = new Song(newId, position, playlistId,trackId,spotifyId,
                                 genreId,name,track.duration_ms,tempo,artist,imageUri,previewUrl,
                                 acousticness,danceability,energy,instrumentalness,liveness,
-                                loudness,popularity,speechiness,valence,date);
+                                loudness,popularity,speechiness,valence,0,date);
                         song_list.add(song);
                     }
-                    mResultPlaylist.addDataToSearchList(song_list);
+
+                    // Antes de añadir, si hay filtro de BPM eliminamos aquellas canciones que no se acerquen al BPM
+                    if(mTempoFilter > 0){
+                        List<Song> temp_song = new ArrayList<Song>();
+                        for (Song item: song_list) {
+                            if(((item.getTempo() > mTempoFilter - 10.0) && (item.getTempo() < mTempoFilter + 10.0))){
+                                temp_song.add(item);
+                            }
+                        }
+                        mResultPlaylist.addDataToSearchList(temp_song);
+                    }else{
+                        mResultPlaylist.addDataToSearchList(song_list);
+                    }
                 }
 
                 @Override
                 public void onError(Throwable error) {
                     logError(error.getMessage());
-                    mResultPlaylist.showError(error.getMessage());
+                    mResultPlaylist.showError(error);
                 }
             };
             mSearchPager.getFirstPage(searchQuery, PAGE_SIZE, mManualSearchListener);
@@ -322,6 +337,11 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
     }
 
     @Override
+    public void exportToSpotify(String owner, AttPlaylist item) {
+        mSearchPager.exportToSpotify(owner, item);
+    }
+
+    @Override
     public void getAvailableGenreSeeds() {
         mGenresListener = new SearchSpotify.GenresListener(){
             @Override
@@ -332,6 +352,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
             @Override
             public void onError(Throwable error) {
                 logError(error.getMessage());
+                mResultPlaylist.showError(error);
             }
         };
         mSearchPager.getGenres(mGenresListener);
@@ -349,13 +370,14 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
             @Override
             public void onError(Throwable error) {
                 logError(error.getMessage());
+                mResultPlaylist.showError(error);
             }
         };
         mSearchPager.getUserDataCall(mUserDataListener);
     }
 
     private void logError(String msg) {
-        Toast.makeText(mContext, "Error: " + msg, Toast.LENGTH_SHORT).show();
+        Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
         Log.e(TAG, msg);
     }
 

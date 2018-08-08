@@ -239,6 +239,6 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
     public void seekToPosition(int progress) {
         long total = getCurrentSong().getDuration();
         long ms = (progress*1000);
-        mSpotifyPlayer.seekToPosition(null, (int) ms);
+        mSpotifyPlayer.seekToPosition(null, Math.abs((int) ms));
     }
 }

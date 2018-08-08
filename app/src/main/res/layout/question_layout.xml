@@ -7,17 +7,17 @@
     android:padding="30dp">
 
     <ImageView
-        android:id="@+id/warning_icon"
+        android:id="@+id/question_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
+        android:layout_margin="10dp"
         android:src="@drawable/ic_warning_orange_36dp"/>
 
     <TextView
-        android:id="@+id/txt_error"
+        android:id="@+id/txt_question"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="20sp"
         android:textStyle="normal"
-        android:layout_toRightOf="@id/warning_icon"/>
+        android:layout_toRightOf="@id/question_icon"/>
 </RelativeLayout>

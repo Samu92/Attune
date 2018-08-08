@@ -64,7 +64,7 @@ public class PlayerService extends Service {
             Log.e(TAG, source + " was null, flags=" + flags + " bits=" + Integer.toBinaryString(flags));
         }else{
             if (intent.getAction().equals(Constants.ACTION.STARTFOREGROUND_ACTION)) {
-                MainActivity.openPanel();
+
             } else if (intent.getAction().equals(Constants.ACTION.PREV_ACTION)) {
                 Log.i(TAG, "Clicked Previous");
                 skipToPreviousSong();
@@ -72,9 +72,25 @@ public class PlayerService extends Service {
                 Log.i(TAG, "Clicked Play");
                 if(mPlayer.isPlaying()){
                     mPlayer.pause();
+                    views.setImageViewResource(R.id.status_bar_play,
+                            R.drawable.ic_play_arrow_white_36dp);
+                    bigViews.setImageViewResource(R.id.status_bar_play,
+                            R.drawable.ic_play_arrow_white_36dp);
                 }else{
                     mPlayer.resume();
+                    views.setImageViewResource(R.id.status_bar_play,
+                            R.drawable.ic_pause_black_36dp);
+                    bigViews.setImageViewResource(R.id.status_bar_play,
+                            R.drawable.ic_pause_black_36dp);
                 }
+
+                status = new Notification.Builder(App.getContext()).build();
+                status.contentView = views;
+                status.bigContentView = bigViews;
+                status.flags = Notification.FLAG_ONGOING_EVENT;
+                status.icon = R.mipmap.ic_launcher;
+                startForeground(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE, status);
+
             } else if (intent.getAction().equals(Constants.ACTION.NEXT_ACTION)) {
                 Log.i(TAG, "Clicked Next");
                 skipToNextSong();
@@ -82,9 +98,10 @@ public class PlayerService extends Service {
                     Constants.ACTION.STOPFOREGROUND_ACTION)) {
                 Log.i(TAG, "Received Stop Foreground Intent");
                 stopForeground(true);
-                stopSelf();
+                mPlayer.pause();
             } else if(intent.getAction().equals(Constants.ACTION.MAIN_ACTION)){
                 mPlayer.createMediaPlayer(intent.getExtras().getString("token"),PlayerService.this);
+                MainActivity.showPlayer();
             }
         }
         return START_STICKY;
@@ -141,9 +158,9 @@ public class PlayerService extends Service {
         bigViews.setOnClickPendingIntent(R.id.status_bar_collapse, pcloseIntent);
 
         views.setImageViewResource(R.id.status_bar_play,
-                R.drawable.apollo_holo_dark_pause);
+                R.drawable.ic_pause_black_36dp);
         bigViews.setImageViewResource(R.id.status_bar_play,
-                R.drawable.apollo_holo_dark_pause);
+                R.drawable.ic_pause_black_36dp);
 
         views.setTextViewText(R.id.status_bar_track_name, item.getName());
         bigViews.setTextViewText(R.id.status_bar_track_name, item.getName());
@@ -185,22 +202,30 @@ public class PlayerService extends Service {
 
 
     public void playSong(Song item){
-        mPlayer.play(item);
-        showNotification(item);
+        if(MainActivity.isAuthorized()){
+            mPlayer.play(item);
+            showNotification(item);
+        }
     }
 
     public void playPlaylist(AttPlaylist item) {
-        mPlayer.setQueue(item);
-        showNotification(getCurrentSong());
+        if(MainActivity.isAuthorized()){
+            mPlayer.setQueue(item);
+            showNotification(getCurrentSong());
+        }
     }
 
     public boolean playPauseState(){
-        if(mPlayer.isPlaying()){
-            mPlayer.pause();
-            return false;
+        if(MainActivity.isAuthorized()) {
+            if (mPlayer.isPlaying()) {
+                mPlayer.pause();
+                return false;
+            } else {
+                mPlayer.resume();
+                return true;
+            }
         }else{
-            mPlayer.resume();
-            return true;
+            return false;
         }
     }
 

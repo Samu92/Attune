@@ -41,6 +41,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
+import com.xw.repo.BubbleSeekBar;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -75,11 +76,11 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
     private static final String KEY_CURRENT_QUERY = "CURRENT_QUERY";
 
     private LinearLayoutManager mLayoutManager;
-    private ScrollListener mScrollListener;
+    private static ScrollListener mScrollListener;
 
     private ManualMode.OnListFragmentInteractionListener mListener;
 
-    private SearchResultsAdapter mAdapter;
+    private static SearchResultsAdapter mAdapter;
 
     private static RecyclerView resultsList;
 
@@ -96,10 +97,11 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
     private int year_start;
     private int year_end;
     private String genre;
+    private float mTempoFilter;
 
-    private TextView empty;
+    private static TextView empty;
 
-    private ProgressBar progressManualBar;
+    private static ProgressBar progressManualBar;
 
     private ListView playlist_list_view;
     private MaterialDialog playlist_list_dialog;
@@ -129,6 +131,12 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
     private ArrayAdapter<String> adapter_playlist_list;
 
     private ArrayAdapter<String> adapter;
+
+    private MaterialDialog offline;
+    private TextView txt_offline;
+
+    private AppCompatCheckBox filter_tempo_check;
+    private BubbleSeekBar filter_tempo;
 
     public ManualMode() {
         // Required empty public constructor
@@ -168,6 +176,10 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
         return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
     }
 
+    public static void stopProgressBar() {
+        progressManualBar.setVisibility(View.GONE);
+    }
+
     private class ScrollListener extends ResultListScrollListener {
 
         public ScrollListener(LinearLayoutManager layoutManager) {
@@ -177,9 +189,20 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
         @Override
         public void onLoadMore() {
             if(isOnline(getContext())){
+                progressManualBar.setVisibility(View.VISIBLE);
+                empty.setVisibility(View.GONE);
                 mActionListener.loadMoreResults();
             }else{
                 Log.e("Connection", getString(R.string.no_connection));
+                offline = new MaterialDialog.Builder(getContext())
+                        .customView(R.layout.error_layout, false)
+                        .cancelable(true)
+                        .positiveText(R.string.agree)
+                        .build();
+
+                txt_offline = offline.getView().findViewById(R.id.txt_error);
+                txt_offline.setText(R.string.txt_no_connection);
+                offline.show();
             }
         }
     }
@@ -270,6 +293,13 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                             genre = "";
                         }
 
+                        if(filter_tempo_check.isChecked()){
+                            mTempoFilter = filter_tempo.getProgress();
+                            filter_array.add(String.valueOf(mTempoFilter));
+                        }else{
+                            mTempoFilter = 0;
+                        }
+
                         filterAdapter.notifyDataSetChanged();
 
                         if(filterAdapter.getItemCount() == 0){
@@ -301,9 +331,17 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                             }
                         }
 
-                        progressManualBar.setVisibility(View.VISIBLE);
-                        empty.setVisibility(View.GONE);
-                        mActionListener.search(query);
+                        if(!((year_start != year_end) && !query.equals(""))){
+                            progressManualBar.setVisibility(View.VISIBLE);
+                            empty.setVisibility(View.GONE);
+                            mActionListener.search(query,mTempoFilter);
+                        }else{
+                            if(!genre.equals("")){
+                                progressManualBar.setVisibility(View.VISIBLE);
+                                empty.setVisibility(View.GONE);
+                                mActionListener.search(query,mTempoFilter);
+                            }
+                        }
                     }
                 })
                 .negativeText(R.string.disagree)
@@ -336,7 +374,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
             }
         });
 
-        LinearLayoutManager filter_manager = new LinearLayoutManager(getContext());
+        final LinearLayoutManager filter_manager = new LinearLayoutManager(getContext());
         filter_manager.setOrientation(LinearLayoutManager.HORIZONTAL);
         filter_list.setLayoutManager(filter_manager);
 
@@ -375,14 +413,34 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                         }
                     }
 
-                    progressManualBar.setVisibility(View.VISIBLE);
-                    empty.setVisibility(View.GONE);
-                    mActionListener.search(query);
-                    searchView.clearFocus();
+                    if(!((year_start != year_end) && !query.equals(""))){
+                        progressManualBar.setVisibility(View.VISIBLE);
+                        empty.setVisibility(View.GONE);
+                        mActionListener.search(query, mTempoFilter);
+                        searchView.clearFocus();
+                        return true;
+                    }else{
+                        if(!genre.equals("")){
+                            progressManualBar.setVisibility(View.VISIBLE);
+                            empty.setVisibility(View.GONE);
+                            mActionListener.search(query,mTempoFilter);
+                            return true;
+                        }else{
+                            return false;
+                        }
+                    }
 
-                    return true;
                 }else{
                     Log.e("Connection", getString(R.string.no_connection));
+                    offline = new MaterialDialog.Builder(getContext())
+                            .customView(R.layout.error_layout, false)
+                            .cancelable(true)
+                            .positiveText(R.string.agree)
+                            .build();
+
+                    txt_offline = offline.getView().findViewById(R.id.txt_error);
+                    txt_offline.setText(R.string.txt_no_connection);
+                    offline.show();
                     return false;
                 }
             }
@@ -409,15 +467,36 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                             }
                         }
 
-                        progressManualBar.setVisibility(View.VISIBLE);
-                        empty.setVisibility(View.GONE);
-                        mActionListener.search(query);
-                        return true;
+
+                        if(!((year_start != year_end) && !query.equals(""))){
+                            progressManualBar.setVisibility(View.VISIBLE);
+                            empty.setVisibility(View.GONE);
+                            mActionListener.search(query, mTempoFilter);
+                            return true;
+                        }else{
+                            if(!genre.equals("")){
+                                progressManualBar.setVisibility(View.VISIBLE);
+                                empty.setVisibility(View.GONE);
+                                mActionListener.search(query,mTempoFilter);
+                                return true;
+                            }else{
+                                return false;
+                            }
+                        }
                     }else{
                         return false;
                     }
                 }else{
                     Log.e("Connection", getString(R.string.no_connection));
+                    offline = new MaterialDialog.Builder(getContext())
+                            .customView(R.layout.error_layout, false)
+                            .cancelable(true)
+                            .positiveText(R.string.agree)
+                            .build();
+
+                    txt_offline = offline.getView().findViewById(R.id.txt_error);
+                    txt_offline.setText(R.string.txt_no_connection);
+                    offline.show();
                     return false;
                 }
             }
@@ -447,7 +526,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                                     if (null != mListener) {
                                         // Notify the active callbacks interface (the activity, if the
                                         // fragment is attached to one) that an item has been selected.
-                                        mListener.onListFragmentInteraction(item);
+                                        mListener.onListFragmentInteraction(item,true);
                                     }
                                 }else if(which == 1){
                                     selected_song = item;
@@ -486,6 +565,22 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                 }else{
                     editText_start.setEnabled(false);
                     editText_end.setEnabled(false);
+                }
+            }
+        });
+
+        filter_tempo = material.getCustomView().findViewById(R.id.filter_bmp_seekbar);
+        filter_tempo.setEnabled(false);
+
+        filter_tempo_check  = material.getCustomView().findViewById(R.id.check_filter_tempo);
+        filter_tempo_check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    filter_tempo.setEnabled(true);
+                }else{
+                    filter_tempo.setEnabled(false);
+                    filter_tempo.setProgress(20);
                 }
             }
         });
@@ -643,7 +738,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
         String currentQuery = mActionListener.getRecordedQuery(KEY_CURRENT_QUERY);
         if(currentQuery != null){
             if(!currentQuery.equals("")){
-                mActionListener.search(currentQuery);
+                mActionListener.search(currentQuery, mTempoFilter);
                 searchView.clearFocus();
             }
         }
@@ -671,7 +766,11 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
         }
     }
 
-    private void reset() {
+    public static void stopSearch() {
+        reset();
+    }
+
+    private static void reset() {
         mScrollListener.reset();
         mAdapter.clearData();
 
@@ -686,7 +785,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
 
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(Song item);
+        void onListFragmentInteraction(Song item, boolean b);
     }
 
     public static void setMarginBottomList(int mode){

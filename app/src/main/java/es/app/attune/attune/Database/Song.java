@@ -73,17 +73,19 @@ public class Song {
 
     @NotNull
     private float valence;
+
+    private int effect_type;
     
     private String date;
 
-    @Generated(hash = 273668774)
+    @Generated(hash = 194587268)
     public Song(@NotNull String id, int position, @NotNull String idPlaylist,
             @NotNull String idSpotify, @NotNull String urlSpotify,
             @NotNull String genreId, @NotNull String name, long duration,
             float tempo, @NotNull String artist, @NotNull String image,
             String previewUrl, float acousticness, float danceability, float energy,
             float instrumentalness, float liveness, float loudness, int popularity,
-            float speechiness, float valence, String date) {
+            float speechiness, float valence, int effect_type, String date) {
         this.id = id;
         this.position = position;
         this.idPlaylist = idPlaylist;
@@ -105,6 +107,7 @@ public class Song {
         this.popularity = popularity;
         this.speechiness = speechiness;
         this.valence = valence;
+        this.effect_type = effect_type;
         this.date = date;
     }
 
@@ -280,6 +283,14 @@ public class Song {
         this.valence = valence;
     }
 
+    public int getEffect_type() {
+        return this.effect_type;
+    }
+
+    public void setEffect_type(int effect_type) {
+        this.effect_type = effect_type;
+    }
+
     public String getDate() {
         return this.date;
     }
@@ -287,7 +298,5 @@ public class Song {
     public void setDate(String date) {
         this.date = date;
     }
-
-  
-  
+    
 }

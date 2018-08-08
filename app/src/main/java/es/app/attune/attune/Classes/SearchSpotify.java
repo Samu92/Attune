@@ -1,17 +1,22 @@
 package es.app.attune.attune.Classes;
 
+import android.util.Log;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import es.app.attune.attune.Activity.MainActivity;
 import es.app.attune.attune.Database.AttPlaylist;
+import es.app.attune.attune.Database.Song;
 import es.app.attune.attune.Fragments.AdvancedParameters;
 import es.app.attune.attune.Fragments.NewPlayList;
 import kaaes.spotify.webapi.android.SpotifyCallback;
@@ -21,6 +26,9 @@ import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.Albums;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTracks;
+import kaaes.spotify.webapi.android.models.Pager;
+import kaaes.spotify.webapi.android.models.Playlist;
+import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import kaaes.spotify.webapi.android.models.Recommendations;
 import kaaes.spotify.webapi.android.models.SeedsGenres;
 import kaaes.spotify.webapi.android.models.Track;
@@ -387,6 +395,42 @@ public class SearchSpotify {
             }
             listener.onComplete(result_finish,features,dates_temp);
         }
+    }
+
+    public void exportToSpotify(final String owner, final AttPlaylist item) {
+        Map<String, Object> options = new HashMap<>();
+        options.put("name",item.getName());
+        options.put("public", false);
+        mSpotifyApi.createPlaylist(owner, options, new Callback<Playlist>() {
+            @Override
+            public void success(Playlist playlist, Response response) {
+                List<Song> songs = item.getSongs();
+                String songs_temp = "";
+                for (Song it: songs) {
+                    songs_temp += "spotify:track:" + it.getIdSpotify() + ",";
+                }
+                Map<String, Object> options1 = new HashMap<>();
+                options1.put("uris",songs_temp);
+                Map<String, Object> options2 = new HashMap<>();
+                options2.put("uris",songs_temp);
+                mSpotifyApi.addTracksToPlaylist(owner, playlist.id, options1, options2, new Callback<Pager<PlaylistTrack>>() {
+                    @Override
+                    public void success(Pager<PlaylistTrack> playlistTrackPager, Response response) {
+                        MainActivity.createPlaylistSuccess();
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        Log.e("Export", error.getResponse().toString());
+                    }
+                });
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.e("Export", error.getResponse().toString());
+            }
+        });
     }
 
     private void getManualModeDates(final List<Track> tracks, final AudioFeaturesTracks features, final ManualSearchListener listener){

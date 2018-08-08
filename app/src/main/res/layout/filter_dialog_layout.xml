@@ -52,6 +52,7 @@
         android:layout_alignBaseline="@id/txt_filter_start_date"
         android:layout_marginLeft="2dp"
         android:layout_marginRight="2dp"
+        android:layout_marginBottom="15dp"
         android:text="-"/>
 
     <com.santalu.maskedittext.MaskEditText
@@ -64,4 +65,41 @@
         android:layout_toRightOf="@id/txt_filter_separator"
         android:enabled="false"
         app:met_mask="####"/>
+
+    <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/check_filter_tempo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/txt_filter_separator"
+        android:layout_alignBaseline="@id/txt_filter_tempo"/>
+
+    <TextView
+        android:id="@+id/txt_filter_tempo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/txt_filter_separator"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="15dp"
+        android:layout_toEndOf="@id/check_filter_tempo"
+        android:text="@string/tempo" />
+
+    <com.xw.repo.BubbleSeekBar
+        android:id="@+id/filter_bmp_seekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/txt_filter_tempo"
+        android:layout_marginBottom="15dp"
+        app:bsb_track_color="@color/gray"
+        app:bsb_section_text_color="@color/colorPrimary"
+        app:bsb_second_track_color="@color/color_blue"
+        app:bsb_section_count="5"
+        app:bsb_section_text_position="below_section_mark"
+        app:bsb_show_section_mark="true"
+        app:bsb_show_section_text="true"
+        app:bsb_show_thumb_text="true"
+        app:bsb_thumb_text_size="18sp"
+        app:bsb_touch_to_seek="true"
+        app:bsb_min="20"
+        app:bsb_max="200"
+        app:bsb_progress="1"/>
 </RelativeLayout>

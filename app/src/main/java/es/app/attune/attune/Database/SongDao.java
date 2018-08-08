@@ -46,7 +46,8 @@ public class SongDao extends AbstractDao<Song, String> {
         public final static Property Popularity = new Property(18, int.class, "popularity", false, "POPULARITY");
         public final static Property Speechiness = new Property(19, float.class, "speechiness", false, "SPEECHINESS");
         public final static Property Valence = new Property(20, float.class, "valence", false, "VALENCE");
-        public final static Property Date = new Property(21, String.class, "date", false, "DATE");
+        public final static Property Effect_type = new Property(21, int.class, "effect_type", false, "EFFECT_TYPE");
+        public final static Property Date = new Property(22, String.class, "date", false, "DATE");
     }
 
     private Query<Song> attPlaylist_SongsQuery;
@@ -84,7 +85,8 @@ public class SongDao extends AbstractDao<Song, String> {
                 "\"POPULARITY\" INTEGER NOT NULL ," + // 18: popularity
                 "\"SPEECHINESS\" REAL NOT NULL ," + // 19: speechiness
                 "\"VALENCE\" REAL NOT NULL ," + // 20: valence
-                "\"DATE\" TEXT);"); // 21: date
+                "\"EFFECT_TYPE\" INTEGER NOT NULL ," + // 21: effect_type
+                "\"DATE\" TEXT);"); // 22: date
         // Add Indexes
         db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_SONG_ID ON \"SONG\"" +
                 " (\"ID\" ASC);");
@@ -124,10 +126,11 @@ public class SongDao extends AbstractDao<Song, String> {
         stmt.bindLong(19, entity.getPopularity());
         stmt.bindDouble(20, entity.getSpeechiness());
         stmt.bindDouble(21, entity.getValence());
+        stmt.bindLong(22, entity.getEffect_type());
  
         String date = entity.getDate();
         if (date != null) {
-            stmt.bindString(22, date);
+            stmt.bindString(23, date);
         }
     }
 
@@ -159,10 +162,11 @@ public class SongDao extends AbstractDao<Song, String> {
         stmt.bindLong(19, entity.getPopularity());
         stmt.bindDouble(20, entity.getSpeechiness());
         stmt.bindDouble(21, entity.getValence());
+        stmt.bindLong(22, entity.getEffect_type());
  
         String date = entity.getDate();
         if (date != null) {
-            stmt.bindString(22, date);
+            stmt.bindString(23, date);
         }
     }
 
@@ -195,7 +199,8 @@ public class SongDao extends AbstractDao<Song, String> {
             cursor.getInt(offset + 18), // popularity
             cursor.getFloat(offset + 19), // speechiness
             cursor.getFloat(offset + 20), // valence
-            cursor.isNull(offset + 21) ? null : cursor.getString(offset + 21) // date
+            cursor.getInt(offset + 21), // effect_type
+            cursor.isNull(offset + 22) ? null : cursor.getString(offset + 22) // date
         );
         return entity;
     }
@@ -223,7 +228,8 @@ public class SongDao extends AbstractDao<Song, String> {
         entity.setPopularity(cursor.getInt(offset + 18));
         entity.setSpeechiness(cursor.getFloat(offset + 19));
         entity.setValence(cursor.getFloat(offset + 20));
-        entity.setDate(cursor.isNull(offset + 21) ? null : cursor.getString(offset + 21));
+        entity.setEffect_type(cursor.getInt(offset + 21));
+        entity.setDate(cursor.isNull(offset + 22) ? null : cursor.getString(offset + 22));
      }
     
     @Override

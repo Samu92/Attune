@@ -147,14 +147,16 @@ public class DatabaseFunctions {
     }
 
     private String getPlaylistIdByName(String playlist) {
+        String currentUser = getCurrentUser();
         QueryBuilder<AttPlaylist> q = attplaylistDao.queryBuilder();
-        q.where(AttPlaylistDao.Properties.Name.like(playlist)).limit(1);
+        q.where(AttPlaylistDao.Properties.Name.like(playlist),AttPlaylistDao.Properties.UserId.eq(currentUser)).limit(1);
         return q.list().get(0).getId();
     }
 
     public boolean playlistNameExists(String text) {
+        String currentUser = getCurrentUser();
         QueryBuilder<AttPlaylist> q = attplaylistDao.queryBuilder();
-        q.where(AttPlaylistDao.Properties.Name.like(text.toString()));
+        q.where(AttPlaylistDao.Properties.Name.like(text.toString()),AttPlaylistDao.Properties.UserId.eq(currentUser));
         List<AttPlaylist> playlists = q.list();
         return playlists.size() > 0;
     }
@@ -243,6 +245,12 @@ public class DatabaseFunctions {
             return q.list().get(0).getName();
         }else{
             return "";
+        }
+    }
+
+    public void updateSongEffect(Song item) {
+        if(item != null){
+            songDao.updateInTx(item);
         }
     }
 }

@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -33,9 +34,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -52,6 +51,8 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import es.app.attune.attune.AttunePlayer.PlayerService;
+import es.app.attune.attune.Fragments.SongListRecyclerViewAdapter;
+import es.app.attune.attune.Services.RenewService;
 import es.app.attune.attune.Classes.App;
 import es.app.attune.attune.Classes.Constants;
 import es.app.attune.attune.Classes.DatabaseFunctions;
@@ -66,8 +67,9 @@ import es.app.attune.attune.Fragments.NewPlayList;
 import es.app.attune.attune.Fragments.PlayListFragment;
 import es.app.attune.attune.Fragments.SongsListFragment;
 import es.app.attune.attune.R;
-import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.UserPrivate;
+
+import static es.app.attune.attune.Classes.App.getContext;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -92,10 +94,12 @@ public class MainActivity extends AppCompatActivity
     //GreenDao
     private DaoSession daoSession;
     private static DatabaseFunctions db;
-    private SearchInterfaces.ActionListener mActionListener;
+    private static SearchInterfaces.ActionListener mActionListener;
 
-    PlayerService mService;
+    static PlayerService mService;
+    static RenewService mRenewService;
     boolean mBound = false;
+    boolean mRenewBound = false;
 
     private String token;
 
@@ -104,6 +108,7 @@ public class MainActivity extends AppCompatActivity
     CircleImageView navImageView;
 
     private ImageView image;
+    private TextView txt_edit_playlist;
 
     private MaterialDialog edit_playlist_dialog;
 
@@ -128,6 +133,30 @@ public class MainActivity extends AppCompatActivity
     private MaterialDialog progress;
 
     private ScheduledExecutorService scheduler;
+
+    private static UserPrivate mPrivateUser;
+
+    private static MaterialDialog result;
+    private static TextView txt_result;
+
+    private static TextView numeric_progress;
+    private static TextView numeric_total_progress;
+
+    private static TextView numeric_progress_short;
+    private static TextView numeric_total_progress_short;
+
+    private Handler handler;
+    private Handler refreshHandler;
+
+    private static MaterialDialog error;
+    private static TextView txt_error;
+
+    private int expiration_time;
+
+    private AudioManager audio;
+
+    private MaterialDialog offline;
+    private TextView txt_offline;
 
     public static Intent createIntent(Context context) {
         return new Intent(context, MainActivity.class);
@@ -155,6 +184,13 @@ public class MainActivity extends AppCompatActivity
 
         mActionListener = new SearchFunctions(this, this, this, this, this);
         mActionListener.init(token);
+
+        result = new MaterialDialog.Builder(this)
+                .customView(R.layout.finish_notification, false)
+                .cancelable(true)
+                .positiveText(R.string.agree)
+                .build();
+        txt_result = result.getView().findViewById(R.id.txt_done);
 
         progress = new MaterialDialog.Builder(this)
                 .customView(R.layout.loading_layout, false)
@@ -191,7 +227,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         edit_playlist_dialog = new MaterialDialog.Builder(MainActivity.this)
-                .title("Nueva playlist")
+                .title("Edición de playlist")
                 .customView(R.layout.new_playlist_short, false)
                 .positiveText(R.string.agree)
                 .negativeText(R.string.disagree)
@@ -227,6 +263,7 @@ public class MainActivity extends AppCompatActivity
         edit_playlist_dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
+                edit_playlist_dialog.setTitle(selected_playlist.getName());
                 Glide.with(MainActivity.this)
                         .load(selected_playlist.getImage())
                         .into(image);
@@ -234,6 +271,8 @@ public class MainActivity extends AppCompatActivity
         });
 
         image = edit_playlist_dialog.getView().findViewById(R.id.image_new_manual_playlist);
+        txt_edit_playlist = edit_playlist_dialog.getView().findViewById(R.id.new_playlist_name);
+
         Glide.with(MainActivity.this)
                 .load(R.drawable.baseline_add_photo_alternate_white_48)
                 .into(image);
@@ -337,9 +376,9 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 if(mService != null){
                     if(mService.playPauseState()){
-                        play_pause_button_expand.setImageResource(R.drawable.ic_pause_blue_36dp);
+                        play_pause_button_expand.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp);
                     }else{
-                        play_pause_button_expand.setImageResource(R.drawable.ic_play_arrow_blue_36dp);
+                        play_pause_button_expand.setImageResource(R.drawable.ic_play_circle_outline_white_48dp);
                     }
                 }
             }
@@ -350,7 +389,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 if(mService != null){
-                    openPanel();
+                    playerUI.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
                 }
             }
         });
@@ -381,8 +420,15 @@ public class MainActivity extends AppCompatActivity
         song_playlist_name = (TextView) findViewById(R.id.song_playlist_player);
         song_title = (TextView) findViewById(R.id.song_title_player);
         song_artist = (TextView) findViewById(R.id.song_artist_player);
+        numeric_progress = (TextView) findViewById(R.id.numeric_progress);
+        numeric_total_progress = (TextView) findViewById(R.id.total_progress);
+        numeric_progress_short = (TextView) findViewById(R.id.numeric_progress_short);
+        numeric_total_progress_short = (TextView) findViewById(R.id.total_progress_short);
 
-        final Handler handler = new Handler();
+        numeric_progress_short.setText(String.format("%02d",0) + ":" + String.format("%02d",0));
+        numeric_total_progress_short.setText(String.format("%02d",0) + ":" + String.format("%02d",0));
+
+        handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -399,13 +445,50 @@ public class MainActivity extends AppCompatActivity
         }, 1000);
 
         disableSlidingPanel();
+
+        error = new MaterialDialog.Builder(this)
+                .customView(R.layout.error_layout, false)
+                .cancelable(true)
+                .positiveText(R.string.agree)
+                .build();
+        txt_error = error.getView().findViewById(R.id.txt_error);
+
+        offline = new MaterialDialog.Builder(this)
+                .customView(R.layout.error_layout, false)
+                .cancelable(true)
+                .positiveText(R.string.agree)
+                .build();
+        txt_offline = offline.getView().findViewById(R.id.txt_error);
+
+        audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+
+        playerUI.setTouchEnabled(false);
     }
 
+    /*@Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        super.onKeyDown(keyCode,event);
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_VOLUME_UP:
+                //audio.setStreamVolume(AudioManager.STREAM_MUSIC,5,0);
+                return true;
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                //audio.setStreamVolume(AudioManager.STREAM_MUSIC,0,0);
+                return true;
+            default:
+                return false;
+        }
+    }*/
+
     private void initialize() {
-        getSupportFragmentManager().beginTransaction()
-                .addToBackStack(playListFragment.getClass().getName())
-                .replace(R.id.fragmentView, playListFragment, playListFragment.getClass().getName())
-                .commit();
+        new Handler().post(new Runnable() {
+            public void run() {
+                getSupportFragmentManager().beginTransaction()
+                        .addToBackStack(playListFragment.getClass().getName())
+                        .replace(R.id.fragmentView, playListFragment, playListFragment.getClass().getName())
+                        .commit();
+            }
+        });
     }
 
     public static boolean isOnline(Context context) {
@@ -474,19 +557,14 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -496,6 +574,7 @@ public class MainActivity extends AppCompatActivity
             Intent intent = LoginActivity.createIntent(this);
             intent.putExtra("logout",true);
             startActivity(intent);
+            mService.playPauseState();
             finish();
         }
 
@@ -505,7 +584,6 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_create_playlist){
@@ -537,7 +615,16 @@ public class MainActivity extends AppCompatActivity
                     .replace(R.id.fragmentView, playListFragment, playListFragment.getClass().getName())
                     .commit();
         } else if (id == R.id.nav_share) {
-
+            String share_text = getString(R.string.share_text);
+            Intent whatsappIntent = new Intent(Intent.ACTION_SEND);
+            whatsappIntent.setType("text/plain");
+            whatsappIntent.setPackage("com.whatsapp");
+            whatsappIntent.putExtra(Intent.EXTRA_TEXT, share_text);
+            try {
+                this.startActivity(whatsappIntent);
+            } catch (android.content.ActivityNotFoundException ex) {
+                Log.e("Share", "Whatsapp have not been installed.");
+            }
         }else{
             item.setChecked(false);
         }
@@ -572,6 +659,9 @@ public class MainActivity extends AppCompatActivity
         // Bind to LocalService
         Intent intent = new Intent(this, PlayerService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+
+        Intent renewService = new Intent(this, RenewService.class);
+        bindService(renewService, mRenewConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -596,15 +686,26 @@ public class MainActivity extends AppCompatActivity
             mBound = true;
             if(mService.getCurrentSong() != null){
                 notifyPlayer(mService.getCurrentSong());
-                if(mService.isPlaying()){
-                    openPanel();
-                }
             }
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             mBound = false;
+        }
+    };
+
+    private ServiceConnection mRenewConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            RenewService.RenewBinder binder = (RenewService.RenewBinder) service;
+            mRenewService = binder.getService();
+            mRenewBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            mRenewBound = false;
         }
     };
 
@@ -615,47 +716,83 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onListFragmentInteraction(final AttPlaylist item, boolean reproducir) {
-            // Hemos recibido un click en una de las playlist
-            songsListFragment = SongsListFragment.newInstance(db, item.getId());
-            // Mostramos la lista de canciones
-            if (!songsListFragment.isVisible()) {
+        songsListFragment = SongsListFragment.newInstance(db,item.getId());
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle(R.string.select_playlist_option)
+                .setItems(R.array.playlist_options, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == 0) {
+                            if(isOnline(getApplicationContext())){
+                                // Reproducción
+                                mService.playPlaylist(item);
+                            }else{
+                                Log.e("Connection",getString(R.string.no_connection));
+                            }
+                        } else if (which == 1) {
+                            // Si el fragmento no está visible lo mostramos
+                            getSupportFragmentManager().beginTransaction()
+                                    .addToBackStack(songsListFragment.getClass().getName())
+                                    .replace(R.id.fragmentView, songsListFragment, songsListFragment.getClass().getName())
+                                    .commit();
+                        } else if (which == 2) {
+                            // Editamos la playlist
+                            selected_playlist = item;
+                            edit_playlist_dialog.show();
+                        } else if (which == 3){
+                            // Exportamos la playlist a Spotify
+                            selected_playlist = item;
+                            mActionListener.exportToSpotify(mPrivateUser.id,item);
+                        }
+                    }
+                });
+        builder.show();
+    }
+
+    @Override
+    public void onListFragmentInteraction(final Song item, boolean manual) {
+        if(!manual){
+            if(isOnline(getApplicationContext())){
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle(R.string.select_playlist_option)
-                        .setItems(R.array.playlist_options, new DialogInterface.OnClickListener() {
+                builder.setTitle(R.string.select_song_option)
+                        .setItems(R.array.song_options, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 if (which == 0) {
-                                    if(isOnline(getApplicationContext())){
-                                        // Reproducción
-                                        mService.playPlaylist(item);
-                                    }else{
-                                        Log.e("Connection",getString(R.string.no_connection));
-                                    }
+                                    // Reproducir
+                                    mService.playSong(item);
                                 } else if (which == 1) {
-                                    // Si el fragmento no está visible lo mostramos
-                                    getSupportFragmentManager().beginTransaction()
-                                            .addToBackStack(songsListFragment.getClass().getName())
-                                            .replace(R.id.fragmentView, songsListFragment, songsListFragment.getClass().getName())
-                                            .commit();
-                                } else if (which == 2) {
-                                    // Editamos la playlist
-                                    selected_playlist = item;
-                                    edit_playlist_dialog.show();
+                                    // Asignar efecto
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                                    builder.setTitle(R.string.select_effect_option)
+                                            .setItems(R.array.effect_options, new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    if (which == 0) {
+                                                        // Fade
+                                                        item.setEffect_type(0);
+                                                        db.updateSongEffect(item);
+                                                    } else if (which == 1) {
+                                                        // Solapamiento
+                                                        item.setEffect_type(1);
+                                                        db.updateSongEffect(item);
+                                                    }
+                                                }
+                                            });
+                                    builder.show();
                                 }
                             }
                         });
                 builder.show();
+            }else{
+                Log.e("Connection",getString(R.string.no_connection));
+                txt_offline.setText(R.string.txt_no_connection);
+                offline.show();
             }
-    }
-
-    @Override
-    public void onListFragmentInteraction(Song item) {
-        if(isOnline(getApplicationContext())){
-            mService.playSong(item);
         }else{
-            Log.e("Connection",getString(R.string.no_connection));
+            if(mService != null){
+                mService.playSong(item);
+            }
         }
     }
-
 
     @Override
     public void reset() {
@@ -680,17 +817,24 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void showError(String message) {
-
+    public void showError(Throwable message) {
+        if(message.getMessage().equals("401 Unauthorized")){
+            mRenewService.renewToken();
+        }else{
+            txt_error.setText(message.getMessage());
+            error.show();
+        }
     }
 
     @Override
     public void addDataToSearchList(List<Song> items) {
         manualMode.setAdapter(items);
+        ManualMode.stopProgressBar();
     }
 
     @Override
     public void setUserData(UserPrivate user) {
+        mPrivateUser = user;
         progress.dismiss();
         if(user.product.equals("premium")){
             navUserName.setText(user.display_name);
@@ -715,16 +859,16 @@ public class MainActivity extends AppCompatActivity
 
     public static void pause(){
         play_pause_button.setImageResource(R.drawable.ic_play_arrow_blue_36dp);
-        play_pause_button_expand.setImageResource(R.drawable.ic_play_arrow_white_36dp);
+        play_pause_button_expand.setImageResource(R.drawable.ic_play_circle_outline_white_48dp);
     }
 
     public static void play(){
         play_pause_button.setImageResource(R.drawable.ic_pause_blue_36dp);
-        play_pause_button_expand.setImageResource(R.drawable.ic_pause_black_36dp);
+        play_pause_button_expand.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp);
     }
 
     public static void notifyPlayer(Song currentSong){
-        Glide.with(App.getContext())
+        Glide.with(getContext())
                 .load(currentSong.getImage())
                 .apply(RequestOptions.noAnimation())
                 .into(song_cover_image);
@@ -732,13 +876,6 @@ public class MainActivity extends AppCompatActivity
         song_playlist_name.setText(name);
         song_title.setText(currentSong.getName());
         song_artist.setText(currentSong.getArtist());
-    }
-
-    public static void openPanel(){
-        if(!(playerUI.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED)){
-            playerControlsShort.setVisibility(View.GONE);
-            playerUI.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
-        }
     }
 
     public static void closePanel(){
@@ -764,6 +901,18 @@ public class MainActivity extends AppCompatActivity
         if(positionMs != 0){
             Log.i("CURRENT POSITION", "TOTAL: " + String.valueOf(mCurrentSong.getDuration()/1000) + " - CURRENT:" +  String.valueOf(positionMs/1000));
             song_cover.setProgress(positionMs/1000);
+
+            long minutes = (positionMs / 1000) / 60;
+            long seconds = (positionMs / 1000) % 60;
+            numeric_progress.setText(String.format("%02d",minutes) + ":" + String.format("%02d",seconds));
+
+            long minutes_total = (mCurrentSong.getDuration() / 1000) / 60;
+            long seconds_total = (mCurrentSong.getDuration() / 1000) % 60;
+            numeric_total_progress.setText(String.format("%02d",minutes_total) + ":" + String.format("%02d",seconds_total));
+
+
+            numeric_progress_short.setText(String.format("%02d",minutes) + ":" + String.format("%02d",seconds));
+            numeric_total_progress_short.setText(String.format("%02d",minutes_total) + ":" + String.format("%02d",seconds_total));
         }
     }
 
@@ -777,5 +926,32 @@ public class MainActivity extends AppCompatActivity
         }else{
             return true;
         }
+    }
+
+    public static void showPlayer() {
+        if(mService != null){
+            if(mService.isPlaying()){
+                playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            }
+        }
+    }
+
+    public static void createPlaylistSuccess() {
+        txt_result.setText(R.string.playlist_exported);
+        result.show();
+    }
+
+    public static boolean isAuthorized() {
+        if(mPrivateUser.product.equals("premium")){
+            return true;
+        }else{
+            txt_error.setText(R.string.premium_needed);
+            error.show();
+            return false;
+        }
+    }
+
+    public static void initToken(String newToken) {
+        mActionListener.init(newToken);
     }
 }

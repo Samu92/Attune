@@ -9,17 +9,27 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.gson.Gson;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 import java.util.concurrent.TimeUnit;
 
+import es.app.attune.attune.Services.SwapService;
+import es.app.attune.attune.Classes.App;
 import es.app.attune.attune.Classes.Constants;
 import es.app.attune.attune.Classes.CredentialsHandler;
+import es.app.attune.attune.Classes.SwapResponse;
 import es.app.attune.attune.R;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -34,6 +44,9 @@ public class LoginActivity extends AppCompatActivity {
 
     private static ConnectivityManager manager;
 
+    private MaterialDialog offline;
+    private TextView txt_offline;
+
     private static final String[] scopes = new String[]{"user-read-private","user-read-email","playlist-read","streaming","user-read-playback-state","user-read-currently-playing",
             "user-modify-playback-state","user-library-read","playlist-read-private",
             "user-library-modify","playlist-modify-public","playlist-modify-private"};
@@ -46,19 +59,30 @@ public class LoginActivity extends AppCompatActivity {
             Intent intent = getIntent();
             boolean logout =  intent.getBooleanExtra("logout", false);
 
+            // Obtenemos el token actual
             String token = CredentialsHandler.getToken(this);
+
             if (token == null) {
                 setContentView(R.layout.activity_login);
             } else {
                 if(!logout){
                     startMainActivity(token);
                 }else{
+                    CredentialsHandler.setToken(this,"",1, TimeUnit.SECONDS, "", null);
                     setContentView(R.layout.activity_login);
-                    CredentialsHandler.setToken(this,"",1, TimeUnit.SECONDS);
                 }
             }
         }else{
             setContentView(R.layout.activity_login);
+            offline = new MaterialDialog.Builder(this)
+                    .customView(R.layout.error_layout, false)
+                    .cancelable(true)
+                    .positiveText(R.string.agree)
+                    .build();
+
+            txt_offline = offline.getView().findViewById(R.id.txt_error);
+            txt_offline.setText(R.string.txt_no_connection);
+            offline.show();
         }
     }
 
@@ -75,12 +99,14 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onLoginButtonClicked(View view) {
         if(isOnline(this)){
-            final AuthenticationRequest request = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI)
+            final AuthenticationRequest request = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.CODE, REDIRECT_URI)
                     .setShowDialog(true)
                     .setScopes(scopes)
                     .build();
 
             AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+        }else{
+            offline.show();
         }
     }
 
@@ -95,8 +121,37 @@ public class LoginActivity extends AppCompatActivity {
                 // Response was successful and contains auth token
                 case TOKEN:
                     logMessage("Got token: " + response.getAccessToken());
-                    CredentialsHandler.setToken(this, response.getAccessToken(), response.getExpiresIn(), TimeUnit.SECONDS);
+                    CredentialsHandler.setToken(this, response.getAccessToken(), response.getExpiresIn(), TimeUnit.SECONDS, "", null);
                     startMainActivity(response.getAccessToken());
+                    break;
+
+                case CODE:
+                    logMessage("Got code: " + response.getCode());
+                    final String code = response.getCode();
+
+                    Retrofit retrofit = new Retrofit.Builder()
+                            .addConverterFactory(ScalarsConverterFactory.create())
+                            .baseUrl("https://attuneswap.herokuapp.com/")
+                            .build();
+
+                    final SwapService service = retrofit.create(SwapService.class);
+                    Call<String> call = service.getToken(code);
+                    call.enqueue(new Callback<String>() {
+                        @Override
+                        public void onResponse(Call<String> call, Response<String> response) {
+                            if (response.isSuccessful()) {
+                                String responseString = response.body();
+                                SwapResponse gson = new Gson().fromJson(responseString, SwapResponse.class);
+                                CredentialsHandler.setToken(App.getContext(),gson.getAccess_token(),Integer.valueOf(gson.getExpires_in()),TimeUnit.SECONDS, gson.getRefresh_token(), code);
+                                startMainActivity(gson.getAccess_token());
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<String> call, Throwable t) {
+                            Log.e("ERROR","ERROR");
+                        }
+                    });
                     break;
 
                 // Auth flow returned an error
@@ -126,12 +181,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void logError(String msg) {
-        Toast.makeText(this, "Error: " + msg, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Error: " + msg, Toast.LENGTH_SHORT).show();
         Log.e(TAG, msg);
     }
 
     private void logMessage(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
         Log.d(TAG, msg);
     }
 }

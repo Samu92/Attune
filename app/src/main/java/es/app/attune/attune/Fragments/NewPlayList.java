@@ -78,6 +78,8 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     private TextView txt_loading;
     private TextView txt_error;
     private MaterialDialog playlist_list_dialog;
+    private MaterialDialog offline;
+    private TextView txt_offline;
 
     private ArrayAdapter<String> adapter_playlist_list;
 
@@ -470,6 +472,15 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
                     builder.show();
                 }else{
                     Log.e("Connection",getString(R.string.no_connection));
+                    offline = new MaterialDialog.Builder(getContext())
+                            .customView(R.layout.error_layout, false)
+                            .cancelable(true)
+                            .positiveText(R.string.agree)
+                            .build();
+
+                    txt_offline = offline.getView().findViewById(R.id.txt_error);
+                    txt_offline.setText(R.string.txt_no_connection);
+                    offline.show();
                 }
             }
         });
