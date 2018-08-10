@@ -250,6 +250,14 @@ public class PlayerService extends Service {
         }
     }
 
+    public boolean getRepetitionState() {
+        return mPlayer.getRepetition();
+    }
+
+    public void setRepetitionState(boolean state){
+        mPlayer.setRepetitionState(state);
+    }
+
     public long getTrackPosition() {
         return mPlayer.getPositionTrack();
     }

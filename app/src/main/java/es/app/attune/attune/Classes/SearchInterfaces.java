@@ -34,6 +34,8 @@ public class SearchInterfaces {
 
     public interface ResultUserData{
         void setUserData(UserPrivate user);
+
+        void setUserData();
     }
 
     public interface ActionListener {

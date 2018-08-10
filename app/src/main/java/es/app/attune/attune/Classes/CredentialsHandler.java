@@ -6,6 +6,8 @@ import android.support.v4.content.ContextCompat;
 
 import java.util.concurrent.TimeUnit;
 
+import kaaes.spotify.webapi.android.models.UserPrivate;
+
 /**
  * Created by Samuel on 06/03/2018.
  */
@@ -16,6 +18,11 @@ public class CredentialsHandler {
     private static final String EXPIRES_AT = "expires_at";
     private static final String REFRESH_TOKEN = "refresh_token";
     private static final String CODE = "code";
+    private static final String USERID = "userid";
+    private static final String USEREMAIL = "useremail";
+    private static final String USERIMAGE = "userimage";
+    private static final String USERDISPLAYNAME = "userdisplayname";
+    private static final String USERPRODUCT = "userproduct";
 
     public static void setToken(Context context, String token, long expiresIn, TimeUnit unit, String refreshToken, String code) {
         Context appContext = context.getApplicationContext();
@@ -90,6 +97,18 @@ public class CredentialsHandler {
         return code;
     }
 
+    public static void setUserCredentials(Context context, UserPrivate user){
+        SharedPreferences sharedPref = getSharedPreferences(context);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
+        editor.putString(USERID, user.id);
+        editor.putString(USEREMAIL, user.email);
+        editor.putString(USERIMAGE, user.images.get(0).url);
+        editor.putString(USERDISPLAYNAME, user.display_name);
+        editor.putString(USERPRODUCT, user.product);
+        editor.apply();
+    }
+
     public static boolean hasAccess(Context context) {
         Context appContext = context.getApplicationContext();
         SharedPreferences sharedPref = getSharedPreferences(appContext);
@@ -100,6 +119,84 @@ public class CredentialsHandler {
             return  false;
         }else{
             return  true;
+        }
+    }
+
+    public static boolean hasUser(Context context){
+        Context appContext = context.getApplicationContext();
+        SharedPreferences sharedPref = getSharedPreferences(appContext);
+
+        String userid = sharedPref.getString(USERID, null);
+
+        if(userid == null){
+            return  false;
+        }else{
+            return  true;
+        }
+    }
+
+    public static String getUserId(Context context){
+        Context appContext = context.getApplicationContext();
+        SharedPreferences sharedPref = getSharedPreferences(appContext);
+
+        String userid = sharedPref.getString(USERID, null);
+
+        if(userid == null){
+            return  "";
+        }else{
+            return  userid;
+        }
+    }
+
+    public static String getUserEmail(Context context){
+        Context appContext = context.getApplicationContext();
+        SharedPreferences sharedPref = getSharedPreferences(appContext);
+
+        String useremail = sharedPref.getString(USEREMAIL, null);
+
+        if(useremail == null){
+            return  "";
+        }else{
+            return  useremail;
+        }
+    }
+
+    public static String getUserImage(Context context){
+        Context appContext = context.getApplicationContext();
+        SharedPreferences sharedPref = getSharedPreferences(appContext);
+
+        String userimage = sharedPref.getString(USERIMAGE, null);
+
+        if(userimage == null){
+            return  "";
+        }else{
+            return  userimage;
+        }
+    }
+
+    public static String getUserDisplayName(Context context){
+        Context appContext = context.getApplicationContext();
+        SharedPreferences sharedPref = getSharedPreferences(appContext);
+
+        String userdisplayname = sharedPref.getString(USERDISPLAYNAME, null);
+
+        if(userdisplayname == null){
+            return  "";
+        }else{
+            return  userdisplayname;
+        }
+    }
+
+    public static String getUserProduct(Context context){
+        Context appContext = context.getApplicationContext();
+        SharedPreferences sharedPref = getSharedPreferences(appContext);
+
+        String userProduct = sharedPref.getString(USERPRODUCT, null);
+
+        if(userProduct == null){
+            return  "";
+        }else{
+            return  userProduct;
         }
     }
 

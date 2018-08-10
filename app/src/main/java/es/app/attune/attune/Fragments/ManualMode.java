@@ -52,6 +52,7 @@ import java.util.UUID;
 import es.app.attune.attune.Activity.MainActivity;
 import es.app.attune.attune.Adapters.FilterAdapter;
 import es.app.attune.attune.Adapters.SearchResultsAdapter;
+import es.app.attune.attune.Classes.CredentialsHandler;
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Classes.ResultListScrollListener;
 import es.app.attune.attune.Classes.SearchInterfaces;
@@ -627,7 +628,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
 
                             // Procedemos a llamar a la API para obtener las canciones
                             UUID newId = UUID.randomUUID();
-                            String user = db.getCurrentUser();
+                            String user = CredentialsHandler.getUserId(getContext());
                             AttPlaylist newPlaylist = new AttPlaylist(newId.toString(), user, position,
                                     name,tempo,duration,song_duration,"","",image,genre, Calendar.getInstance().getTime(),
                                     acoustiness,danceability,energy,instrumentalness,liveness,

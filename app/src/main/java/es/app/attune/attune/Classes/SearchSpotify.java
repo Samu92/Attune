@@ -404,11 +404,28 @@ public class SearchSpotify {
         mSpotifyApi.createPlaylist(owner, options, new Callback<Playlist>() {
             @Override
             public void success(Playlist playlist, Response response) {
+
                 List<Song> songs = item.getSongs();
                 String songs_temp = "";
+
+                Collections.sort(songs, new Comparator<Song>() {
+                    @Override
+                    public int compare(Song o1, Song o2) {
+                        Song song1 = o1;
+                        Song song2 = o2;
+
+                        if(song1.getPosition() > song2.getPosition()){
+                            return 1;
+                        }else{
+                            return -1;
+                        }
+                    }
+                });
+
                 for (Song it: songs) {
                     songs_temp += "spotify:track:" + it.getIdSpotify() + ",";
                 }
+
                 Map<String, Object> options1 = new HashMap<>();
                 options1.put("uris",songs_temp);
                 Map<String, Object> options2 = new HashMap<>();

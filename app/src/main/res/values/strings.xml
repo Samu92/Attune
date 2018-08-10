@@ -120,9 +120,10 @@
     <string name="select_song_option">Opciones de la canción</string>
     <string name="select_effect_option">Efecto de transición</string>
     <string name="tempo">Tempo:</string>
-    <string name="effect_no_effect">Efecto: Sin efecto</string>
-    <string name="effect_fade">Efecto: Fade</string>
-    <string name="effect_overlap">Efecto: Overlap</string>
+    <string name="effect_no_effect">Sin efecto</string>
+    <string name="effect_fade">Fade</string>
+    <string name="effect_overlap">Overlap</string>
     <string name="separator">-</string>
     <string name="zero">0</string>
+    <string name="error_ocurred">Se ha producido un error, por favor intentelo de nuevo.</string>
 </resources>

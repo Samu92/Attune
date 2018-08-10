@@ -33,10 +33,12 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
     private static final String CLIENT_ID = "8bcf4a1c62f64325a456b1bee9e857d9";
     private List<Song> currentSongs;
     private Intent switchIntent;
+    private boolean repetitionState;
 
     public AttunePlayer() {
         currentSongs = new ArrayList<Song>();
         switchIntent = new Intent("es.app.attune.ACTION_PLAY");
+        repetitionState = false;
     }
 
     @Override
@@ -102,7 +104,12 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
             if(mCurrentSong < currentSongs.size() - 1){
                 mCurrentSong += 1;
                 mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(),0,0);
+            }else if(repetitionState){
+                mCurrentSong = 0;
+                mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(),0,0);
             }
+        }else if(repetitionState){
+            mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(),0,0);
         }
     }
 
@@ -215,6 +222,9 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
             if((mCurrentSong < currentSongs.size() - 1) && !mSpotifyPlayer.getPlaybackState().isPlaying){
                 mCurrentSong += 1;
                 mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(),0,0);
+            }else if((mCurrentSong == currentSongs.size() - 1) && repetitionState && !mSpotifyPlayer.getPlaybackState().isPlaying){
+                mCurrentSong = 0;
+                mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(),0,0);
             }
         }
 
@@ -270,5 +280,11 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
         mSpotifyPlayer.seekToPosition(null, Math.abs((int) ms));
     }
 
+    public boolean getRepetition() {
+        return repetitionState;
+    }
 
+    public void setRepetitionState(boolean state){
+        repetitionState = state;
+    }
 }

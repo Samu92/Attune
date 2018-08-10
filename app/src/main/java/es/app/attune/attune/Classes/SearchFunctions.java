@@ -360,20 +360,24 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
 
     @Override
     public void getUserData() {
-        mUserDataListener = new SearchSpotify.UserDataListener(){
+        if(CredentialsHandler.hasUser(App.getContext())){
+            mResultUserData.setUserData();
+        }else{
+            mUserDataListener = new SearchSpotify.UserDataListener(){
 
-            @Override
-            public void onComplete(UserPrivate user) {
-                mResultUserData.setUserData(user);
-            }
+                @Override
+                public void onComplete(UserPrivate user) {
+                    mResultUserData.setUserData(user);
+                }
 
-            @Override
-            public void onError(Throwable error) {
-                logError(error.getMessage());
-                mResultPlaylist.showError(error);
-            }
-        };
-        mSearchPager.getUserDataCall(mUserDataListener);
+                @Override
+                public void onError(Throwable error) {
+                    logError(error.getMessage());
+                    mResultPlaylist.showError(error);
+                }
+            };
+            mSearchPager.getUserDataCall(mUserDataListener);
+        }
     }
 
     private void logError(String msg) {

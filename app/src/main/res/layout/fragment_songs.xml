@@ -2,7 +2,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_marginTop="10dp"
     android:background="?android:attr/selectableItemBackground"
     android:clickable="true"
@@ -27,11 +26,7 @@
         android:layout_alignParentTop="true"
         android:scrollHorizontally="true"
         android:layout_toEndOf="@id/entity_song_image"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        app:autoSizeTextType="uniform"
-        app:autoSizeMaxTextSize="20sp"
-        app:autoSizeMinTextSize="5sp"
-        app:autoSizeStepGranularity="1sp"/>
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/song_artist"
@@ -41,11 +36,7 @@
         android:layout_below="@id/song_name"
         android:scrollHorizontally="true"
         android:layout_toEndOf="@id/entity_song_image"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        app:autoSizeTextType="uniform"
-        app:autoSizeMaxTextSize="13sp"
-        app:autoSizeMinTextSize="5sp"
-        app:autoSizeStepGranularity="1sp"/>
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/song_tempo"
@@ -55,11 +46,7 @@
         android:layout_below="@id/song_artist"
         android:scrollHorizontally="true"
         android:layout_toEndOf="@id/entity_song_image"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        app:autoSizeTextType="uniform"
-        app:autoSizeMaxTextSize="13sp"
-        app:autoSizeMinTextSize="5sp"
-        app:autoSizeStepGranularity="1sp"/>
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/song_duration"
@@ -69,11 +56,7 @@
         android:layout_marginStart="5dp"
         android:scrollHorizontally="true"
         android:layout_toEndOf="@id/song_tempo"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        app:autoSizeTextType="uniform"
-        app:autoSizeMaxTextSize="13sp"
-        app:autoSizeMinTextSize="5sp"
-        app:autoSizeStepGranularity="1sp"/>
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/song_date"
@@ -82,11 +65,7 @@
         android:layout_below="@id/song_duration"
         android:layout_toEndOf="@id/entity_song_image"
         android:scrollHorizontally="true"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        app:autoSizeTextType="uniform"
-        app:autoSizeMaxTextSize="13sp"
-        app:autoSizeMinTextSize="5sp"
-        app:autoSizeStepGranularity="1sp"/>
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/song_effect"
@@ -96,9 +75,5 @@
         android:layout_toEndOf="@id/song_date"
         android:layout_marginStart="5dp"
         android:scrollHorizontally="true"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        app:autoSizeTextType="uniform"
-        app:autoSizeMaxTextSize="13sp"
-        app:autoSizeMinTextSize="5sp"
-        app:autoSizeStepGranularity="1sp"/>
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 </RelativeLayout>

@@ -94,18 +94,6 @@ public class SongsListFragment extends Fragment {
                 recyclerView.setVisibility(View.VISIBLE);
                 empty.setVisibility(View.GONE);
             }
-
-            ViewGroup.MarginLayoutParams marginLayoutParams =
-                    (ViewGroup.MarginLayoutParams) recyclerView.getLayoutParams();
-            if(MainActivity.getSlideVisible()){
-                marginLayoutParams.setMargins(0, 0, 0, 200);
-                recyclerView.setLayoutParams(marginLayoutParams);
-                recyclerView.requestLayout();
-            }else{
-                marginLayoutParams.setMargins(0, 0, 0, 0);
-                recyclerView.setLayoutParams(marginLayoutParams);
-                recyclerView.requestLayout();
-            }
         }
         return view;
     }

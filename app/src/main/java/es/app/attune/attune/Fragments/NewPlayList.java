@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import es.app.attune.attune.Classes.CredentialsHandler;
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Classes.SearchInterfaces;
 import es.app.attune.attune.Database.AttPlaylist;
@@ -251,7 +252,6 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
 
         genres_list_view.setAdapter(genres_list_adapter);
 
-        genres_list.clear();
         genres_list_adapter.notifyDataSetChanged();
 
         // Apply the adapter to the spinner
@@ -262,7 +262,8 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 if(i != 0){
                     if(genres_list.size() <= 3){
-                        if(!genres_list.contains(searchableSpinner.getSelectedItem())){
+                        String selected_item = searchableSpinner.getSelectedItem().toString();
+                        if(!genres_list.contains(selected_item)){
                             genres_list.add((String) searchableSpinner.getSelectedItem());
                             genres_list_adapter.notifyDataSetChanged();
                             genres_list_view.setVisibility(View.VISIBLE);
@@ -434,7 +435,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
 
                                                     // Procedemos a llamar a la API para obtener las canciones
                                                     UUID newId = java.util.UUID.randomUUID();
-                                                    String user = db.getCurrentUser();
+                                                    String user = CredentialsHandler.getUserId(getContext());
                                                     AttPlaylist newPlaylist = new AttPlaylist(newId.toString(), user, position,
                                                             name,tempo,duration,song_duration, date_start, date_end, image,genre, Calendar.getInstance().getTime(),
                                                             acoustiness,danceability,energy,instrumentalness,liveness,

@@ -11,6 +11,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
+import android.media.Image;
 import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -73,6 +74,7 @@ import es.app.attune.attune.Fragments.PlayListFragment;
 import es.app.attune.attune.Fragments.SongsListFragment;
 import es.app.attune.attune.R;
 import kaaes.spotify.webapi.android.models.UserPrivate;
+import retrofit.http.GET;
 
 import static es.app.attune.attune.Classes.App.getContext;
 
@@ -134,6 +136,7 @@ public class MainActivity extends AppCompatActivity
     private static TextView txt_error;
     private MaterialDialog offline;
     private TextView txt_offline;
+    private ImageView repetition_button_expand;
 
     public static Intent createIntent(Context context) {
         return new Intent(context, MainActivity.class);
@@ -173,15 +176,15 @@ public class MainActivity extends AppCompatActivity
         TextView txt_loading = progress.getView().findViewById(R.id.txt_loading);
         txt_loading.setText(R.string.playlist_loading);
 
-        progress.show();
-        mActionListener.getUserData();
-
         View headerView = navigationView.getHeaderView(0);
         navEmail = headerView.findViewById(R.id.email);
         navUserName = headerView.findViewById(R.id.username);
         navImageView = headerView.findViewById(R.id.profile_image);
 
         Glide.with(this).load(R.drawable.default_profile).into(navImageView);
+
+        progress.show();
+        mActionListener.getUserData();
 
         // Inicializamos la sesión de base de datos
         daoSession = ((App) getApplication()).getDaoSession();
@@ -222,8 +225,10 @@ public class MainActivity extends AppCompatActivity
                                 edit_name.findFocus();
                             }
                         }else{
-                            edit_name.setError(getString(R.string.obligatory_name));
-                            edit_name.findFocus();
+                            // Editamos la playlist con nombre que ya tiene
+                            db.editPlaylist(selected_playlist,selected_playlist.getName().toString(),image.getDrawable());
+                            edit_playlist_dialog.dismiss();
+                            playListFragment.update();
                         }
                     }
                 })
@@ -374,6 +379,22 @@ public class MainActivity extends AppCompatActivity
                         play_pause_button_expand.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp);
                     }else{
                         play_pause_button_expand.setImageResource(R.drawable.ic_play_circle_outline_white_48dp);
+                    }
+                }
+            }
+        });
+
+        repetition_button_expand = (ImageView) findViewById(R.id.repetition_mode);
+        repetition_button_expand.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(mService != null){
+                    if(!mService.getRepetitionState()){
+                        repetition_button_expand.setImageResource(R.drawable.ic_repeat_white_48dp);
+                        mService.setRepetitionState(true);
+                    }else{
+                        repetition_button_expand.setImageResource(R.drawable.ic_repeat_gray_48dp);
+                        mService.setRepetitionState(false);
                     }
                 }
             }
@@ -551,10 +572,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-
-        /*if (id == R.id.action_settings) {
-            return true;
-        }*/
 
         if(id == R.id.close_session){
             Spotify.destroyPlayer(this);
@@ -735,8 +752,21 @@ public class MainActivity extends AppCompatActivity
                             edit_playlist_dialog.show();
                         } else if (which == 3){
                             // Exportamos la playlist a Spotify
-                            selected_playlist = item;
-                            mActionListener.exportToSpotify(mPrivateUser.id,item);
+                            if(isOnline(getApplicationContext())){
+                                selected_playlist = item;
+                                mActionListener.exportToSpotify(mPrivateUser.id,item);
+                            }else{
+                                Log.e("Connection", getString(R.string.no_connection));
+                                offline = new MaterialDialog.Builder(getContext())
+                                        .customView(R.layout.error_layout, false)
+                                        .cancelable(true)
+                                        .positiveText(R.string.agree)
+                                        .build();
+
+                                txt_offline = offline.getView().findViewById(R.id.txt_error);
+                                txt_offline.setText(R.string.txt_no_connection);
+                                offline.show();
+                            }
                         }
                     }
                 });
@@ -816,6 +846,7 @@ public class MainActivity extends AppCompatActivity
                     .addToBackStack(playListFragment.getClass().getName())
                     .replace(R.id.fragmentView, playListFragment, playListFragment.getClass().getName())
                     .commit();
+            PlayListFragment.scrollToLastPosition();
         }
     }
 
@@ -825,7 +856,9 @@ public class MainActivity extends AppCompatActivity
         if(msg.equals("401 Unauthorized") || msg.equals(("410 The access token expired"))){
             mRenewService.renewToken();
         }else{
-            txt_error.setText(message.getMessage());
+            mRenewService.renewToken();
+            Log.e("Error",message.getMessage());
+            txt_error.setText(R.string.error_ocurred);
             error.show();
         }
     }
@@ -850,7 +883,7 @@ public class MainActivity extends AppCompatActivity
             Glide.with(this)
                     .load(user.images.get(0).url)
                     .into(navImageView);
-            db.insertCurrentUser(user);
+            CredentialsHandler.setUserCredentials(getContext(),user);
             initialize();
         }else{
             if(user.display_name != null){
@@ -859,10 +892,29 @@ public class MainActivity extends AppCompatActivity
                 navUserName.setText("Attune");
             }
             navEmail.setText(user.email);
-            db.insertCurrentUser(user);
+            CredentialsHandler.setUserCredentials(getContext(),user);
             initialize();
         }
     }
+
+    public void setUserData() {
+        String userDisplayName = CredentialsHandler.getUserDisplayName(getContext());
+        String userEmail = CredentialsHandler.getUserEmail(getContext());
+        String userImage = CredentialsHandler.getUserImage(getContext());
+
+        if(!userDisplayName.equals("")){
+            navUserName.setText(userDisplayName);
+        }else{
+            navUserName.setText("Attune");
+        }
+        navEmail.setText(userEmail);
+        Glide.with(this)
+                .load(userImage)
+                .into(navImageView);
+        progress.dismiss();
+        initialize();
+    }
+
 
     @Override
     public void dismissProgress() {
@@ -976,7 +1028,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public static boolean isAuthorized() {
-        if(mPrivateUser.product.equals("premium")){
+        if(CredentialsHandler.getUserProduct(getContext()).equals("premium")){
             return true;
         }else{
             txt_error.setText(R.string.premium_needed);

@@ -44,12 +44,15 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
 
         holder.mNameView.setText(mValues.get(position).getName());
 
-        holder.mArtistView.setText(context.getResources().getString(R.string.txt_artist) + mValues.get(position).getArtist());
+        //holder.mArtistView.setText(context.getResources().getString(R.string.txt_artist) + mValues.get(position).getArtist());
+        holder.mArtistView.setText(mValues.get(position).getArtist());
 
-        holder.mTempoView.setText(context.getResources().getString(R.string.txt_tempo) + String.valueOf(mValues.get(position).getTempo()));
+        //holder.mTempoView.setText(context.getResources().getString(R.string.txt_tempo) + String.valueOf(mValues.get(position).getTempo()));
+        holder.mTempoView.setText(String.valueOf(mValues.get(position).getTempo()));
 
         int duration = (int) (mValues.get(position).getDuration()/1000);
-        holder.mDurationView.setText("Duración: " + Tools.timeConversion(duration));
+        //holder.mDurationView.setText("Duración: " + Tools.timeConversion(duration));
+        holder.mDurationView.setText(Tools.timeConversion(duration));
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,7 +77,8 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
                     .into(holder.image);
         }
 
-        holder.mDateView.setText(context.getResources().getString(R.string.date) + mValues.get(position).getDate());
+        //holder.mDateView.setText(context.getResources().getString(R.string.date) + mValues.get(position).getDate());
+        holder.mDateView.setText(mValues.get(position).getDate());
 
         switch (mValues.get(position).getEffect_type()){
             case 0:
