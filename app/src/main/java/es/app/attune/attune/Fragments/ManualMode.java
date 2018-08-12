@@ -49,7 +49,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
-import es.app.attune.attune.Activity.MainActivity;
 import es.app.attune.attune.Adapters.FilterAdapter;
 import es.app.attune.attune.Adapters.SearchResultsAdapter;
 import es.app.attune.attune.Classes.CredentialsHandler;
@@ -73,15 +72,12 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
     private SearchView searchView;
     private static SearchInterfaces.ActionListener mActionListener;
     private static final String KEY_CURRENT_QUERY = "CURRENT_QUERY";
-    private LinearLayoutManager mLayoutManager;
     private static ScrollListener mScrollListener;
     private ManualMode.OnListFragmentInteractionListener mListener;
     private static SearchResultsAdapter mAdapter;
     private static RecyclerView resultsList;
     private MaterialDialog material;
     private SearchableSpinner genresSpinner;
-    private static List<String> genres_list;
-    private int fecha_edicion = 0;
     private EditText editText_start;
     private EditText editText_end;
     private int year_start;
@@ -94,8 +90,6 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
     private MaterialDialog playlist_list_dialog;
     private MaterialDialog new_playlist_dialog;
     private MaterialDialog result;
-    private TextView empty_playlist_list;
-    private LinearLayout filter_layout;
     private AppCompatCheckBox filter_date_check;
     private RecyclerView filter_list;
     private ArrayList<String> filter_array;
@@ -106,7 +100,6 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
     private ImageView image;
     private TextView txt_result;
     private ArrayAdapter<String> adapter_playlist_list;
-    private ArrayAdapter<String> adapter;
     private MaterialDialog offline;
     private TextView txt_offline;
     private AppCompatCheckBox filter_tempo_check;
@@ -133,6 +126,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
 
     @Override
     public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+        int fecha_edicion = 0;
         if(fecha_edicion == 0){
             year_start = i;
             editText_start.setText(String.valueOf(i));
@@ -190,7 +184,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        genres_list = new ArrayList<String>();
+        List<String> genres_list = new ArrayList<String>();
 
         super.onCreate(savedInstanceState);
     }
@@ -226,7 +220,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
         progressManualBar = getView().findViewById(R.id.search_manual_progress);
         progressManualBar.setVisibility(View.GONE);
 
-        mLayoutManager = new LinearLayoutManager(getContext());
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext());
         mScrollListener =  new ScrollListener(mLayoutManager);
 
         genre = "";
@@ -323,7 +317,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
 
         searchView = getView().findViewById(R.id.search_view);
 
-        filter_layout = getView().findViewById(R.id.filter_view);
+        LinearLayout filter_layout = getView().findViewById(R.id.filter_view);
         filter_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -481,7 +475,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
         genresSpinner.setTitle(getString(R.string.add_genre));
         genresSpinner.setPositiveButton(getString(R.string.accept));
 
-        adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, db.getGenres());
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, db.getGenres());
 
         // Apply the adapter to the spinner
         genresSpinner.setAdapter(adapter);
@@ -678,7 +672,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
             }
         });
 
-        empty_playlist_list = playlist_list_dialog.getCustomView().findViewById(R.id.empty_short_playlist_list_view);
+        TextView empty_playlist_list = playlist_list_dialog.getCustomView().findViewById(R.id.empty_short_playlist_list_view);
 
         playlist_list_view = playlist_list_dialog.getCustomView().findViewById(R.id.short_playlist_list);
         adapter_playlist_list = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, db.getPlaylistsNames());

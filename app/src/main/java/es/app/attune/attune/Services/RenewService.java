@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -76,7 +77,7 @@ public class RenewService extends Service {
         Call<String> call = service.refreshToken(refresh_token);
         call.enqueue(new Callback<String>() {
             @Override
-            public void onResponse(Call<String> call, Response<String> response) {
+            public void onResponse(Call<String> call, @NonNull Response<String> response) {
                 if (response.isSuccessful()) {
                     // Obtenemos el JSON
                     String responseString = response.body();

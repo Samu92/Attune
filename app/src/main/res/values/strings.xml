@@ -36,8 +36,7 @@
     <string name="select_image">Selecciona una imagen</string>
     <string name="please_set_name">Por favor, póngale un nombre a su nueva playlist</string>
     <string name="please_select_genre">Por favor, seleccione una categoría</string>
-    <string name="creating_playlist">Creando playlist...</string>
-    <string-array name="Categories"></string-array>
+    <string name="creating_playlist">Creando playlist…</string>
     <string name="play_item">Play item</string>
     <string name="play_pause">play or pause</string>
     <string name="currently_playing_song">Song currently playing</string>
@@ -67,7 +66,7 @@
     <string name="select_playlist_option">Seleccione una opción</string>
     <string name="obligatory_name">El nombre es obligatorio.</string>
     <string name="duration">Duración</string>
-    <string name="playlist_creating">Creando playlist...</string>
+    <string name="playlist_creating">Creando playlist…</string>
     <string name="create_new_playlist">Crear nueva playlist</string>
     <string name="playlists_menu">Playlists</string>
     <string name="txt_share">Compartir</string>
@@ -105,7 +104,7 @@
     <string name="cd_previous">Skip backwards</string>
     <string name="cd_play">Play and pause</string>
     <string name="cd_next">Skip forwards</string>
-    <string name="playlist_loading">Recuperando playlists...</string>
+    <string name="playlist_loading">Recuperando playlists…</string>
     <string name="no_connection">Sin conexión</string>
     <string name="select_genre">Seleccione una categoría</string>
     <string name="validate_genres_valid">Al menos debes seleccionar una categoría</string>
@@ -121,9 +120,11 @@
     <string name="select_effect_option">Efecto de transición</string>
     <string name="tempo">Tempo:</string>
     <string name="effect_no_effect">Sin efecto</string>
-    <string name="effect_fade">Fade</string>
-    <string name="effect_overlap">Overlap</string>
+    <string name="effect_fade">Efecto: Fade</string>
+    <string name="effect_overlap">Efecto: Overlap</string>
     <string name="separator">-</string>
     <string name="zero">0</string>
     <string name="error_ocurred">Se ha producido un error, por favor intentelo de nuevo.</string>
+    <string name="txt_loading_session">Iniciando sesión..</string>
+    <string name="song_delete">¿Estás seguro de que quieres borrar la canción seleccionada?</string>
 </resources>

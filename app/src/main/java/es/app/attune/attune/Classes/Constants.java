@@ -27,8 +27,7 @@ public class Constants {
         try {
             bm = BitmapFactory.decodeResource(context.getResources(),
                     R.mipmap.ic_launcher, options);
-        } catch (Error ee) {
-        } catch (Exception e) {
+        } catch (Error | Exception ignored) {
         }
         return bm;
     }

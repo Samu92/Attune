@@ -115,158 +115,164 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <RelativeLayout
+            <ScrollView
                 android:id="@+id/playerUI"
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/player_background">
 
-                <TextView
-                    android:id="@+id/numeric_progress"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_toStartOf="@id/separator_progress"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="10dp"
-                    android:textSize="@dimen/text_size_medium"
-                    android:text="@string/zero"/>
-
-                <TextView
-                    android:id="@+id/separator_progress"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="10dp"
-                    android:text="@string/separator"/>
-
-                <TextView
-                    android:id="@+id/total_progress"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_toEndOf="@id/separator_progress"
-                    android:layout_marginTop="10dp"
-                    android:textSize="@dimen/text_size_medium"
-                    android:text="@string/zero"/>
-
-                <android.support.design.internal.BaselineLayout
-                    android:id="@+id/baseLineLayout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_centerInParent="true"
-                    android:layout_marginTop="10dp"
-                    android:layout_below="@id/separator_progress">
-
-                    <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/image_player_center"
-                        android:layout_width="230dp"
-                        android:layout_height="230dp"
-                        android:layout_marginLeft="30dp"
-                        android:layout_marginRight="30dp"
-                        android:layout_marginBottom="35dp"
-                        android:layout_marginTop="23dp" />
-
-                    <com.jackandphantom.circularprogressbar.CircleProgressbar
-                        android:id="@+id/circle_progress_player"
-                        android:layout_width="230dp"
-                        android:layout_height="230dp"
-                        android:layout_centerHorizontal="true"
-                        android:layout_marginLeft="30dp"
-                        android:layout_marginRight="30dp"
-                        android:layout_marginTop="46dp"
-                        android:layout_marginBottom="10dp"
-                        app:cpb_roundedCorner="true"
-                        app:cpb_foregroundProgressColor="#1864c2"
-                        app:cpb_touchEnabled="true"
-                        app:cpb_clockwise="true"
-                        />
-                </android.support.design.internal.BaselineLayout>
-
-                <TextView
-                    android:id="@+id/song_playlist_player"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:maxLines="1"
-                    android:layout_below="@id/baseLineLayout"
-                    android:textSize="25sp"
-                    android:textColor="@color/black"
-                    android:textAlignment="center" />
-
-                <TextView
-                    android:id="@+id/song_title_player"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:maxLines="1"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginEnd="10dp"
-                    android:layout_below="@id/song_playlist_player"
-                    android:textAlignment="center"
-                    android:textColor="@color/black"
-                    android:textSize="25sp" />
-
-                <TextView
-                    android:id="@+id/song_artist_player"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:textAlignment="center"
-                    android:maxLines="1"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:layout_marginBottom="15dp"
-                    android:layout_below="@id/song_title_player"
-                    android:textSize="20sp" />
-
                 <RelativeLayout
-                    android:id="@+id/playback_controls_expand"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/song_artist_player"
-                    android:layout_centerHorizontal="true">
+                    android:id="@+id/playerUIRelative"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                    <LinearLayout
-                        android:orientation="horizontal"
+                    <TextView
+                        android:id="@+id/numeric_progress"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:layout_toStartOf="@id/separator_progress"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="10dp"
+                        android:textSize="@dimen/text_size_medium"
+                        android:text="@string/zero" />
 
-                        <ImageView
-                            android:id="@+id/previous_song_expand"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:src="@drawable/ic_skip_previous_white_48dp"/>
+                    <TextView
+                        android:id="@+id/separator_progress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/separator" />
 
-                        <ImageView
-                            android:id="@+id/play_pause_button_slide_expand"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:layout_marginStart="30dp"
-                            android:layout_marginEnd="30dp"
-                            android:src="@drawable/ic_play_circle_outline_white_48dp" />
+                    <TextView
+                        android:id="@+id/total_progress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_toEndOf="@id/separator_progress"
+                        android:layout_marginTop="10dp"
+                        android:textSize="@dimen/text_size_medium"
+                        android:text="@string/zero" />
 
-                        <ImageView
-                            android:id="@+id/next_song_expand"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:layout_marginEnd="20dp"
-                            android:src="@drawable/ic_skip_next_white_48dp" />
+                    <android.support.design.internal.BaselineLayout
+                        android:id="@+id/baseLineLayout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerInParent="true"
+                        android:layout_marginTop="10dp"
+                        android:layout_below="@id/separator_progress">
 
-                        <ImageView
-                            android:id="@+id/repetition_mode"
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/image_player_center"
+                            android:layout_width="230dp"
+                            android:layout_height="230dp"
+                            android:layout_marginLeft="30dp"
+                            android:layout_marginRight="30dp"
+                            android:layout_marginBottom="35dp"
+                            android:layout_marginTop="23dp" />
+
+                        <com.jackandphantom.circularprogressbar.CircleProgressbar
+                            android:id="@+id/circle_progress_player"
+                            android:layout_width="230dp"
+                            android:layout_height="230dp"
+                            android:layout_centerHorizontal="true"
+                            android:layout_marginLeft="30dp"
+                            android:layout_marginRight="30dp"
+                            android:layout_marginTop="46dp"
+                            android:layout_marginBottom="10dp"
+                            app:cpb_foregroundProgressWidth="20"
+                            app:cpb_backgroundProgressWidth="20"
+                            app:cpb_roundedCorner="true"
+                            app:cpb_foregroundProgressColor="#1864c2"
+                            app:cpb_touchEnabled="true"
+                            app:cpb_clockwise="true" />
+                    </android.support.design.internal.BaselineLayout>
+
+                    <TextView
+                        android:id="@+id/song_playlist_player"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:maxLines="1"
+                        android:layout_below="@id/baseLineLayout"
+                        android:textSize="25sp"
+                        android:textColor="@color/black"
+                        android:textAlignment="center" />
+
+                    <TextView
+                        android:id="@+id/song_title_player"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:maxLines="1"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_below="@id/song_playlist_player"
+                        android:textAlignment="center"
+                        android:textColor="@color/black"
+                        android:textSize="25sp" />
+
+                    <TextView
+                        android:id="@+id/song_artist_player"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:textAlignment="center"
+                        android:maxLines="1"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:layout_marginBottom="15dp"
+                        android:layout_below="@id/song_title_player"
+                        android:textSize="20sp" />
+
+                    <RelativeLayout
+                        android:id="@+id/playback_controls_expand"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/song_artist_player"
+                        android:layout_centerHorizontal="true">
+
+                        <LinearLayout
+                            android:orientation="horizontal"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:baselineAlignBottom="true"
-                            android:src="@drawable/ic_repeat_gray_48dp"/>
-                    </LinearLayout>
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:id="@+id/previous_song_expand"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_horizontal"
+                                android:src="@drawable/ic_skip_previous_white_48dp" />
+
+                            <ImageView
+                                android:id="@+id/play_pause_button_slide_expand"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_horizontal"
+                                android:layout_marginStart="30dp"
+                                android:layout_marginEnd="30dp"
+                                android:src="@drawable/ic_play_circle_outline_white_48dp" />
+
+                            <ImageView
+                                android:id="@+id/next_song_expand"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_horizontal"
+                                android:layout_marginEnd="20dp"
+                                android:src="@drawable/ic_skip_next_white_48dp" />
+
+                            <ImageView
+                                android:id="@+id/repetition_mode"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_horizontal"
+                                android:baselineAlignBottom="true"
+                                android:src="@drawable/ic_repeat_gray_48dp" />
+                        </LinearLayout>
+                    </RelativeLayout>
                 </RelativeLayout>
-
-            </RelativeLayout>
+            </ScrollView>
         </LinearLayout>
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>

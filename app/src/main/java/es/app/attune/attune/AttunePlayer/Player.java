@@ -1,7 +1,6 @@
 package es.app.attune.attune.AttunePlayer;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 
 import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.Database.Song;
@@ -19,7 +18,6 @@ public interface Player {
 
     boolean isPlaying();
 
-    @Nullable
     int getCurrentTrack();
 
     void release();

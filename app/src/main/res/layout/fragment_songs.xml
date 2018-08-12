@@ -21,59 +21,65 @@
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/song_name"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:ellipsize="marquee"
         android:layout_alignParentTop="true"
         android:scrollHorizontally="true"
         android:layout_toEndOf="@id/entity_song_image"
+        android:textSize="@dimen/text_size_large"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/song_artist"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:ellipsize="marquee"
         android:layout_below="@id/song_name"
         android:scrollHorizontally="true"
         android:layout_toEndOf="@id/entity_song_image"
+        android:textSize="@dimen/text_size_medium"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/song_tempo"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:ellipsize="marquee"
         android:layout_below="@id/song_artist"
         android:scrollHorizontally="true"
         android:layout_toEndOf="@id/entity_song_image"
+        android:textSize="@dimen/text_size_small"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/song_duration"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@id/song_artist"
         android:layout_marginStart="5dp"
         android:scrollHorizontally="true"
         android:layout_toEndOf="@id/song_tempo"
+        android:textSize="@dimen/text_size_small"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/song_date"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@id/song_duration"
         android:layout_toEndOf="@id/entity_song_image"
         android:scrollHorizontally="true"
+        android:textSize="@dimen/text_size_small"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/song_effect"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@id/song_duration"
         android:layout_toEndOf="@id/song_date"
         android:layout_marginStart="5dp"
         android:scrollHorizontally="true"
+        android:textSize="@dimen/text_size_small"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 </RelativeLayout>

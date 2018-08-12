@@ -2,7 +2,6 @@ package es.app.attune.attune.Classes;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.v4.content.ContextCompat;
 
 import java.util.concurrent.TimeUnit;
 
@@ -103,7 +102,11 @@ public class CredentialsHandler {
 
         editor.putString(USERID, user.id);
         editor.putString(USEREMAIL, user.email);
-        editor.putString(USERIMAGE, user.images.get(0).url);
+        if (user.images.size() > 0) {
+            editor.putString(USERIMAGE, user.images.get(0).url);
+        } else {
+            editor.putString(USERIMAGE, "");
+        }
         editor.putString(USERDISPLAYNAME, user.display_name);
         editor.putString(USERPRODUCT, user.product);
         editor.apply();
@@ -115,11 +118,7 @@ public class CredentialsHandler {
 
         String refresh_code = sharedPref.getString(REFRESH_TOKEN, null);
 
-        if(refresh_code == null){
-            return  false;
-        }else{
-            return  true;
-        }
+        return refresh_code != null;
     }
 
     public static boolean hasUser(Context context){
@@ -128,11 +127,7 @@ public class CredentialsHandler {
 
         String userid = sharedPref.getString(USERID, null);
 
-        if(userid == null){
-            return  false;
-        }else{
-            return  true;
-        }
+        return userid != null;
     }
 
     public static String getUserId(Context context){

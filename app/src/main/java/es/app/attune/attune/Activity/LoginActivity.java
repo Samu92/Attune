@@ -19,12 +19,12 @@ import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 import java.util.concurrent.TimeUnit;
 
-import es.app.attune.attune.Services.SwapService;
 import es.app.attune.attune.Classes.App;
 import es.app.attune.attune.Classes.Constants;
 import es.app.attune.attune.Classes.CredentialsHandler;
 import es.app.attune.attune.Classes.SwapResponse;
 import es.app.attune.attune.R;
+import es.app.attune.attune.Services.SwapService;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -42,7 +42,7 @@ public class LoginActivity extends AppCompatActivity {
     private static final int REQUEST_CODE = 1337;
     private static ConnectivityManager manager;
     private MaterialDialog offline;
-    private TextView txt_offline;
+    private MaterialDialog progress;
     private static final String[] scopes = new String[]{"user-read-private","user-read-email","playlist-read","streaming","user-read-playback-state","user-read-currently-playing",
             "user-modify-playback-state","user-library-read","playlist-read-private",
             "user-library-modify","playlist-modify-public","playlist-modify-private"};
@@ -64,7 +64,7 @@ public class LoginActivity extends AppCompatActivity {
                     .positiveText(R.string.agree)
                     .build();
 
-            txt_offline = offline.getView().findViewById(R.id.txt_error);
+            TextView txt_offline = offline.getView().findViewById(R.id.txt_error);
             txt_offline.setText(R.string.txt_no_connection);
             offline.show();
         }
@@ -105,6 +105,15 @@ public class LoginActivity extends AppCompatActivity {
                 // Response was successful and contains auth token
                 case CODE:
                     logMessage("Got code: " + response.getCode());
+                    progress = new MaterialDialog.Builder(this)
+                            .customView(R.layout.loading_layout, false)
+                            .cancelable(false)
+                            .build();
+                    TextView txt_loading = progress.getView().findViewById(R.id.txt_loading);
+                    txt_loading.setText(R.string.txt_loading_session);
+                    progress.show();
+
+
                     final String code = response.getCode();
 
                     Retrofit retrofit = new Retrofit.Builder()
@@ -122,12 +131,14 @@ public class LoginActivity extends AppCompatActivity {
                                 SwapResponse gson = new Gson().fromJson(responseString, SwapResponse.class);
                                 CredentialsHandler.setToken(App.getContext(),gson.getAccess_token(),Integer.valueOf(gson.getExpires_in()),TimeUnit.SECONDS, gson.getRefresh_token(), code);
                                 startMainActivity();
+                                progress.dismiss();
                             }
                         }
 
                         @Override
                         public void onFailure(Call<String> call, Throwable t) {
                             Log.e("ERROR","ERROR");
+                            progress.dismiss();
                         }
                     });
                     break;

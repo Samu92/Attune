@@ -11,6 +11,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -40,8 +41,8 @@ import com.xw.repo.BubbleSeekBar;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import es.app.attune.attune.Classes.CredentialsHandler;
@@ -64,7 +65,6 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     private BubbleSeekBar song_duration;
     private CheckBox check_song_duration;
     private SearchableSpinner searchableSpinner;
-    private Boolean valid;
     private static DatabaseFunctions db;
     private static final int PICK_IMAGE_REQUEST = 100;
     private static List<String> genres_list;
@@ -72,14 +72,12 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     private static CheckBox date_checkbox;
     private static EditText date_start;
     private static EditText date_end;
-    private Button create_playlist_button;
     private TextView txt_loading;
     private TextView txt_error;
     private MaterialDialog playlist_list_dialog;
     private MaterialDialog offline;
     private TextView txt_offline;
     private ArrayAdapter<String> adapter_playlist_list;
-    private TextView empty_playlist_list;
     private ListView playlist_list_view;
     private static SearchInterfaces.ActionListener mLocalActionListener;
     private AdvancedParameters advancedParameterFragment;
@@ -87,7 +85,6 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     private MaterialDialog error;
     private ListView genres_list_view;
     private ArrayAdapter<String> genres_list_adapter;
-    private ArrayAdapter<String> adapter;
 
     public NewPlayList() {
         // Required empty public constructor
@@ -117,13 +114,13 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     }
 
     public static String getCategory() {
-        String genres = "";
+        StringBuilder genres = new StringBuilder();
         for (String item: genres_list
              ) {
-            genres += item + ",";
+            genres.append(item).append(",");
         }
-        genres = genres.substring(0,genres.length() - 1);
-        return genres;
+        genres = new StringBuilder(genres.substring(0, genres.length() - 1));
+        return genres.toString();
     }
 
     public static int getDuration(){ return playlist_duration.getProgress();}
@@ -154,6 +151,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
 
     public static boolean isOnline(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        assert connectivityManager != null;
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
     }
@@ -165,17 +163,17 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_new_play_list, container, false);
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        progress = new MaterialDialog.Builder(getActivity())
+        progress = new MaterialDialog.Builder(Objects.requireNonNull(getActivity()))
                 .customView(R.layout.loading_layout, false)
                 .cancelable(false)
                 .build();
@@ -191,8 +189,8 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
 
         txt_error = error.getView().findViewById(R.id.txt_error);
 
-        image = getView().findViewById(R.id.image_playlist);
-        Glide.with(getContext())
+        image = Objects.requireNonNull(getView()).findViewById(R.id.image_playlist);
+        Glide.with(Objects.requireNonNull(getContext()))
                 .load(R.drawable.baseline_add_photo_alternate_white_48)
                 .into(image);
 
@@ -245,7 +243,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
         searchableSpinner.setTitle(getString(R.string.add_genre));
         searchableSpinner.setPositiveButton(getString(R.string.accept));
 
-        adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, db.getGenres());
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, db.getGenres());
 
         genres_list_view = getView().findViewById(R.id.genres_list);
         genres_list_adapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_list_item_1, genres_list);
@@ -349,7 +347,8 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
             }
         });
 
-        empty_playlist_list = playlist_list_dialog.getCustomView().findViewById(R.id.empty_short_playlist_list_view);
+        assert playlist_list_dialog.getCustomView() != null;
+        TextView empty_playlist_list = playlist_list_dialog.getCustomView().findViewById(R.id.empty_short_playlist_list_view);
 
         playlist_list_view = playlist_list_dialog.getCustomView().findViewById(R.id.short_playlist_list);
         adapter_playlist_list = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, db.getPlaylistsNames());
@@ -377,7 +376,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
             empty_playlist_list.setVisibility(View.GONE);
         }
 
-        create_playlist_button = (Button) getView().findViewById(R.id.create_playlist_button);
+        Button create_playlist_button = (Button) getView().findViewById(R.id.create_playlist_button);
         create_playlist_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -411,23 +410,23 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
                                                     //Obtenemos la duración de cada canción
                                                     float song_duration = getSongDuration();
 
-                                                    float acoustiness = advancedParameterFragment.getAcousticness();
+                                                    float acoustiness = AdvancedParameters.getAcousticness();
 
-                                                    float danceability = advancedParameterFragment.getDanceability();
+                                                    float danceability = AdvancedParameters.getDanceability();
 
-                                                    float energy = advancedParameterFragment.getEnergy();
+                                                    float energy = AdvancedParameters.getEnergy();
 
-                                                    float instrumentalness = advancedParameterFragment.getInstrumentalness();
+                                                    float instrumentalness = AdvancedParameters.getInstrumentalness();
 
-                                                    float liveness = advancedParameterFragment.getLiveness();
+                                                    float liveness = AdvancedParameters.getLiveness();
 
-                                                    float loudness = advancedParameterFragment.getLoudness();
+                                                    float loudness = AdvancedParameters.getLoudness();
 
-                                                    int popularity = advancedParameterFragment.getPopularity();
+                                                    int popularity = AdvancedParameters.getPopularity();
 
-                                                    float speechiness = advancedParameterFragment.getSpeechiness();
+                                                    float speechiness = AdvancedParameters.getSpeechiness();
 
-                                                    float valence = advancedParameterFragment.getValence();
+                                                    float valence = AdvancedParameters.getValence();
 
                                                     String date_start = getYearStart();
 
@@ -529,20 +528,20 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
         Función que valida el formulario de creación de la playlist
      */
     public boolean ValidarFormulario(int mode){
-        valid = true;
+        Boolean valid = true;
 
         if(mode == 0){
             if(name.getText().toString().isEmpty() ){
                 valid = false;
                 txt_error.setText(getString(R.string.validate_name));
                 error.show();
-                return valid;
+                return false;
             }else{
                 if(db.playlistNameExists(name.getText().toString())){
                     valid = false;
                     txt_error.setText(getString(R.string.validate_name_exists));
                     error.show();
-                    return valid;
+                    return false;
                 }
             }
         }
@@ -551,10 +550,10 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
             valid = false;
             txt_error.setText(getString(R.string.validate_genres_valid));
             error.show();
-            return valid;
+            return false;
         }
 
-        return valid;
+        return true;
     }
 
     @Override
@@ -567,7 +566,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
 
                     // method 1
                     try {
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), selectedImage);
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(Objects.requireNonNull(getContext()).getContentResolver(), selectedImage);
                         Glide.with(getContext())
                                 .load(bitmap)
                                 .apply(new RequestOptions()

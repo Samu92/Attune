@@ -24,9 +24,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 import java.util.Objects;
 
-import es.app.attune.attune.Activity.MainActivity;
 import es.app.attune.attune.Classes.DatabaseFunctions;
-import es.app.attune.attune.Classes.SearchInterfaces;
 import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.R;
 
@@ -130,7 +128,7 @@ public class PlayListFragment extends Fragment {
 
             @Override
             public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
-                question = new MaterialDialog.Builder(getActivity())
+                question = new MaterialDialog.Builder(Objects.requireNonNull(getActivity()))
                         .customView(R.layout.question_layout, false)
                         .cancelable(true)
                         .positiveText(R.string.agree)
@@ -166,7 +164,7 @@ public class PlayListFragment extends Fragment {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 
-        MenuInflater inflater = getActivity().getMenuInflater();
+        MenuInflater inflater = Objects.requireNonNull(getActivity()).getMenuInflater();
         inflater.inflate(R.menu.playlist_context_menu, menu);
 
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;

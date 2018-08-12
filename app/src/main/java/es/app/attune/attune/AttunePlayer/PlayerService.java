@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
-import android.media.SoundPool;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -16,9 +15,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
-import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -48,6 +45,10 @@ public class PlayerService extends Service {
 
     public static Intent getIntent(Context context) {
         return new Intent(context, PlayerService.class);
+    }
+
+    public void logout() {
+        mPlayer.logout();
     }
 
     /**
@@ -84,7 +85,7 @@ public class PlayerService extends Service {
                 if(mPlayer.isPlaying()){
                     mPlayer.pause();
                     views.setImageViewResource(R.id.status_bar_play,
-                            R.drawable.ic_play_arrow_white_36dp);
+                            R.drawable.ic_play_arrow_black_36dp);
                     bigViews.setImageViewResource(R.id.status_bar_play,
                             R.drawable.ic_play_arrow_white_36dp);
                 }else{
@@ -92,7 +93,7 @@ public class PlayerService extends Service {
                     views.setImageViewResource(R.id.status_bar_play,
                             R.drawable.ic_pause_black_36dp);
                     bigViews.setImageViewResource(R.id.status_bar_play,
-                            R.drawable.ic_pause_black_36dp);
+                            R.drawable.ic_pause_white_36dp);
                 }
 
                 status = new Notification.Builder(App.getContext()).build();
@@ -173,7 +174,7 @@ public class PlayerService extends Service {
         views.setImageViewResource(R.id.status_bar_play,
                 R.drawable.ic_pause_black_36dp);
         bigViews.setImageViewResource(R.id.status_bar_play,
-                R.drawable.ic_pause_black_36dp);
+                R.drawable.ic_pause_white_36dp);
 
         views.setTextViewText(R.id.status_bar_track_name, item.getName());
         bigViews.setTextViewText(R.id.status_bar_track_name, item.getName());
@@ -294,11 +295,7 @@ public class PlayerService extends Service {
 
     private boolean isLastSong() {
         Song lastSong = mPlayer.getLastSong();
-        if(getCurrentSong().equals(lastSong)){
-            return true;
-        }else{
-            return false;
-        }
+        return getCurrentSong().equals(lastSong);
     }
 
 
@@ -311,7 +308,7 @@ public class PlayerService extends Service {
             if(effect_type == 1){
                 if(!doingEffect){
                     doingEffect = true;
-                    crossfade(2000);
+                    crossfade();
                 }
             }else if(effect_type == 2){
                 if(!doingEffect){
@@ -327,26 +324,26 @@ public class PlayerService extends Service {
         doingEffect = false;
     }
 
-    private void crossfade(final int duration) {
+    private void crossfade() {
         // Iniciamos fadeOut
         final int deviceVolume = getDeviceVolume();
         final Handler h = new Handler();
         h.postDelayed(new Runnable() {
-            private int time = duration;
+            private int time = 2000;
             private int volume = 0;
 
             @Override
             public void run() {
                 // can call h again after work!
                 time -= 100;
-                volume = (deviceVolume * time) / duration;
+                volume = (deviceVolume * time) / 2000;
                 audio.setStreamVolume(AudioManager.STREAM_MUSIC, volume,0);
                 if (time > 0)
                     h.postDelayed(this, 100);
                 else{
                     if(!isLastSong()){
                         skipToNextSong();
-                        fadeIn(2000, deviceVolume);
+                        fadeIn(deviceVolume);
                     }else{
                         playPauseState();
                         doingEffect = false;
@@ -358,7 +355,7 @@ public class PlayerService extends Service {
         }, 100); // 1 second delay (takes millis)
     }
 
-    private void fadeIn(final int duration, int previousVolume) {
+    private void fadeIn(int previousVolume) {
         final int deviceVolume = previousVolume;
         final Handler h = new Handler();
         h.postDelayed(new Runnable() {
@@ -368,9 +365,9 @@ public class PlayerService extends Service {
             @Override
             public void run() {
                 time += 100;
-                volume = (deviceVolume * time) / duration;
+                volume = (deviceVolume * time) / 2000;
                 audio.setStreamVolume(AudioManager.STREAM_MUSIC, volume,0);
-                if (time < duration)
+                if (time < 2000)
                     h.postDelayed(this, 100);
                 else
                     doingEffect = false;
@@ -379,13 +376,11 @@ public class PlayerService extends Service {
     }
 
     public int getDeviceVolume() {
-        int volumeLevel = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
-        return volumeLevel;
+        return audio.getStreamVolume(AudioManager.STREAM_MUSIC);
     }
 
     public int getDeviceMaxVolume(){
-        int maxVolume = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-        return maxVolume;
+        return audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
     }
 
     @Nullable

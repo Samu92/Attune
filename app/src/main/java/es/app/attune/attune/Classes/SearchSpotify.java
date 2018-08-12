@@ -46,7 +46,6 @@ public class SearchSpotify {
 
     private final SpotifyService mSpotifyApi;
     private int mCurrentOffset;
-    private int mSize;
     private float mTempo;
     private float mDuration;
     private String mCurrentQuery;
@@ -93,6 +92,7 @@ public class SearchSpotify {
     }
 
     public void getRecomendationPlaylist(AttPlaylist playlist, int size, CompleteListener listener, int mode){
+        int mSize;
         if(mode == 0){
             mCurrentOffset = 0;
             mSize = size;
@@ -356,12 +356,10 @@ public class SearchSpotify {
             });
         }else{
             // Eliminamos aquellas canciones que no están dentro de los años indicados
-            List<Track> result_temp = new ArrayList<>();
-            Map<String,String> dates_temp = new HashMap<String,String>();
-            dates_temp.putAll(dates);
+            Map<String, String> dates_temp = new HashMap<String, String>(dates);
 
-            result_temp.addAll(tracks);
-            if(mYear_start != "" & mYear_end != ""){
+            List<Track> result_temp = new ArrayList<>(tracks);
+            if (!mYear_start.equals("") & !mYear_end.equals("")) {
                 for (Track track: tracks) {
                     for (Map.Entry<String,String> entry: dates.entrySet()) {
                         if(entry.getKey() == track.id){
@@ -411,10 +409,8 @@ public class SearchSpotify {
                 Collections.sort(songs, new Comparator<Song>() {
                     @Override
                     public int compare(Song o1, Song o2) {
-                        Song song1 = o1;
-                        Song song2 = o2;
 
-                        if(song1.getPosition() > song2.getPosition()){
+                        if (o1.getPosition() > o2.getPosition()) {
                             return 1;
                         }else{
                             return -1;

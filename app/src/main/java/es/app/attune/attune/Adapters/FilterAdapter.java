@@ -1,6 +1,7 @@
 package es.app.attune.attune.Adapters;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,22 +14,22 @@ import es.app.attune.attune.R;
 
 public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterViewHolder> {
 
-    ArrayList<String> filterList;
+    private ArrayList<String> filterList;
 
     public FilterAdapter(ArrayList<String> filterList, Context context) {
         this.filterList = filterList;
     }
 
+    @NonNull
     @Override
-    public FilterAdapter.FilterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public FilterAdapter.FilterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v= LayoutInflater.from(parent.getContext()).inflate(R.layout.filter_list_item,parent,false);
-        FilterViewHolder viewHolder=new FilterViewHolder(v);
-        return viewHolder;
+        return new FilterViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(FilterAdapter.FilterViewHolder holder, int position) {
-        holder.text.setText(filterList.get(position).toString());
+    public void onBindViewHolder(@NonNull FilterAdapter.FilterViewHolder holder, int position) {
+        holder.text.setText(filterList.get(position));
     }
 
     @Override
@@ -40,7 +41,7 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterView
 
         protected TextView text;
 
-        public FilterViewHolder(View itemView) {
+        FilterViewHolder(View itemView) {
             super(itemView);
             text= itemView.findViewById(R.id.text_id);
         }

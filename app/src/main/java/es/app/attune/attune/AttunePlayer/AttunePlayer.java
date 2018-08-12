@@ -2,7 +2,6 @@ package es.app.attune.attune.AttunePlayer;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.spotify.sdk.android.player.Config;
@@ -18,6 +17,8 @@ import java.util.Comparator;
 import java.util.List;
 
 import es.app.attune.attune.Activity.MainActivity;
+import es.app.attune.attune.Classes.App;
+import es.app.attune.attune.Classes.CredentialsHandler;
 import es.app.attune.attune.Database.AttPlaylist;
 import es.app.attune.attune.Database.Song;
 
@@ -32,112 +33,144 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
     private int mCurrentSong;
     private static final String CLIENT_ID = "8bcf4a1c62f64325a456b1bee9e857d9";
     private List<Song> currentSongs;
-    private Intent switchIntent;
     private boolean repetitionState;
 
-    public AttunePlayer() {
+    AttunePlayer() {
         currentSongs = new ArrayList<Song>();
-        switchIntent = new Intent("es.app.attune.ACTION_PLAY");
+        Intent switchIntent = new Intent("es.app.attune.ACTION_PLAY");
         repetitionState = false;
     }
 
     @Override
     public void play(Song item) {
-        currentSongs.clear();
-        currentSongs.add(item);
-        mSpotifyPlayer.playUri(null,item.getUrlSpotify(),0,0);
-        mCurrentSong = 0;
+        if (mSpotifyPlayer != null) {
+            if (!mSpotifyPlayer.isLoggedIn())
+                mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
+            currentSongs.clear();
+            currentSongs.add(item);
+            mSpotifyPlayer.playUri(null, item.getUrlSpotify(), 0, 0);
+            mCurrentSong = 0;
+        }
     }
 
     @Override
     public void setQueue(AttPlaylist item) {
-        currentSongs.clear();
-        currentSongs.addAll(item.getSongs());
-        Collections.sort(currentSongs, new Comparator<Song>() {
-            @Override
-            public int compare(Song o1, Song o2) {
-                Song song1 = o1;
-                Song song2 = o2;
+        if (mSpotifyPlayer != null) {
+            if (!mSpotifyPlayer.isLoggedIn())
+                mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
+            currentSongs.clear();
+            currentSongs.addAll(item.getSongs());
+            Collections.sort(currentSongs, new Comparator<Song>() {
+                @Override
+                public int compare(Song o1, Song o2) {
 
-                if(song1.getPosition() > song2.getPosition()){
-                    return 1;
-                }else{
-                    return -1;
+                    if (o1.getPosition() > o2.getPosition()) {
+                        return 1;
+                    } else {
+                        return -1;
+                    }
                 }
-            }
-        });
-        mSpotifyPlayer.playUri(null, currentSongs.get(0).getUrlSpotify(),0,0);
-        mCurrentSong = 0;
+            });
+            mSpotifyPlayer.playUri(null, currentSongs.get(0).getUrlSpotify(), 0, 0);
+            mCurrentSong = 0;
+        }
     }
 
     @Override
     public void setQueue(AttPlaylist item, Song song) {
-        currentSongs.clear();
-        currentSongs.addAll(item.getSongs());
-        Collections.sort(currentSongs, new Comparator<Song>() {
-            @Override
-            public int compare(Song o1, Song o2) {
-                Song song1 = o1;
-                Song song2 = o2;
+        if (mSpotifyPlayer != null) {
+            if (!mSpotifyPlayer.isLoggedIn())
+                mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
+            currentSongs.clear();
+            currentSongs.addAll(item.getSongs());
+            Collections.sort(currentSongs, new Comparator<Song>() {
+                @Override
+                public int compare(Song o1, Song o2) {
 
-                if(song1.getPosition() > song2.getPosition()){
-                    return 1;
-                }else{
-                    return -1;
+                    if (o1.getPosition() > o2.getPosition()) {
+                        return 1;
+                    } else {
+                        return -1;
+                    }
                 }
-            }
-        });
-        int currentPosition = song.getPosition();
-        mSpotifyPlayer.playUri(null, currentSongs.get(currentPosition).getUrlSpotify(),0,0);
-        mCurrentSong = currentPosition;
+            });
+            int currentPosition = song.getPosition();
+            mSpotifyPlayer.playUri(null, currentSongs.get(currentPosition).getUrlSpotify(), 0, 0);
+            mCurrentSong = currentPosition;
+        }
     }
 
     public void skipToPreviousSong() {
-        if(mCurrentSong != 0){
-            mCurrentSong -= 1;
-            mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(),0,0);
+        if (mSpotifyPlayer != null) {
+            if (!mSpotifyPlayer.isLoggedIn())
+                mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
+            if (mCurrentSong != 0) {
+                mCurrentSong -= 1;
+                mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(), 0, 0);
+            }
         }
     }
 
     public void skipToNextSong() {
-        if(currentSongs.size() > 1){
-            if(mCurrentSong < currentSongs.size() - 1){
-                mCurrentSong += 1;
-                mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(),0,0);
-            }else if(repetitionState){
-                mCurrentSong = 0;
-                mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(),0,0);
+        if (mSpotifyPlayer != null) {
+            if (!mSpotifyPlayer.isLoggedIn())
+                mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
+            if (currentSongs.size() > 1) {
+                if (mCurrentSong < currentSongs.size() - 1) {
+                    mCurrentSong += 1;
+                    mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(), 0, 0);
+                } else if (repetitionState) {
+                    mCurrentSong = 0;
+                    mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(), 0, 0);
+                }
+            } else if (repetitionState) {
+                mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(), 0, 0);
             }
-        }else if(repetitionState){
-            mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(),0,0);
         }
     }
 
     @Override
     public void pause() {
-        Log.d(TAG, "Pause");
-        mSpotifyPlayer.pause(null);
+        if (mSpotifyPlayer != null) {
+            if (!mSpotifyPlayer.isLoggedIn())
+                mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
+            Log.d(TAG, "Pause");
+            mSpotifyPlayer.pause(null);
+        }
     }
 
     @Override
     public void release() {
-        mCurrentSong = 0;
-        mSpotifyPlayer.shutdown();
+        if (mSpotifyPlayer != null) {
+            if (!mSpotifyPlayer.isLoggedIn())
+                mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
+            mCurrentSong = 0;
+            mSpotifyPlayer.shutdown();
+        }
     }
 
     @Override
     public void resume() {
-        Log.d(TAG, "Resume");
-        mSpotifyPlayer.resume(null);
+        if (mSpotifyPlayer != null) {
+            if (!mSpotifyPlayer.isLoggedIn())
+                mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
+            Log.d(TAG, "Resume");
+            mSpotifyPlayer.resume(null);
+        }
     }
 
     @Override
     public boolean isPlaying() {
-        return mSpotifyPlayer.getPlaybackState().isPlaying;
+        if (mSpotifyPlayer != null) {
+            if (!mSpotifyPlayer.isLoggedIn())
+                mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
+            return mSpotifyPlayer.getPlaybackState().isPlaying;
+        } else {
+            return false;
+        }
     }
 
     @Override
-    @Nullable
     public int getCurrentTrack() {
         return mCurrentSong;
     }
@@ -179,7 +212,7 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
 
     @Override
     public void onTemporaryError() {
-
+        Log.e("TemporaryError", "");
     }
 
     @Override
@@ -219,12 +252,14 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
         }
 
         if(playerEvent.equals(PlayerEvent.kSpPlaybackNotifyTrackChanged)){
-            if((mCurrentSong < currentSongs.size() - 1) && !mSpotifyPlayer.getPlaybackState().isPlaying){
-                mCurrentSong += 1;
-                mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(),0,0);
-            }else if((mCurrentSong == currentSongs.size() - 1) && repetitionState && !mSpotifyPlayer.getPlaybackState().isPlaying){
-                mCurrentSong = 0;
-                mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(),0,0);
+            if (mSpotifyPlayer != null) {
+                if ((mCurrentSong < currentSongs.size() - 1) && !mSpotifyPlayer.getPlaybackState().isPlaying) {
+                    mCurrentSong += 1;
+                    mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(), 0, 0);
+                } else if ((mCurrentSong == currentSongs.size() - 1) && repetitionState && !mSpotifyPlayer.getPlaybackState().isPlaying) {
+                    mCurrentSong = 0;
+                    mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(), 0, 0);
+                }
             }
         }
 
@@ -239,15 +274,15 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
     }
 
     public boolean isInitialized(){
-        if(mSpotifyPlayer != null){
-            return true;
-        }else{
-            return false;
-        }
+        return mSpotifyPlayer != null;
     }
 
     public long getPositionTrack(){
-        return mSpotifyPlayer.getPlaybackState().positionMs;
+        if (mSpotifyPlayer != null) {
+            return mSpotifyPlayer.getPlaybackState().positionMs;
+        } else {
+            return 0;
+        }
     }
 
     public Song getCurrentSong() {
@@ -267,7 +302,11 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
     }
 
     public PlaybackState getPlaybackState() {
-        return mSpotifyPlayer.getPlaybackState();
+        if (mSpotifyPlayer != null) {
+            return mSpotifyPlayer.getPlaybackState();
+        } else {
+            return null;
+        }
     }
 
     public boolean currentsSongEmpty() {
@@ -275,9 +314,11 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
     }
 
     public void seekToPosition(int progress) {
-        long total = getCurrentSong().getDuration();
-        long ms = (progress*1000);
-        mSpotifyPlayer.seekToPosition(null, Math.abs((int) ms));
+        if (mSpotifyPlayer != null) {
+            long total = getCurrentSong().getDuration();
+            long ms = (progress * 1000);
+            mSpotifyPlayer.seekToPosition(null, Math.abs((int) ms));
+        }
     }
 
     public boolean getRepetition() {
@@ -286,5 +327,11 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
 
     public void setRepetitionState(boolean state){
         repetitionState = state;
+    }
+
+    public void logout() {
+        if (mSpotifyPlayer != null) {
+            mSpotifyPlayer.logout();
+        }
     }
 }

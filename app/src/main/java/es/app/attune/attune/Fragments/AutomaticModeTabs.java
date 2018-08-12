@@ -17,8 +17,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Classes.SearchInterfaces;
@@ -27,11 +27,7 @@ import es.app.attune.attune.R;
 public class AutomaticModeTabs extends Fragment {
 
     private Toolbar toolbar;
-    private TabLayout tabLayout;
-    private ViewPager viewPager;
     private ViewPager image_viewPager;
-    private static DatabaseFunctions db;
-    private ViewPagerAdapter adapter;
 
     private static NewPlayList fragmentNewPlaylist;
     private static AdvancedParameters fragmentAdvancedParameters;
@@ -44,9 +40,8 @@ public class AutomaticModeTabs extends Fragment {
 
     public static AutomaticModeTabs newInstance(DatabaseFunctions database, SearchInterfaces.ActionListener mActionListener) {
         AutomaticModeTabs fragment = new AutomaticModeTabs();
-        db = database;
-        fragmentNewPlaylist = NewPlayList.newInstance(db, mActionListener);
-        fragmentAdvancedParameters = AdvancedParameters.newInstance(db);
+        fragmentNewPlaylist = NewPlayList.newInstance(database, mActionListener);
+        fragmentAdvancedParameters = AdvancedParameters.newInstance(database);
 
         fragmentNewPlaylist.setAdvancedParametersFragment(fragmentAdvancedParameters);
         fragmentAdvancedParameters.setNewPlaylistFragment(fragmentNewPlaylist);
@@ -62,15 +57,15 @@ public class AutomaticModeTabs extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        viewPager = getView().findViewById(R.id.viewpager_newplaylist);
+        ViewPager viewPager = Objects.requireNonNull(getView()).findViewById(R.id.viewpager_newplaylist);
         setupViewPager(viewPager);
 
-        tabLayout = getActivity().findViewById(R.id.tabs);
+        TabLayout tabLayout = Objects.requireNonNull(getActivity()).findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
     }
 
     private void setupViewPager(ViewPager viewPager) {
-        adapter = new ViewPagerAdapter(getChildFragmentManager());
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
         adapter.addFragment(fragmentNewPlaylist, "General");
         adapter.addFragment(fragmentAdvancedParameters, "Avanzados");
         viewPager.setAdapter(adapter);
@@ -95,15 +90,15 @@ public class AutomaticModeTabs extends Fragment {
     }
 
     public int getTempo() {
-        return fragmentNewPlaylist.getTempo();
+        return NewPlayList.getTempo();
     }
 
     public String getCategory() {
-        return fragmentNewPlaylist.getCategory();
+        return NewPlayList.getCategory();
     }
 
     public int getDuration() {
-        return fragmentNewPlaylist.getDuration();
+        return NewPlayList.getDuration();
     }
 
     public float getSongDuration() {
@@ -111,44 +106,48 @@ public class AutomaticModeTabs extends Fragment {
     }
 
     public float getAcousticness() {
-        return fragmentAdvancedParameters.getAcousticness();
+        return AdvancedParameters.getAcousticness();
     }
 
     public float getDanceability() {
-        return fragmentAdvancedParameters.getDanceability();
+        return AdvancedParameters.getDanceability();
     }
 
     public float getEnergy() {
-        return fragmentAdvancedParameters.getEnergy();
+        return AdvancedParameters.getEnergy();
     }
 
     public float getInstrumentalness() {
-        return fragmentAdvancedParameters.getInstrumentalness();
+        return AdvancedParameters.getInstrumentalness();
     }
 
     public float getLiveness() {
-        return fragmentAdvancedParameters.getLiveness();
+        return AdvancedParameters.getLiveness();
     }
 
     public float getLoudness() {
-        return fragmentAdvancedParameters.getLoudness();
+        return AdvancedParameters.getLoudness();
     }
 
     public int getPopularity() {
-        return fragmentAdvancedParameters.getPopularity();
+        return AdvancedParameters.getPopularity();
     }
 
     public float getSpeechiness() {
-        return fragmentAdvancedParameters.getSpeechiness();
+        return AdvancedParameters.getSpeechiness();
     }
 
     public float getValence() {
-        return fragmentAdvancedParameters.getValence();
+        return AdvancedParameters.getValence();
     }
 
-    public String getYearStart() { return fragmentNewPlaylist.getYearStart();}
+    public String getYearStart() {
+        return NewPlayList.getYearStart();
+    }
 
-    public String getYearEnd() { return fragmentNewPlaylist.getYearEnd();}
+    public String getYearEnd() {
+        return NewPlayList.getYearEnd();
+    }
 
     public void dismissProgress() {
         fragmentNewPlaylist.dismissProgress();
@@ -184,7 +183,7 @@ public class AutomaticModeTabs extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_new_play_list_tabs, container, false);

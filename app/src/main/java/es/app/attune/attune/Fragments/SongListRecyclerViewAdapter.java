@@ -11,8 +11,6 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
 
 import es.app.attune.attune.Classes.DatabaseFunctions;
@@ -25,12 +23,13 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
     private final SongsListFragment.OnListFragmentInteractionListener mListener;
     private Context context;
 
-    public SongListRecyclerViewAdapter(List<Song> items, SongsListFragment.OnListFragmentInteractionListener listener, Context context) {
+    SongListRecyclerViewAdapter(List<Song> items, SongsListFragment.OnListFragmentInteractionListener listener, Context context) {
         mValues = items;
         mListener = listener;
         this.context = context;
     }
 
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
@@ -47,12 +46,12 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
         //holder.mArtistView.setText(context.getResources().getString(R.string.txt_artist) + mValues.get(position).getArtist());
         holder.mArtistView.setText(mValues.get(position).getArtist());
 
-        //holder.mTempoView.setText(context.getResources().getString(R.string.txt_tempo) + String.valueOf(mValues.get(position).getTempo()));
-        holder.mTempoView.setText(String.valueOf(mValues.get(position).getTempo()));
+        holder.mTempoView.setText(context.getResources().getString(R.string.txt_tempo) + String.valueOf(mValues.get(position).getTempo()));
+        //holder.mTempoView.setText(String.valueOf(mValues.get(position).getTempo()));
 
         int duration = (int) (mValues.get(position).getDuration()/1000);
-        //holder.mDurationView.setText("Duración: " + Tools.timeConversion(duration));
-        holder.mDurationView.setText(Tools.timeConversion(duration));
+        holder.mDurationView.setText("Duración: " + Tools.timeConversion(duration));
+        //holder.mDurationView.setText(Tools.timeConversion(duration));
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,8 +76,8 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
                     .into(holder.image);
         }
 
-        //holder.mDateView.setText(context.getResources().getString(R.string.date) + mValues.get(position).getDate());
-        holder.mDateView.setText(mValues.get(position).getDate());
+        holder.mDateView.setText(context.getResources().getString(R.string.date) + mValues.get(position).getDate());
+        //holder.mDateView.setText(mValues.get(position).getDate());
 
         switch (mValues.get(position).getEffect_type()){
             case 0:
@@ -118,17 +117,17 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView mNameView;
-        public final TextView mArtistView;
-        public final TextView mTempoView;
-        public final TextView mDurationView;
+        final View mView;
+        final TextView mNameView;
+        final TextView mArtistView;
+        final TextView mTempoView;
+        final TextView mDurationView;
         public final ImageView image;
-        public final TextView mDateView;
-        public final TextView mEffectView;
+        final TextView mDateView;
+        final TextView mEffectView;
         public Song mItem;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             mView = view;
             mNameView = view.findViewById(R.id.song_name);

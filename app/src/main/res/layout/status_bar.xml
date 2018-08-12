@@ -43,22 +43,29 @@
             android:textColor="@color/black"/>
     </LinearLayout>
 
-    <ImageButton
+    <ImageView
+        android:id="@+id/status_bar_prev"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/cd_previous"
+        android:src="@drawable/ic_skip_previous_black_36dp" />
+
+    <ImageView
         android:id="@+id/status_bar_play"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:contentDescription="@string/cd_play" />
 
-    <ImageButton
+    <ImageView
         android:id="@+id/status_bar_next"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:contentDescription="@string/cd_next"
         android:src="@drawable/ic_skip_next_black_36dp" />
 
-    <ImageButton
+    <ImageView
         android:id="@+id/status_bar_collapse"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:src="@drawable/ic_clear_white_36dp" />
+        android:src="@drawable/ic_clear_black_36dp" />
 </LinearLayout>

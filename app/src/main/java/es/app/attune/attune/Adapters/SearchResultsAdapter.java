@@ -1,6 +1,7 @@
 package es.app.attune.attune.Adapters;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,17 +12,12 @@ import android.widget.TextView;
 import com.google.common.base.Joiner;
 import com.squareup.picasso.Picasso;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import es.app.attune.attune.Database.Song;
 import es.app.attune.attune.Modules.Tools;
 import es.app.attune.attune.R;
-import kaaes.spotify.webapi.android.models.ArtistSimple;
-import kaaes.spotify.webapi.android.models.Image;
-import kaaes.spotify.webapi.android.models.Track;
 
 public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdapter.ViewHolder> {
 
@@ -38,7 +34,7 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
         public final TextView date;
         public final TextView duration;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.entity_title);
             subtitle = itemView.findViewById(R.id.entity_subtitle);
@@ -74,8 +70,9 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
         notifyDataSetChanged();
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.manual_mode_list_item, parent, false);
         return new ViewHolder(v);
     }

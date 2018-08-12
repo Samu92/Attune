@@ -22,16 +22,14 @@ import es.app.attune.attune.R;
 
 public class DatabaseFunctions {
 
-    private DaoSession session;
     private GenreDao genreDao;
     private AttPlaylistDao attplaylistDao;
     private SongDao songDao;
 
     public DatabaseFunctions(DaoSession session) {
-        this.session = session;
-        attplaylistDao = this.session.getAttPlaylistDao();
-        songDao = this.session.getSongDao();
-        genreDao = this.session.getGenreDao();
+        attplaylistDao = session.getAttPlaylistDao();
+        songDao = session.getSongDao();
+        genreDao = session.getGenreDao();
     }
 
     public void insertGenres(List<String> items){
@@ -58,8 +56,7 @@ public class DatabaseFunctions {
         String currentUser = CredentialsHandler.getUserId(App.getContext());
         QueryBuilder<AttPlaylist> q = attplaylistDao.queryBuilder();
         q.where(AttPlaylistDao.Properties.UserId.eq(currentUser)).orderAsc(AttPlaylistDao.Properties.Position);
-        List<AttPlaylist> list = q.list();
-        return list;
+        return q.list();
     }
 
     public ArrayList<String> getPlaylistsNames() {
@@ -151,7 +148,7 @@ public class DatabaseFunctions {
     public boolean playlistNameExists(String text) {
         String currentUser = CredentialsHandler.getUserId(App.getContext());
         QueryBuilder<AttPlaylist> q = attplaylistDao.queryBuilder();
-        q.where(AttPlaylistDao.Properties.Name.like(text.toString()),AttPlaylistDao.Properties.UserId.eq(currentUser));
+        q.where(AttPlaylistDao.Properties.Name.like(text), AttPlaylistDao.Properties.UserId.eq(currentUser));
         List<AttPlaylist> playlists = q.list();
         return playlists.size() > 0;
     }
@@ -166,7 +163,7 @@ public class DatabaseFunctions {
         }
     }
 
-    public int getSongNextPosition(String id) {
+    private int getSongNextPosition(String id) {
         QueryBuilder<Song> q = songDao.queryBuilder();
         q.where(SongDao.Properties.Position.isNotNull(),SongDao.Properties.IdPlaylist.eq(id)).orderDesc(SongDao.Properties.Position).limit(1);
         if(q.list().size() > 0){

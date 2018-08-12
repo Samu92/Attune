@@ -2,7 +2,6 @@ package es.app.attune.attune.Activity;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,9 +9,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.media.AudioManager;
-import android.media.Image;
-import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -24,7 +20,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -39,7 +34,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -52,15 +46,12 @@ import com.spotify.sdk.android.player.Spotify;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import es.app.attune.attune.AttunePlayer.PlayerService;
-import es.app.attune.attune.Classes.CredentialsHandler;
-import es.app.attune.attune.Fragments.SongListRecyclerViewAdapter;
-import es.app.attune.attune.Services.RenewService;
 import es.app.attune.attune.Classes.App;
 import es.app.attune.attune.Classes.Constants;
+import es.app.attune.attune.Classes.CredentialsHandler;
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Classes.SearchFunctions;
 import es.app.attune.attune.Classes.SearchInterfaces;
@@ -73,8 +64,8 @@ import es.app.attune.attune.Fragments.NewPlayList;
 import es.app.attune.attune.Fragments.PlayListFragment;
 import es.app.attune.attune.Fragments.SongsListFragment;
 import es.app.attune.attune.R;
+import es.app.attune.attune.Services.RenewService;
 import kaaes.spotify.webapi.android.models.UserPrivate;
-import retrofit.http.GET;
 
 import static es.app.attune.attune.Classes.App.getContext;
 
@@ -106,17 +97,11 @@ public class MainActivity extends AppCompatActivity
     TextView navUserName;
     CircleImageView navImageView;
     private ImageView image;
-    private TextView txt_edit_playlist;
     private MaterialDialog edit_playlist_dialog;
     private AttPlaylist selected_playlist;
     private static SlidingUpPanelLayout playerUI;
     private static ImageView play_pause_button;
     private static ImageView play_pause_button_expand;
-    private static ImageView previous_song_button;
-    private static ImageView next_song_button;
-    private static ImageView previous_song_button_expand;
-    private static ImageView next_song_button_expand;
-    private ImageView slide_button;
     private static CircleProgressbar song_cover;
     private static TextView song_playlist_name;
     private static TextView song_title;
@@ -124,7 +109,6 @@ public class MainActivity extends AppCompatActivity
     private static LinearLayout playerControlsShort;
     private static CircleImageView song_cover_image;
     private MaterialDialog progress;
-    private static UserPrivate mPrivateUser;
     private static MaterialDialog result;
     private static TextView txt_result;
     private static TextView numeric_progress;
@@ -251,7 +235,7 @@ public class MainActivity extends AppCompatActivity
         });
 
         image = edit_playlist_dialog.getView().findViewById(R.id.image_new_manual_playlist);
-        txt_edit_playlist = edit_playlist_dialog.getView().findViewById(R.id.new_playlist_name);
+        TextView txt_edit_playlist = edit_playlist_dialog.getView().findViewById(R.id.new_playlist_name);
 
         Glide.with(MainActivity.this)
                 .load(R.drawable.baseline_add_photo_alternate_white_48)
@@ -310,7 +294,7 @@ public class MainActivity extends AppCompatActivity
                 }
         });
 
-        previous_song_button = (ImageView) findViewById(R.id.previous_song);
+        ImageView previous_song_button = (ImageView) findViewById(R.id.previous_song);
         previous_song_button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -325,7 +309,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        next_song_button = (ImageView) findViewById(R.id.next_song);
+        ImageView next_song_button = (ImageView) findViewById(R.id.next_song);
         next_song_button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -340,7 +324,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        previous_song_button_expand = (ImageView) findViewById(R.id.previous_song_expand);
+        ImageView previous_song_button_expand = (ImageView) findViewById(R.id.previous_song_expand);
         previous_song_button_expand.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -355,7 +339,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        next_song_button_expand = (ImageView) findViewById(R.id.next_song_expand);
+        ImageView next_song_button_expand = (ImageView) findViewById(R.id.next_song_expand);
         next_song_button_expand.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -400,7 +384,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        slide_button = (ImageView) findViewById(R.id.slide_button);
+        ImageView slide_button = (ImageView) findViewById(R.id.slide_button);
         slide_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -493,7 +477,7 @@ public class MainActivity extends AppCompatActivity
                     getSupportFragmentManager().beginTransaction()
                             .addToBackStack(playListFragment.getClass().getName())
                             .replace(R.id.fragmentView, playListFragment, playListFragment.getClass().getName())
-                            .commit();
+                            .commitAllowingStateLoss();
                 }
             }
         });
@@ -579,6 +563,7 @@ public class MainActivity extends AppCompatActivity
             intent.putExtra("logout",true);
             startActivity(intent);
             mService.playPauseState();
+            mService.logout();
             CredentialsHandler.removeCredentials(this);
             finish();
         }
@@ -754,7 +739,7 @@ public class MainActivity extends AppCompatActivity
                             // Exportamos la playlist a Spotify
                             if(isOnline(getApplicationContext())){
                                 selected_playlist = item;
-                                mActionListener.exportToSpotify(mPrivateUser.id,item);
+                                mActionListener.exportToSpotify(CredentialsHandler.getUserId(getApplicationContext()), item);
                             }else{
                                 Log.e("Connection", getString(R.string.no_connection));
                                 offline = new MaterialDialog.Builder(getContext())
@@ -871,7 +856,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void setUserData(UserPrivate user) {
-        mPrivateUser = user;
         progress.dismiss();
         if(user.product.equals("premium")){
             if(user.display_name != null){
@@ -943,12 +927,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     public static void closePanel(){
-        if(mService.isPlaying()){
-            playerControlsShort.setVisibility(View.VISIBLE);
-            playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-        }else if(playerUI.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED){
-            playerControlsShort.setVisibility(View.VISIBLE);
-            playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        if (mService != null) {
+            if (mService.isPlaying()) {
+                playerControlsShort.setVisibility(View.VISIBLE);
+                playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            } else if (playerUI.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
+                playerControlsShort.setVisibility(View.VISIBLE);
+                playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            }
         }
     }
 

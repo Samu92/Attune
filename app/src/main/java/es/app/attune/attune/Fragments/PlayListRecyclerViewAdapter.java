@@ -1,13 +1,13 @@
 package es.app.attune.attune.Fragments;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -29,24 +29,23 @@ public class PlayListRecyclerViewAdapter extends RecyclerView.Adapter<PlayListRe
     private final List<AttPlaylist> mValues;
     private final OnListFragmentInteractionListener mListener;
     private Context context;
-    private ViewHolder holder;
 
-    public PlayListRecyclerViewAdapter(List<AttPlaylist> items, OnListFragmentInteractionListener listener, Context context) {
+    PlayListRecyclerViewAdapter(List<AttPlaylist> items, OnListFragmentInteractionListener listener, Context context) {
         mValues = items;
         mListener = listener;
         this.context = context;
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fragment_playlist, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
-        this.holder = holder;
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
         //holder.mIdView.setText(mValues.get(position).getId());
         holder.mNameView.setText(mValues.get(position).getName());
@@ -99,17 +98,17 @@ public class PlayListRecyclerViewAdapter extends RecyclerView.Adapter<PlayListRe
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
+        final View mView;
         //public final TextView mIdView;
-        public final TextView mNameView;
-        public final TextView mTempoView;
-        public final TextView mGenreView;
-        public final TextView mSongsView;
-        public final ImageView mImagePlaylistView;
-        public final TextView mDurationView;
+        final TextView mNameView;
+        final TextView mTempoView;
+        final TextView mGenreView;
+        final TextView mSongsView;
+        final ImageView mImagePlaylistView;
+        final TextView mDurationView;
         public AttPlaylist mItem;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             mView = view;
             //mIdView = (TextView) view.findViewById(R.id.id);

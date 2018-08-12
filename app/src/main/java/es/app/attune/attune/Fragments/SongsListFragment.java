@@ -3,6 +3,7 @@ package es.app.attune.attune.Fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.GridLayoutManager;
@@ -15,7 +16,11 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import es.app.attune.attune.Activity.MainActivity;
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
+
+import java.util.Objects;
+
 import es.app.attune.attune.Classes.DatabaseFunctions;
 import es.app.attune.attune.Database.Song;
 import es.app.attune.attune.R;
@@ -35,6 +40,8 @@ public class SongsListFragment extends Fragment {
     private static SongListRecyclerViewAdapter adapter;
     private static String playlistId;
     private TextView empty;
+    private MaterialDialog question;
+    private TextView txt_question;
 
     public SongsListFragment() {
         // Required empty public constructor
@@ -56,7 +63,7 @@ public class SongsListFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_song_list, container, false);
@@ -99,28 +106,45 @@ public class SongsListFragment extends Fragment {
     }
 
     private ItemTouchHelper.Callback createHelperCallback() {
-        ItemTouchHelper.SimpleCallback simpleCallback =
-                new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-                    @Override
-                    public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                        adapter.moveItem(viewHolder.getAdapterPosition(), target.getAdapterPosition(),db);
-                        return true;
-                    }
+        return new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView1, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                adapter.moveItem(viewHolder.getAdapterPosition(), target.getAdapterPosition(), db);
+                return true;
+            }
 
-                    @Override
-                    public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                        adapter.deleteItem(viewHolder.getAdapterPosition(),db);
-
-                        if(adapter.getItemCount() == 0){
-                            recyclerView.setVisibility(View.GONE);
-                            empty.setVisibility(View.VISIBLE);
-                        }else{
-                            recyclerView.setVisibility(View.VISIBLE);
-                            empty.setVisibility(View.GONE);
-                        }
-                    }
-                };
-        return simpleCallback;
+            @Override
+            public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
+                question = new MaterialDialog.Builder(Objects.requireNonNull(getActivity()))
+                        .customView(R.layout.question_layout, false)
+                        .cancelable(true)
+                        .positiveText(R.string.agree)
+                        .negativeText(R.string.disagree)
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                adapter.deleteItem(viewHolder.getAdapterPosition(), db);
+                                if (adapter.getItemCount() == 0) {
+                                    recyclerView.setVisibility(View.GONE);
+                                    empty.setVisibility(View.VISIBLE);
+                                } else {
+                                    recyclerView.setVisibility(View.VISIBLE);
+                                    empty.setVisibility(View.GONE);
+                                }
+                            }
+                        })
+                        .onNegative(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                adapter.notifyDataSetChanged();
+                            }
+                        })
+                        .build();
+                txt_question = question.getView().findViewById(R.id.txt_question);
+                txt_question.setText(R.string.song_delete);
+                question.show();
+            }
+        };
     }
 
     @Override
@@ -144,16 +168,6 @@ public class SongsListFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
         void onListFragmentInteraction(Song item, boolean manual);

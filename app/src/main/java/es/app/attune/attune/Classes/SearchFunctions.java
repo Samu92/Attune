@@ -2,7 +2,6 @@ package es.app.attune.attune.Classes;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,40 +24,32 @@ import kaaes.spotify.webapi.android.models.UserPrivate;
 
 public class SearchFunctions implements SearchInterfaces.ActionListener {
     private static final String TAG = SearchFunctions.class.getSimpleName();
-    public static final int SIZE = 50;
+    private static final int SIZE = 50;
     private static final String CLIENT_ID = "";
     private static final int PAGE_SIZE = 20;
 
-    private final Context mContext;
     private final SearchInterfaces.ResultPlaylist mResultPlaylist;
     private final SearchInterfaces.ResultGenres mResultGenres;
     private final SearchInterfaces.ResultUserData mResultUserData;
     private final SearchInterfaces.ResultNewPlaylist mResultNewPlaylist;
-    private float mTempo;
-    private String mGenre;
     private float mDuration;
     private AttPlaylist newPlaylist;
 
     private SearchSpotify mSearchPager;
-    private SearchSpotify.CompleteListener mSearchListener;
     private SearchSpotify.ManualSearchListener mManualSearchListener;
-    private SearchSpotify.GenresListener mGenresListener;
-    private SearchSpotify.UserDataListener mUserDataListener;
 
-    private DaoSession daoSession;
     private DatabaseFunctions db;
 
     private String mCurrentQuery;
 
     public SearchFunctions(Context context, SearchInterfaces.ResultPlaylist result, SearchInterfaces.ResultGenres result_genres, SearchInterfaces.ResultUserData result_userdata, SearchInterfaces.ResultNewPlaylist resultNewPlaylist) {
-        mContext = context;
         mResultPlaylist = result;
         mResultGenres = result_genres;
         mResultUserData = result_userdata;
         mResultNewPlaylist = resultNewPlaylist;
 
         // Inicializamos la sesión de base de datos
-        daoSession = ((App) context.getApplicationContext()).getDaoSession();
+        DaoSession daoSession = ((App) context.getApplicationContext()).getDaoSession();
         db = new DatabaseFunctions(daoSession);
     }
 
@@ -78,6 +69,9 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
 
     @Override
     public void searchRecomendations(final AttPlaylist playlist, final int mode) {
+        float mTempo;
+        String mGenre;
+        SearchSpotify.CompleteListener mSearchListener;
         if(mode == 0){
             final float tempo  = playlist.getTempo();
             String genre = playlist.getGenre();
@@ -343,7 +337,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
 
     @Override
     public void getAvailableGenreSeeds() {
-        mGenresListener = new SearchSpotify.GenresListener(){
+        SearchSpotify.GenresListener mGenresListener = new SearchSpotify.GenresListener() {
             @Override
             public void onComplete(List<String> items) {
                 mResultGenres.addDataGenres(items);
@@ -363,7 +357,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
         if(CredentialsHandler.hasUser(App.getContext())){
             mResultUserData.setUserData();
         }else{
-            mUserDataListener = new SearchSpotify.UserDataListener(){
+            SearchSpotify.UserDataListener mUserDataListener = new SearchSpotify.UserDataListener() {
 
                 @Override
                 public void onComplete(UserPrivate user) {
