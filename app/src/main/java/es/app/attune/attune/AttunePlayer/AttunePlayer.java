@@ -71,8 +71,10 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
                     }
                 }
             });
-            mSpotifyPlayer.playUri(null, currentSongs.get(0).getUrlSpotify(), 0, 0);
-            mCurrentSong = 0;
+            if (currentSongs.size() > 0) {
+                mSpotifyPlayer.playUri(null, currentSongs.get(0).getUrlSpotify(), 0, 0);
+                mCurrentSong = 0;
+            }
         }
     }
 
@@ -95,8 +97,10 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
                 }
             });
             int currentPosition = song.getPosition();
-            mSpotifyPlayer.playUri(null, currentSongs.get(currentPosition).getUrlSpotify(), 0, 0);
-            mCurrentSong = currentPosition;
+            if (currentSongs.size() > 0) {
+                mSpotifyPlayer.playUri(null, currentSongs.get(currentPosition).getUrlSpotify(), 0, 0);
+                mCurrentSong = currentPosition;
+            }
         }
     }
 

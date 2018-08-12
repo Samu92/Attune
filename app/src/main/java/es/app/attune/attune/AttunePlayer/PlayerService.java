@@ -218,21 +218,30 @@ public class PlayerService extends Service {
     public void playSong(Song item){
         if(MainActivity.isAuthorized()){
             mPlayer.play(item);
-            showNotification(item);
+            Song currentSong = getCurrentSong();
+            if (currentSong != null) {
+                showNotification(currentSong);
+            }
         }
     }
 
     public void playPlaylist(AttPlaylist item) {
         if(MainActivity.isAuthorized()){
             mPlayer.setQueue(item);
-            showNotification(getCurrentSong());
+            Song currentSong = getCurrentSong();
+            if (currentSong != null) {
+                showNotification(currentSong);
+            }
         }
     }
 
     public void playSongFromPlaylist(AttPlaylist selected_playlist, Song item) {
         if(MainActivity.isAuthorized()){
             mPlayer.setQueue(selected_playlist,item);
-            showNotification(getCurrentSong());
+            Song currentSong = getCurrentSong();
+            if (currentSong != null) {
+                showNotification(currentSong);
+            }
         }
     }
 
