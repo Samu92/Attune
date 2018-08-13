@@ -6,7 +6,7 @@
     android:isScrollContainer="false"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context="es.app.attune.attune.Fragments.NewPlayList">
+    tools:context="es.app.attune.attune.fragments.NewPlayList">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -76,7 +76,7 @@
                 android:enabled="false"
                 android:layout_alignBaseline="@id/check_new_playlist_date"
                 android:layout_marginStart="10dp"
-                app:met_mask="####"/>/>
+                app:met_mask="####" />
 
             <TextView
                 android:id="@+id/txt_filter_separator"
@@ -160,7 +160,7 @@
             android:layout_marginBottom="15dp"
             app:bsb_track_color="@color/gray"
             app:bsb_section_text_color="@color/colorPrimary"
-            app:bsb_second_track_color="@color/color_blue"
+            app:bsb_second_track_color="@color/colorAccent"
             app:bsb_section_count="5"
             app:bsb_section_text_position="below_section_mark"
             app:bsb_show_section_mark="true"
@@ -188,7 +188,7 @@
             android:layout_marginBottom="15dp"
             app:bsb_track_color="@color/gray"
             app:bsb_section_text_color="@color/colorPrimary"
-            app:bsb_second_track_color="@color/color_blue"
+            app:bsb_second_track_color="@color/colorAccent"
             app:bsb_section_count="5"
             app:bsb_section_text_position="below_section_mark"
             app:bsb_show_section_mark="true"
@@ -224,7 +224,7 @@
             android:layout_marginTop="15dp"
             app:bsb_track_color="@color/gray"
             app:bsb_section_text_color="@color/colorPrimary"
-            app:bsb_second_track_color="@color/color_blue"
+            app:bsb_second_track_color="@color/colorAccent"
             app:bsb_section_count="5"
             app:bsb_show_progress_in_float="true"
             app:bsb_is_float_type="true"

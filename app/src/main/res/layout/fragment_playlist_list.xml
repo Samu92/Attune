@@ -9,7 +9,7 @@
         android:name="es.app.attune.attune.Fragments.PlayListFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="es.app.attune.attune.Fragments.PlayListFragment"
+        tools:context="es.app.attune.attune.fragments.PlayListFragment"
         tools:listitem="@layout/fragment_playlist" />
 
     <TextView

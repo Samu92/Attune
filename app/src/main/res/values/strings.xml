@@ -99,6 +99,59 @@
         <item>Fade</item>
         <item>Solapamiento</item>
     </string-array>
+    <array name="manual_search_genres_disallowed">
+        <item>acoustic</item>
+        <item>alternative</item>
+        <item>alt-rock</item>
+        <item>brazil</item>
+        <item>british</item>
+        <item>children</item>
+        <item>chill</item>
+        <item>club</item>
+        <item>dance</item>
+        <item>disney</item>
+        <item>french</item>
+        <item>garage</item>
+        <item>german</item>
+        <item>goth</item>
+        <item>groove</item>
+        <item>guitar</item>
+        <item>happy</item>
+        <item>heavy-metal</item>
+        <item>holidays</item>
+        <item>honky-tonk</item>
+        <item>idm</item>
+        <item>indian</item>
+        <item>indie</item>
+        <item>iranian</item>
+        <item>kids</item>
+        <item>latino</item>
+        <item>malay</item>
+        <item>metal-misc</item>
+        <item>movies</item>
+        <item>new-release</item>
+        <item>party</item>
+        <item>philippines-opm</item>
+        <item>piano</item>
+        <item>pop-film</item>
+        <item>post-dubstep</item>
+        <item>psych-rock</item>
+        <item>punk-rock</item>
+        <item>rainy-day</item>
+        <item>r-n-b</item>
+        <item>road-trip</item>
+        <item>rock-n-roll</item>
+        <item>romance</item>
+        <item>sad</item>
+        <item>songwriter</item>
+        <item>soundtracks</item>
+        <item>spanish</item>
+        <item>study</item>
+        <item>summer</item>
+        <item>swedish</item>
+        <item>turkish</item>
+        <item>world-music</item>
+    </array>
     <string name="menu_settings">Settings</string>
     <string name="cd_repeat">Repeat one or all</string>
     <string name="cd_previous">Skip backwards</string>
@@ -122,9 +175,13 @@
     <string name="effect_no_effect">Sin efecto</string>
     <string name="effect_fade">Efecto: Fade</string>
     <string name="effect_overlap">Efecto: Overlap</string>
-    <string name="separator">-</string>
+    <string name="separator"> - </string>
     <string name="zero">0</string>
     <string name="error_ocurred">Se ha producido un error, por favor intentelo de nuevo.</string>
     <string name="txt_loading_session">Iniciando sesión..</string>
     <string name="song_delete">¿Estás seguro de que quieres borrar la canción seleccionada?</string>
+    <string name="automatic_search_mode">Búsqueda automática</string>
+    <string name="manual_search_mode">Búsqueda manual</string>
+    <string name="share_app">Comparte la aplicación</string>
+    <string name="logout">Cerrar sesión</string>
 </resources>

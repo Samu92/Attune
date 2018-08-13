@@ -3,14 +3,11 @@
     <item>
         <shape>
             <gradient
-                android:angle="90"
-                android:startColor="#0090ff"
-                android:endColor="#6ecdf9"
+                android:angle="90" android:startColor="@color/colorPrimary" android:endColor="@color/colorPrimary"
                 android:type="linear" />
         </shape>
 
-        <stroke android:width="3dp"
-            android:color="#0090ff"
+        <stroke android:width="3dp" android:color="@color/colorPrimary"
             />
 
         <padding android:left="1dp"

@@ -24,7 +24,7 @@ android {
 // If you don't know about schema version you can go through the documentation. In simple terms it defines
 // the structure of database and if there are any changes in the structure, Schema version is upgraded to commence
 greendao {
-    schemaVersion 12
+    schemaVersion 13
     targetGenDir "src/main/java/"
 }
 

@@ -10,7 +10,7 @@
         android:gravity="bottom"
         android:clickable="false"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context="es.app.attune.attune.Activity.MainActivity"
+    tools:context="es.app.attune.attune.activity.MainActivity"
         tools:showIn="@layout/app_bar_main"
         app:umanoDragView="@+id/dragView"
         app:umanoShadowHeight="4dp"
@@ -37,8 +37,7 @@
             android:id="@+id/dragView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:background="#ffffff">
+            android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/playback_controls"
@@ -53,7 +52,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:layout_marginEnd="30dp"
-                    android:src="@drawable/ic_vertical_align_top_black_36dp"/>
+                    android:src="@drawable/ic_vertical_align_top_green_36dp" />
 
                 <TextView
                     android:id="@+id/numeric_progress_short"
@@ -70,6 +69,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
+                    android:layout_marginStart="1dp"
+                    android:layout_marginEnd="1dp"
+                    android:textColor="@color/gray"
                     android:text="@string/separator"/>
 
                 <TextView
@@ -95,7 +97,7 @@
                         android:layout_height="wrap_content"
                         android:clickable="true"
                         android:focusable="true"
-                        android:src="@drawable/ic_skip_previous_blue_36dp"/>
+                        android:src="@drawable/ic_skip_previous_green_36dp" />
 
                     <ImageView
                         android:id="@+id/play_pause_button_slide"
@@ -103,7 +105,7 @@
                         android:layout_height="wrap_content"
                         android:clickable="true"
                         android:focusable="true"
-                        android:src="@drawable/ic_play_arrow_blue_36dp" />
+                        android:src="@drawable/ic_play_arrow_green_36dp" />
 
                     <ImageView
                         android:id="@+id/next_song"
@@ -111,7 +113,7 @@
                         android:layout_height="wrap_content"
                         android:clickable="true"
                         android:focusable="true"
-                        android:src="@drawable/ic_skip_next_blue_36dp"/>
+                        android:src="@drawable/ic_skip_next_green_36dp" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -155,6 +157,15 @@
                         android:textSize="@dimen/text_size_medium"
                         android:text="@string/zero" />
 
+                    <ImageView
+                        android:id="@+id/repetition_mode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_margin="20dp"
+                        android:src="@drawable/ic_replay_gray_36dp" />
+
                     <android.support.design.internal.BaselineLayout
                         android:id="@+id/baseLineLayout"
                         android:layout_width="wrap_content"
@@ -162,6 +173,7 @@
                         android:layout_centerHorizontal="true"
                         android:layout_centerInParent="true"
                         android:layout_marginTop="10dp"
+                        android:layout_marginBottom="20dp"
                         android:layout_below="@id/separator_progress">
 
                         <de.hdodenhof.circleimageview.CircleImageView
@@ -185,7 +197,7 @@
                             app:cpb_foregroundProgressWidth="20"
                             app:cpb_backgroundProgressWidth="20"
                             app:cpb_roundedCorner="true"
-                            app:cpb_foregroundProgressColor="#1864c2"
+                            app:cpb_foregroundProgressColor="@color/colorAccent"
                             app:cpb_touchEnabled="true"
                             app:cpb_clockwise="true" />
                     </android.support.design.internal.BaselineLayout>
@@ -198,7 +210,7 @@
                         android:maxLines="1"
                         android:layout_below="@id/baseLineLayout"
                         android:textSize="25sp"
-                        android:textColor="@color/black"
+                        android:textColor="@color/white"
                         android:textAlignment="center" />
 
                     <TextView
@@ -211,7 +223,7 @@
                         android:layout_marginEnd="10dp"
                         android:layout_below="@id/song_playlist_player"
                         android:textAlignment="center"
-                        android:textColor="@color/black"
+                        android:textColor="@color/white"
                         android:textSize="25sp" />
 
                     <TextView
@@ -243,7 +255,7 @@
                                 android:id="@+id/previous_song_expand"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="center_horizontal"
+                                android:layout_gravity="center"
                                 android:src="@drawable/ic_skip_previous_white_48dp" />
 
                             <ImageView
@@ -253,23 +265,15 @@
                                 android:layout_gravity="center_horizontal"
                                 android:layout_marginStart="30dp"
                                 android:layout_marginEnd="30dp"
-                                android:src="@drawable/ic_play_circle_outline_white_48dp" />
+                                android:src="@drawable/ic_play_circle_outline_white_64dp" />
 
                             <ImageView
                                 android:id="@+id/next_song_expand"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="center_horizontal"
-                                android:layout_marginEnd="20dp"
-                                android:src="@drawable/ic_skip_next_white_48dp" />
-
-                            <ImageView
-                                android:id="@+id/repetition_mode"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center_horizontal"
+                                android:layout_gravity="center"
                                 android:baselineAlignBottom="true"
-                                android:src="@drawable/ic_repeat_gray_48dp" />
+                                android:src="@drawable/ic_skip_next_white_48dp" />
                         </LinearLayout>
                     </RelativeLayout>
                 </RelativeLayout>

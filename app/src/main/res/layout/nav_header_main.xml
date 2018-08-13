@@ -9,7 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+    android:theme="@style/AppTheme">
 
 
     <de.hdodenhof.circleimageview.CircleImageView
@@ -17,7 +17,7 @@
         android:layout_width="76dp"
         android:layout_height="76dp"
         android:layout_marginBottom="5dp"
-        android:src="@mipmap/ic_launcher_round" />
+        android:src="@mipmap/ic_launcher" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -26,16 +26,16 @@
         android:textSize="14sp"
         android:textColor="#FFF"
         android:textStyle="bold"
-        android:gravity="left"
+        android:gravity="start"
         android:paddingBottom="4dp"
         android:id="@+id/username" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="-"
+        android:text="@string/separator"
         android:id="@+id/email"
-        android:gravity="left"
+        android:gravity="start"
         android:layout_marginBottom="8dp"
         android:textSize="14sp"
         android:textColor="#fff" />

@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#4da6ff</color>
+    <color name="colorPrimary">#2a6b2d</color>
+    <color name="colorPrimaryDark">#133615</color>
+    <color name="colorAccent">#009907</color>
+    <color name="colorBackground">@color/black</color>
     <color name="color_pantalla_carga">#f2f2f2</color>
     <color name="color_progress_bar">#4da6ff</color>
     <color name="divider">#4da6ff</color>
-    <color name="accent_material_light">#2a8dff</color>
-    <color name="primary_material_light">#15aaf4</color>
     <color name="white">#FFFFFF</color>
     <color name="aliceblue">#F0F8FF</color>
     <color name="gray">#D3D3D3</color>
@@ -19,7 +18,7 @@
     <color name="media_item_icon_not_playing">#ccc</color>
 
     <!-- google's material design colours from
- http://www.google.com/design/spec/style/color.html#color-ui-color-palette -->
+        http://www.google.com/design/spec/style/color.html#color-ui-color-palette -->
     <!--reds-->
     <array name="reds">
         <item>@color/md_red_500</item>

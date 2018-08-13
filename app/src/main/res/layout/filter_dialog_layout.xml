@@ -92,7 +92,7 @@
         android:layout_marginBottom="15dp"
         app:bsb_track_color="@color/gray"
         app:bsb_section_text_color="@color/colorPrimary"
-        app:bsb_second_track_color="@color/color_blue"
+        app:bsb_second_track_color="@color/colorAccent"
         app:bsb_section_count="5"
         app:bsb_section_text_position="below_section_mark"
         app:bsb_show_section_mark="true"

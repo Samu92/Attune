@@ -3,6 +3,6 @@
     <!-- use this for transparent -->
     <!-- <solid android:color="#00000000" /> -->
     <!-- use this for a background colour -->
-    <solid android:color="#FFF" />
+    <solid android:color="@color/cardview_dark_background" />
     <stroke android:width="2dip" android:color="#c2c2c2" />
 </shape>

@@ -9,12 +9,17 @@
             android:icon="@drawable/ic_view_list_black_24dp"
             android:title="@string/playlists_menu" />
         <item
-            android:id="@+id/nav_create_playlist"
-            android:icon="@drawable/ic_add_black_24dp"
-            android:title="@string/create_new_playlist" />
+            android:id="@+id/nav_auto_mode_playlist"
+            android:icon="@drawable/ic_queue_music_gray_24dp"
+            android:title="@string/automatic_search_mode" />
+
+        <item
+            android:id="@+id/nav_manual_mode_playlist"
+            android:icon="@drawable/ic_search_gray_24dp"
+            android:title="@string/manual_search_mode" />
     </group>
 
-    <item android:title="Comparte la aplicación">
+    <item android:title="@string/share_app">
         <menu>
             <item
                 android:id="@+id/nav_share"
