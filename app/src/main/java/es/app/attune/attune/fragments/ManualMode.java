@@ -235,17 +235,29 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
         material = new MaterialDialog.Builder(getActivity())
                 .title(R.string.title_filter)
                 .customView(R.layout.filter_dialog_layout, true)
+                .autoDismiss(false)
                 .positiveText(R.string.agree)
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        assert dialog.getCustomView() != null;
+                        ImageView validateGenre = (ImageView) dialog.getCustomView().findViewById(R.id.warning_image);
+                        validateGenre.setVisibility(View.GONE);
+                        dialog.dismiss();
+                    }
+                })
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        genre = genresSpinner.getSelectedItem().toString();
+                        assert dialog.getCustomView() != null;
+                        ImageView validateGenre = (ImageView) dialog.getCustomView().findViewById(R.id.warning_image);
 
+                        genre = genresSpinner.getSelectedItem().toString();
                         filter_array.clear();
 
                         if(!filter_date_check.isChecked()){
                             year_start = 1600;
-                            year_end = year_end = Calendar.getInstance().get(Calendar.YEAR);
+                            year_end = Calendar.getInstance().get(Calendar.YEAR);
                             filter_array.add(String.valueOf(year_start) + " - " + String.valueOf(year_end));
                         }else{
                             year_start = Integer.valueOf(editText_start.getText().toString());
@@ -253,19 +265,15 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                             filter_array.add(String.valueOf(year_start) + " - " + String.valueOf(year_end));
                         }
 
-                        if(genresSpinner.getSelectedItemPosition() != 0){
-                            if(!genre.equals("")){
-                                filter_array.add(genre);
-                            }
-                        }else{
-                            genre = "";
-                        }
-
                         if(filter_tempo_check.isChecked()){
                             mTempoFilter = filter_tempo.getProgress();
                             filter_array.add(String.valueOf(mTempoFilter));
                         }else{
                             mTempoFilter = 0;
+                        }
+
+                        if (!genre.equals("") && !genre.equals(getString(R.string.select_genre))) {
+                            filter_array.add(genre);
                         }
 
                         filterAdapter.notifyDataSetChanged();
@@ -285,7 +293,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                         if(query.equals("")){
                             query = "year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
                             if(genresSpinner.getSelectedItemPosition() != 0){
-                                if(!genre.equals("")){
+                                if (!genre.equals("") && !genre.equals(getString(R.string.select_genre))) {
                                     query += " genre:" + genre;
                                 }
 
@@ -293,7 +301,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                         }else{
                             query += "* year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
                             if(genresSpinner.getSelectedItemPosition() != 0){
-                                if(!genre.equals("")){
+                                if (!genre.equals("") && !genre.equals(getString(R.string.select_genre))) {
                                     query += " genre:" + genre;
                                 }
                             }
@@ -303,11 +311,18 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                             progressManualBar.setVisibility(View.VISIBLE);
                             empty.setVisibility(View.GONE);
                             mActionListener.search(query,mTempoFilter);
+                            validateGenre.setVisibility(View.GONE);
+                            dialog.dismiss();
                         }else{
-                            if(!genre.equals("")){
+                            if (!genre.equals("") && !genre.equals(getString(R.string.select_genre))) {
                                 progressManualBar.setVisibility(View.VISIBLE);
                                 empty.setVisibility(View.GONE);
                                 mActionListener.search(query,mTempoFilter);
+                                validateGenre.setVisibility(View.GONE);
+                                dialog.dismiss();
+                            } else {
+                                Log.i("FilterDialog", "Genre needed");
+                                validateGenre.setVisibility(View.VISIBLE);
                             }
                         }
                     }

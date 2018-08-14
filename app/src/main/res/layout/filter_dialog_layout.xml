@@ -11,6 +11,14 @@
         android:layout_height="wrap_content"
         android:text="@string/txt_genre"/>
 
+    <ImageView
+        android:id="@+id/warning_image"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_error_red_24dp"
+        android:visibility="gone"
+        android:layout_toEndOf="@id/txt_filter_genre" />
+
     <com.toptoche.searchablespinnerlibrary.SearchableSpinner
         android:id="@+id/category_filter_spinner"
         android:layout_width="match_parent"

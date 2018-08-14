@@ -184,4 +184,6 @@
     <string name="manual_search_mode">Búsqueda manual</string>
     <string name="share_app">Comparte la aplicación</string>
     <string name="logout">Cerrar sesión</string>
+    <string name="lost_permission">La reproducción se ha detenido por que se está reproduciendo en otro dispositivo.</string>
+    <string name="logging_player">Iniciando sesión en el reproductor...</string>
 </resources>

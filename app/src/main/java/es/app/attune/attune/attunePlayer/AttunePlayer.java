@@ -3,6 +3,7 @@ package es.app.attune.attune.attunePlayer;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
@@ -44,36 +45,45 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
     @Override
     public void play(Song item) {
         if (mSpotifyPlayer != null) {
-            if (!mSpotifyPlayer.isLoggedIn())
+            if (!mSpotifyPlayer.isLoggedIn()) {
                 mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
-            currentSongs.clear();
-            currentSongs.add(item);
-            mSpotifyPlayer.playUri(null, item.getUrlSpotify(), 0, 0);
-            mCurrentSong = 0;
+            } else {
+                currentSongs.clear();
+                currentSongs.add(item);
+                Log.i("SongPlay", "Playing " + item.getUrlSpotify());
+                mSpotifyPlayer.playUri(null, item.getUrlSpotify(), 0, 0);
+                mCurrentSong = 0;
+            }
         }
     }
 
     @Override
     public void setQueue(AttPlaylist item) {
         if (mSpotifyPlayer != null) {
-            if (!mSpotifyPlayer.isLoggedIn())
+            Log.i("PlayPlaylist", "Spotify player is not null...");
+            if (!mSpotifyPlayer.isLoggedIn()) {
+                Log.i("PlayPlaylist", "Spotify player is not logged...");
                 mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
-            currentSongs.clear();
-            currentSongs.addAll(item.getSongs());
-            Collections.sort(currentSongs, new Comparator<Song>() {
-                @Override
-                public int compare(Song o1, Song o2) {
+            } else {
+                Log.i("PlayPlaylist", "Spotify player is logged...");
+                currentSongs.clear();
+                currentSongs.addAll(item.getSongs());
+                Collections.sort(currentSongs, new Comparator<Song>() {
+                    @Override
+                    public int compare(Song o1, Song o2) {
 
-                    if (o1.getPosition() > o2.getPosition()) {
-                        return 1;
-                    } else {
-                        return -1;
+                        if (o1.getPosition() > o2.getPosition()) {
+                            return 1;
+                        } else {
+                            return -1;
+                        }
                     }
+                });
+                if (currentSongs.size() > 0) {
+                    Log.i("PlaylistPlay", "Playing " + currentSongs.get(0).getUrlSpotify());
+                    mSpotifyPlayer.playUri(null, currentSongs.get(0).getUrlSpotify(), 0, 0);
+                    mCurrentSong = 0;
                 }
-            });
-            if (currentSongs.size() > 0) {
-                mSpotifyPlayer.playUri(null, currentSongs.get(0).getUrlSpotify(), 0, 0);
-                mCurrentSong = 0;
             }
         }
     }
@@ -81,54 +91,61 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
     @Override
     public void setQueue(AttPlaylist item, Song song) {
         if (mSpotifyPlayer != null) {
-            if (!mSpotifyPlayer.isLoggedIn())
+            if (!mSpotifyPlayer.isLoggedIn()) {
                 mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
-            currentSongs.clear();
-            currentSongs.addAll(item.getSongs());
-            Collections.sort(currentSongs, new Comparator<Song>() {
-                @Override
-                public int compare(Song o1, Song o2) {
+            } else {
+                currentSongs.clear();
+                currentSongs.addAll(item.getSongs());
+                Collections.sort(currentSongs, new Comparator<Song>() {
+                    @Override
+                    public int compare(Song o1, Song o2) {
 
-                    if (o1.getPosition() > o2.getPosition()) {
-                        return 1;
-                    } else {
-                        return -1;
+                        if (o1.getPosition() > o2.getPosition()) {
+                            return 1;
+                        } else {
+                            return -1;
+                        }
                     }
+                });
+                int currentPosition = song.getPosition();
+                if (currentSongs.size() > 0) {
+                    Log.i("PlaylistPlay", "Playing " + currentSongs.get(0).getUrlSpotify());
+                    mSpotifyPlayer.playUri(null, currentSongs.get(currentPosition).getUrlSpotify(), 0, 0);
+                    mCurrentSong = currentPosition;
                 }
-            });
-            int currentPosition = song.getPosition();
-            if (currentSongs.size() > 0) {
-                mSpotifyPlayer.playUri(null, currentSongs.get(currentPosition).getUrlSpotify(), 0, 0);
-                mCurrentSong = currentPosition;
             }
         }
     }
 
     public void skipToPreviousSong() {
         if (mSpotifyPlayer != null) {
-            if (!mSpotifyPlayer.isLoggedIn())
+            if (!mSpotifyPlayer.isLoggedIn()) {
                 mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
-            if (mCurrentSong != 0) {
-                mCurrentSong -= 1;
-                mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(), 0, 0);
+            } else {
+                if (mCurrentSong != 0) {
+                    mCurrentSong -= 1;
+                    mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(), 0, 0);
+                }
             }
         }
     }
 
     public void skipToNextSong() {
         if (mSpotifyPlayer != null) {
-            if (!mSpotifyPlayer.isLoggedIn())
+            if (!mSpotifyPlayer.isLoggedIn()) {
                 mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
-            if (currentSongs.size() > 1) {
-                if (mCurrentSong < currentSongs.size() - 1) {
-                    mCurrentSong += 1;
-                    mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(), 0, 0);
+            } else {
+                if (currentSongs.size() > 1) {
+                    if (mCurrentSong < currentSongs.size() - 1) {
+                        mCurrentSong += 1;
+                        mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(), 0, 0);
+                    } else if (repetitionState) {
+                        mCurrentSong = 0;
+                        mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(), 0, 0);
+                    }
                 } else if (repetitionState) {
-                    mCurrentSong = 0;
                     mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(), 0, 0);
                 }
-            } else if (repetitionState) {
-                mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(), 0, 0);
             }
         }
     }
@@ -136,39 +153,48 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
     @Override
     public void pause() {
         if (mSpotifyPlayer != null) {
-            if (!mSpotifyPlayer.isLoggedIn())
+            if (!mSpotifyPlayer.isLoggedIn()) {
                 mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
-            Log.d(TAG, "Pause");
-            mSpotifyPlayer.pause(null);
+            } else {
+                Log.d(TAG, "Pause");
+                mSpotifyPlayer.pause(null);
+            }
         }
     }
 
     @Override
     public void release() {
         if (mSpotifyPlayer != null) {
-            if (!mSpotifyPlayer.isLoggedIn())
+            if (!mSpotifyPlayer.isLoggedIn()) {
                 mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
-            mCurrentSong = 0;
-            mSpotifyPlayer.shutdown();
+            } else {
+                mCurrentSong = 0;
+                mSpotifyPlayer.shutdown();
+            }
         }
     }
 
     @Override
     public void resume() {
         if (mSpotifyPlayer != null) {
-            if (!mSpotifyPlayer.isLoggedIn())
+            if (!mSpotifyPlayer.isLoggedIn()) {
                 mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
-            Log.d(TAG, "Resume");
-            mSpotifyPlayer.resume(null);
+            } else {
+                Log.d(TAG, "Resume");
+                mSpotifyPlayer.resume(null);
+            }
         }
     }
 
     @Override
     public boolean isPlaying() {
         if (mSpotifyPlayer != null) {
-            if (!mSpotifyPlayer.isLoggedIn())
+            if (!mSpotifyPlayer.isLoggedIn()) {
                 mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
-            return mSpotifyPlayer.getPlaybackState().isPlaying;
+                return false;
+            } else {
+                return mSpotifyPlayer.getPlaybackState().isPlaying;
+            }
         } else {
             return false;
         }
@@ -181,27 +207,35 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
 
     @Override
     public void createMediaPlayer(String token, final Context context){
-        // Init Player
-        Config playerConfig;
-        playerConfig = new Config(context, token, CLIENT_ID);
-        Spotify.getPlayer(playerConfig, this, new com.spotify.sdk.android.player.SpotifyPlayer.InitializationObserver() {
-            @Override
-            public void onInitialized(com.spotify.sdk.android.player.SpotifyPlayer spotifyPlayer) {
-                mSpotifyPlayer = spotifyPlayer;
-                mSpotifyPlayer.addConnectionStateCallback(AttunePlayer.this);
-                mSpotifyPlayer.addNotificationCallback(AttunePlayer.this);
-            }
+        try {
+            // Init Player
+            Config playerConfig;
+            playerConfig = new Config(context, token, CLIENT_ID);
+            Spotify.getPlayer(playerConfig, this, new com.spotify.sdk.android.player.SpotifyPlayer.InitializationObserver() {
+                @Override
+                public void onInitialized(com.spotify.sdk.android.player.SpotifyPlayer spotifyPlayer) {
+                    Log.i("CreateMediaPlayer", "Player initialized");
+                    mSpotifyPlayer = spotifyPlayer;
+                    mSpotifyPlayer.addConnectionStateCallback(AttunePlayer.this);
+                    mSpotifyPlayer.addNotificationCallback(AttunePlayer.this);
+                    MainActivity.showProgressPlayer();
+                }
 
-            @Override
-            public void onError(Throwable throwable) {
-                Log.e("MainActivity", "Could not initialize player: " + throwable.getMessage());
-            }
-        });
+                @Override
+                public void onError(Throwable throwable) {
+                    Log.e("AttunePlayer", "Could not initialize player: " + throwable.getMessage());
+                }
+            });
+        } catch (Exception ex) {
+            Log.e("AttunePlayer", "Could not initialize player: " + ex.getMessage());
+        }
     }
 
     @Override
     public void onLoggedIn() {
         Log.d("PlayBackEvent","");
+        Toast.makeText(App.getContext(), "Player logged", Toast.LENGTH_SHORT).show();
+        MainActivity.dismissPlayerProgress();
     }
 
     @Override
@@ -251,24 +285,28 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
             MainActivity.notifyPlayer(currentSongs.get(mCurrentSong));
         }
 
-        if(playerEvent.equals(PlayerEvent.kSpPlaybackEventAudioFlush)){
-
-        }
+        //if(playerEvent.equals(PlayerEvent.kSpPlaybackEventAudioFlush))
 
         if(playerEvent.equals(PlayerEvent.kSpPlaybackNotifyTrackChanged)){
             if (mSpotifyPlayer != null) {
-                if ((mCurrentSong < currentSongs.size() - 1) && !mSpotifyPlayer.getPlaybackState().isPlaying) {
-                    mCurrentSong += 1;
-                    mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(), 0, 0);
-                } else if ((mCurrentSong == currentSongs.size() - 1) && repetitionState && !mSpotifyPlayer.getPlaybackState().isPlaying) {
-                    mCurrentSong = 0;
-                    mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(), 0, 0);
+                if (!mSpotifyPlayer.isLoggedIn()) {
+                    mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
+                } else {
+                    if ((mCurrentSong < currentSongs.size() - 1) && !mSpotifyPlayer.getPlaybackState().isPlaying) {
+                        mCurrentSong += 1;
+                        mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(), 0, 0);
+                    } else if ((mCurrentSong == currentSongs.size() - 1) && repetitionState && !mSpotifyPlayer.getPlaybackState().isPlaying) {
+                        mCurrentSong = 0;
+                        mSpotifyPlayer.playUri(null, currentSongs.get(mCurrentSong).getUrlSpotify(), 0, 0);
+                    }
                 }
             }
         }
 
-        if(playerEvent.equals(PlayerEvent.kSpPlaybackNotifyTrackDelivered)){
+        //if(playerEvent.equals(PlayerEvent.kSpPlaybackNotifyTrackDelivered))
 
+        if (playerEvent.equals(PlayerEvent.kSpPlaybackNotifyLostPermission)) {
+            MainActivity.LostPermissionMessage();
         }
     }
 
@@ -283,7 +321,12 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
 
     public long getPositionTrack(){
         if (mSpotifyPlayer != null) {
-            return mSpotifyPlayer.getPlaybackState().positionMs;
+            if (!mSpotifyPlayer.isLoggedIn()) {
+                mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
+                return 0;
+            } else {
+                return mSpotifyPlayer.getPlaybackState().positionMs;
+            }
         } else {
             return 0;
         }
@@ -307,7 +350,12 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
 
     public PlaybackState getPlaybackState() {
         if (mSpotifyPlayer != null) {
-            return mSpotifyPlayer.getPlaybackState();
+            if (!mSpotifyPlayer.isLoggedIn()) {
+                mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
+                return null;
+            } else {
+                return mSpotifyPlayer.getPlaybackState();
+            }
         } else {
             return null;
         }
@@ -319,9 +367,13 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
 
     public void seekToPosition(int progress) {
         if (mSpotifyPlayer != null) {
-            long total = getCurrentSong().getDuration();
-            long ms = (progress * 1000);
-            mSpotifyPlayer.seekToPosition(null, Math.abs((int) ms));
+            if (!mSpotifyPlayer.isLoggedIn()) {
+                mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
+            } else {
+                long total = getCurrentSong().getDuration();
+                long ms = (progress * 1000);
+                mSpotifyPlayer.seekToPosition(null, Math.abs((int) ms));
+            }
         }
     }
 
@@ -337,5 +389,16 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
         if (mSpotifyPlayer != null) {
             mSpotifyPlayer.logout();
         }
+    }
+
+    public void login() {
+        if (mSpotifyPlayer != null) {
+            mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
+            Toast.makeText(App.getContext(), "Player relogged", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public boolean isLogged() {
+        return mSpotifyPlayer.isLoggedIn();
     }
 }

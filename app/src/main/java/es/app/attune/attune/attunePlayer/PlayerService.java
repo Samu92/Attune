@@ -51,6 +51,14 @@ public class PlayerService extends Service {
         mPlayer.logout();
     }
 
+    public void login() {
+        mPlayer.login();
+    }
+
+    public boolean isLogged() {
+        return mPlayer.isLogged();
+    }
+
     /**
      * Class used for the client Binder.  Because we know this service always
      * runs in the same process as its clients, we don't need to deal with IPC.
@@ -113,8 +121,9 @@ public class PlayerService extends Service {
                 mPlayer.pause();
             } else if(intent.getAction().equals(Constants.ACTION.MAIN_ACTION)){
                 if(CredentialsHandler.getToken(getApplicationContext()) != null ){
-                    mPlayer.createMediaPlayer(CredentialsHandler.getToken(getApplicationContext()),PlayerService.this);
-                    MainActivity.showPlayer();
+                    if (!mPlayer.isInitialized()) {
+                        mPlayer.createMediaPlayer(CredentialsHandler.getToken(getApplicationContext()), PlayerService.this);
+                    }
                 }
             }
         }
@@ -227,6 +236,7 @@ public class PlayerService extends Service {
 
     public void playPlaylist(AttPlaylist item) {
         if(MainActivity.isAuthorized()){
+            Log.i("PlayPlaylist", "Authorized, setting queue...");
             mPlayer.setQueue(item);
             Song currentSong = getCurrentSong();
             if (currentSong != null) {

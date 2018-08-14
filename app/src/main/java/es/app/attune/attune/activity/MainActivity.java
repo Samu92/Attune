@@ -109,6 +109,7 @@ public class MainActivity extends AppCompatActivity
     private static LinearLayout playerControlsShort;
     private static CircleImageView song_cover_image;
     private MaterialDialog progress;
+    private static MaterialDialog player_progress;
     private static MaterialDialog result;
     private static TextView txt_result;
     private static TextView numeric_progress;
@@ -152,6 +153,7 @@ public class MainActivity extends AppCompatActivity
                 .cancelable(true)
                 .positiveText(R.string.agree)
                 .build();
+
         txt_result = result.getView().findViewById(R.id.txt_done);
 
         progress = new MaterialDialog.Builder(this)
@@ -165,7 +167,9 @@ public class MainActivity extends AppCompatActivity
         navUserName = headerView.findViewById(R.id.username);
         navImageView = headerView.findViewById(R.id.profile_image);
 
-        Glide.with(this).load(R.drawable.default_profile).into(navImageView);
+        Glide.with(this)
+                .load(R.drawable.default_profile)
+                .into(navImageView);
 
         progress.show();
         mActionListener.getUserData();
@@ -468,6 +472,14 @@ public class MainActivity extends AppCompatActivity
         txt_offline = offline.getView().findViewById(R.id.txt_error);
 
         playerUI.setTouchEnabled(false);
+
+
+        player_progress = new MaterialDialog.Builder(this)
+                .customView(R.layout.loading_layout, false)
+                .cancelable(false)
+                .build();
+        TextView txt_player_loading = player_progress.getView().findViewById(R.id.txt_loading);
+        txt_player_loading.setText(R.string.logging_player);
     }
 
     private void initialize() {
@@ -517,6 +529,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
         // AUDIO PLAYER
         // Playback controls configuration:
         // Initialize service player
@@ -524,8 +537,6 @@ public class MainActivity extends AppCompatActivity
         player.setAction(Constants.ACTION.MAIN_ACTION);
         player.putExtra("token",token);
         startService(player);
-
-        super.onPostCreate(savedInstanceState);
     }
 
     @Override
@@ -563,7 +574,9 @@ public class MainActivity extends AppCompatActivity
             Intent intent = LoginActivity.createIntent(this);
             intent.putExtra("logout",true);
             startActivity(intent);
-            mService.playPauseState();
+            if (CredentialsHandler.getUserProduct(getContext()).equals("premium")) {
+                mService.playPauseState();
+            }
             mService.logout();
             CredentialsHandler.removeCredentials(this);
             finish();
@@ -622,11 +635,11 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         if(mBound){
             unbindService(mConnection);
             mBound = false;
         }
-        super.onDestroy();
     }
 
     @Override
@@ -640,6 +653,22 @@ public class MainActivity extends AppCompatActivity
         if(mRenewService != null){
             mRenewService.renewToken();
         }
+
+        if (CredentialsHandler.getUserProduct(getContext()).equals("premium")) {
+            TextView txt_loading = player_progress.getView().findViewById(R.id.txt_loading);
+            txt_loading.setText(R.string.logging_player);
+            if (mService != null) {
+                if (!mService.isLogged()) {
+                    player_progress.show();
+                }
+            }
+
+            if (mService != null) {
+                if (mService.isPlaying()) {
+                    showPlayer();
+                }
+            }
+        }
     }
 
     @Override
@@ -651,6 +680,16 @@ public class MainActivity extends AppCompatActivity
 
         Intent renewService = new Intent(this, RenewService.class);
         bindService(renewService, mRenewConnection, Context.BIND_AUTO_CREATE);
+
+        if (CredentialsHandler.getUserProduct(getContext()).equals("premium")) {
+            TextView txt_loading = player_progress.getView().findViewById(R.id.txt_loading);
+            txt_loading.setText(R.string.logging_player);
+            if (mService != null) {
+                if (!mService.isLogged()) {
+                    player_progress.show();
+                }
+            }
+        }
     }
 
     @Override
@@ -715,6 +754,7 @@ public class MainActivity extends AppCompatActivity
                             if(isOnline(getApplicationContext())){
                                 // Reproducción
                                 mService.playPlaylist(item);
+                                Log.i("PlayPlaylist", "Calling service to reproduce playlist...");
                             }else{
                                 Log.e("Connection",getString(R.string.no_connection));
                             }
@@ -857,9 +897,17 @@ public class MainActivity extends AppCompatActivity
                 navUserName.setText("Attune");
             }
             navEmail.setText(user.email);
-            Glide.with(this)
-                    .load(user.images.get(0).url)
-                    .into(navImageView);
+            if (user.images.size() > 0) {
+                if (!user.images.get(0).url.equals("")) {
+                    Glide.with(this)
+                            .load(user.images.get(0).url)
+                            .into(navImageView);
+                }
+            } else {
+                Glide.with(this)
+                        .load(R.drawable.default_profile)
+                        .into(navImageView);
+            }
             CredentialsHandler.setUserCredentials(getContext(),user);
             initialize();
         }else{
@@ -868,6 +916,18 @@ public class MainActivity extends AppCompatActivity
             }else{
                 navUserName.setText("Attune");
             }
+            if (user.images.size() > 0) {
+                if (!user.images.get(0).url.equals("")) {
+                    Glide.with(this)
+                            .load(user.images.get(0).url)
+                            .into(navImageView);
+                }
+            } else {
+                Glide.with(this)
+                        .load(R.drawable.default_profile)
+                        .into(navImageView);
+            }
+
             navEmail.setText(user.email);
             CredentialsHandler.setUserCredentials(getContext(),user);
             initialize();
@@ -1018,5 +1078,24 @@ public class MainActivity extends AppCompatActivity
 
     public static void initToken(String newToken) {
         mActionListener.init(newToken);
+    }
+
+    public static void LostPermissionMessage() {
+        txt_error.setText(R.string.lost_permission);
+        error.show();
+    }
+
+    public static void dismissPlayerProgress() {
+        if (player_progress != null) {
+            player_progress.dismiss();
+        }
+    }
+
+    public static void showProgressPlayer() {
+        if (CredentialsHandler.getUserProduct(getContext()).equals("premium")) {
+            if (player_progress != null) {
+                player_progress.show();
+            }
+        }
     }
 }
