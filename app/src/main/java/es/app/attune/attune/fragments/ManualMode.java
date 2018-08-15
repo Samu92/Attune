@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import es.app.attune.attune.R;
@@ -120,22 +121,14 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                 resultsList.setVisibility(View.VISIBLE);
                 empty.setVisibility(View.GONE);
             }
-            progressManualBar.setVisibility(View.GONE);
+            //progressManualBar.setVisibility(View.GONE);
         }
     }
 
     @Override
     public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
-        int fecha_edicion = 0;
-        if(fecha_edicion == 0){
-            year_start = i;
-            editText_start.setText(String.valueOf(i));
-        }
-
-        if(fecha_edicion == 1){
-            year_end = i;
-            editText_end.setText(String.valueOf(i));
-        }
+        year_start = i;
+        editText_start.setText(String.valueOf(i));
     }
 
     public static boolean isOnline(Context context) {
@@ -150,13 +143,13 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
 
     private class ScrollListener extends ResultListScrollListener {
 
-        public ScrollListener(LinearLayoutManager layoutManager) {
+        ScrollListener(LinearLayoutManager layoutManager) {
             super(layoutManager);
         }
 
         @Override
         public void onLoadMore() {
-            if(isOnline(getContext())){
+            if (isOnline(Objects.requireNonNull(getContext()))) {
                 progressManualBar.setVisibility(View.VISIBLE);
                 empty.setVisibility(View.GONE);
                 mActionListener.loadMoreResults();
@@ -190,7 +183,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_manual_mode, container, false);
@@ -217,7 +210,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        progressManualBar = getView().findViewById(R.id.search_manual_progress);
+        progressManualBar = Objects.requireNonNull(getView()).findViewById(R.id.search_manual_progress);
         progressManualBar.setVisibility(View.GONE);
 
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext());
@@ -225,7 +218,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
 
         genre = "";
 
-        result = new MaterialDialog.Builder(getActivity())
+        result = new MaterialDialog.Builder(Objects.requireNonNull(getActivity()))
                 .customView(R.layout.finish_notification, false)
                 .cancelable(true)
                 .positiveText(R.string.agree)
@@ -241,8 +234,8 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         assert dialog.getCustomView() != null;
-                        ImageView validateGenre = (ImageView) dialog.getCustomView().findViewById(R.id.warning_image);
-                        validateGenre.setVisibility(View.GONE);
+                        //ImageView validateGenre = (ImageView) dialog.getCustomView().findViewById(R.id.warning_image);
+                        //validateGenre.setVisibility(View.GONE);
                         dialog.dismiss();
                     }
                 })
@@ -250,11 +243,17 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         assert dialog.getCustomView() != null;
-                        ImageView validateGenre = (ImageView) dialog.getCustomView().findViewById(R.id.warning_image);
-
-                        genre = genresSpinner.getSelectedItem().toString();
+                        //ImageView validateGenre = (ImageView) dialog.getCustomView().findViewById(R.id.warning_image);
                         filter_array.clear();
 
+                        // Recuperamos los datos del filtro
+                        // Género
+                        genre = genresSpinner.getSelectedItem().toString();
+                        if (!genre.equals("") && !genre.equals(getString(R.string.select_genre))) {
+                            filter_array.add(genre);
+                        }
+
+                        // Fechas
                         if(!filter_date_check.isChecked()){
                             year_start = 1600;
                             year_end = Calendar.getInstance().get(Calendar.YEAR);
@@ -265,6 +264,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                             filter_array.add(String.valueOf(year_start) + " - " + String.valueOf(year_end));
                         }
 
+                        // Tempo
                         if(filter_tempo_check.isChecked()){
                             mTempoFilter = filter_tempo.getProgress();
                             filter_array.add(String.valueOf(mTempoFilter));
@@ -272,12 +272,8 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                             mTempoFilter = 0;
                         }
 
-                        if (!genre.equals("") && !genre.equals(getString(R.string.select_genre))) {
-                            filter_array.add(genre);
-                        }
-
+                        // Actualizamos el adaptador de filtros
                         filterAdapter.notifyDataSetChanged();
-
                         if(filterAdapter.getItemCount() == 0){
                             empty_filter_list.setVisibility(View.VISIBLE);
                             filter_list.setVisibility(View.GONE);
@@ -286,44 +282,62 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                             filter_list.setVisibility(View.VISIBLE);
                         }
 
+                        // Vaciamos los resultados
                         reset();
 
+                        // Realizamos la consulta con los valores obtenidos
                         String query = searchView.getQuery().toString();
+                        query += "*";
 
-                        if(query.equals("")){
-                            query = "year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
-                            if(genresSpinner.getSelectedItemPosition() != 0){
-                                if (!genre.equals("") && !genre.equals(getString(R.string.select_genre))) {
-                                    query += " genre:" + genre;
-                                }
+                        if (query.equals("") && filter_array.size() == 0) {
+                            // No hay consulta ni filtro
+                        } else if (query.equals("") && filter_array.size() > 0) {
+                            // No hay consulta pero hay filtro
 
+                            // Recuperamos el género
+                            if (!genre.equals("") && !genre.equals(getString(R.string.select_genre))) {
+                                query += " genre:" + genre;
                             }
-                        }else{
-                            query += "* year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
-                            if(genresSpinner.getSelectedItemPosition() != 0){
-                                if (!genre.equals("") && !genre.equals(getString(R.string.select_genre))) {
-                                    query += " genre:" + genre;
-                                }
-                            }
-                        }
 
-                        if(!((year_start != year_end) && !query.equals(""))){
+                            // Recuperamos la fecha
+                            query += " year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
+
+                            // Recuperamos el tempo
+                            // mTempoFilter
+
+                            // Hacemos la búsqueda
                             progressManualBar.setVisibility(View.VISIBLE);
                             empty.setVisibility(View.GONE);
-                            mActionListener.search(query,mTempoFilter);
-                            validateGenre.setVisibility(View.GONE);
+                            mActionListener.search(query, mTempoFilter);
+                            searchView.clearFocus();
                             dialog.dismiss();
-                        }else{
+                        } else if (!query.equals("") && filter_array.size() == 0) {
+                            // Tenemos consulta pero no filtro
+                            progressManualBar.setVisibility(View.VISIBLE);
+                            empty.setVisibility(View.GONE);
+                            mActionListener.search(query, mTempoFilter);
+                            searchView.clearFocus();
+                            dialog.dismiss();
+                        } else if (!query.equals("") && filter_array.size() > 0) {
+                            // Tenemos consulta y filtro
+
+                            // Recuperamos el género
                             if (!genre.equals("") && !genre.equals(getString(R.string.select_genre))) {
-                                progressManualBar.setVisibility(View.VISIBLE);
-                                empty.setVisibility(View.GONE);
-                                mActionListener.search(query,mTempoFilter);
-                                validateGenre.setVisibility(View.GONE);
-                                dialog.dismiss();
-                            } else {
-                                Log.i("FilterDialog", "Genre needed");
-                                validateGenre.setVisibility(View.VISIBLE);
+                                query += " genre:" + genre;
                             }
+
+                            // Recuperamos la fecha
+                            query += " year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
+
+                            // Recuperamos el tempo
+                            // mTempoFilter
+
+                            // Hacemos la búsqueda
+                            progressManualBar.setVisibility(View.VISIBLE);
+                            empty.setVisibility(View.GONE);
+                            mActionListener.search(query, mTempoFilter);
+                            searchView.clearFocus();
+                            dialog.dismiss();
                         }
                     }
                 })
@@ -378,41 +392,61 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                if(isOnline(getContext())){
+                if (isOnline(Objects.requireNonNull(getContext()))) {
                     reset();
-                    if(query.equals("")){
-                        query = "year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
-                        if(genresSpinner.getSelectedItemPosition() != 0){
-                            if(!genre.equals("")){
-                                query += " genre:" + genre;
-                            }
-                        }
-                    }else{
-                        query += "* year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
-                        if(genresSpinner.getSelectedItemPosition() != 0){
-                            if(!genre.equals("")){
-                                query += " genre:" + genre;
-                            }
-                        }
-                    }
+                    if (query.equals("") && filter_array.size() == 0) {
+                        // No hay consulta ni filtro
+                        return false;
+                    } else if (query.equals("") && filter_array.size() > 0) {
+                        // No hay consulta pero hay filtro
 
-                    if(!((year_start != year_end) && !query.equals(""))){
+                        // Recuperamos el género
+                        if (!genre.equals("") && !genre.equals(getString(R.string.select_genre))) {
+                            query += " genre:" + genre;
+                        }
+
+                        // Recuperamos la fecha
+                        query += " year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
+
+                        // Recuperamos el tempo
+                        // mTempoFilter
+
+                        // Hacemos la búsqueda
                         progressManualBar.setVisibility(View.VISIBLE);
                         empty.setVisibility(View.GONE);
                         mActionListener.search(query, mTempoFilter);
                         searchView.clearFocus();
                         return true;
-                    }else{
-                        if(!genre.equals("")){
-                            progressManualBar.setVisibility(View.VISIBLE);
-                            empty.setVisibility(View.GONE);
-                            mActionListener.search(query,mTempoFilter);
-                            return true;
-                        }else{
-                            return false;
-                        }
-                    }
+                    } else if (!query.equals("") && filter_array.size() == 0) {
+                        query += "*";
+                        // Tenemos consulta pero no filtro
+                        progressManualBar.setVisibility(View.VISIBLE);
+                        empty.setVisibility(View.GONE);
+                        mActionListener.search(query, mTempoFilter);
+                        searchView.clearFocus();
+                        return true;
+                    } else if (!query.equals("") && filter_array.size() > 0) {
+                        // Tenemos consulta y filtro
+                        query += "*";
 
+                        // Recuperamos el género
+                        if (!genre.equals("") && !genre.equals(getString(R.string.select_genre))) {
+                            query += " genre:" + genre;
+                        }
+
+                        // Recuperamos la fecha
+                        query += " year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
+
+                        // Recuperamos el tempo
+                        // mTempoFilter
+
+                        // Hacemos la búsqueda
+                        progressManualBar.setVisibility(View.VISIBLE);
+                        empty.setVisibility(View.GONE);
+                        mActionListener.search(query, mTempoFilter);
+                        searchView.clearFocus();
+                        return true;
+                    }
                 }else{
                     Log.e("Connection", getString(R.string.no_connection));
                     offline = new MaterialDialog.Builder(getContext())
@@ -426,48 +460,62 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                     offline.show();
                     return false;
                 }
+                return false;
             }
 
             @Override
             public boolean onQueryTextChange(String query) {
-                if(isOnline(getContext())){
-                    if(query.equals("")){
-                        reset();
-
-                        if(query.equals("")){
-                            query = "year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
-                            if(genresSpinner.getSelectedItemPosition() != 0){
-                                if(!genre.equals("")){
-                                    query += " genre:" + genre;
-                                }
-                            }
-                        }else{
-                            query += "* year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
-                            if(genresSpinner.getSelectedItemPosition() != 0){
-                                if(!genre.equals("")){
-                                    query += " genre:" + genre;
-                                }
-                            }
-                        }
-
-
-                        if(!((year_start != year_end) && !query.equals(""))){
-                            progressManualBar.setVisibility(View.VISIBLE);
-                            empty.setVisibility(View.GONE);
-                            mActionListener.search(query, mTempoFilter);
-                            return true;
-                        }else{
-                            if(!genre.equals("")){
-                                progressManualBar.setVisibility(View.VISIBLE);
-                                empty.setVisibility(View.GONE);
-                                mActionListener.search(query,mTempoFilter);
-                                return true;
-                            }else{
-                                return false;
-                            }
-                        }
-                    }else{
+                if (isOnline(Objects.requireNonNull(getContext()))) {
+                    reset();
+                    if (query.equals("") && filter_array.size() == 0) {
+                        // No hay consulta ni filtro
                         return false;
+                    } else if (query.equals("") && filter_array.size() > 0) {
+                        // No hay consulta pero hay filtro
+
+                        // Recuperamos el género
+                        if (!genre.equals("") && !genre.equals(getString(R.string.select_genre))) {
+                            query += " genre:" + genre;
+                        }
+
+                        // Recuperamos la fecha
+                        query += " year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
+
+                        // Recuperamos el tempo
+                        // mTempoFilter
+
+                        // Hacemos la búsqueda
+                        progressManualBar.setVisibility(View.VISIBLE);
+                        empty.setVisibility(View.GONE);
+                        mActionListener.search(query, mTempoFilter);
+                        return true;
+                    } else if (!query.equals("") && filter_array.size() == 0) {
+                        query += "*";
+                        // Tenemos consulta pero no filtro
+                        progressManualBar.setVisibility(View.VISIBLE);
+                        empty.setVisibility(View.GONE);
+                        mActionListener.search(query, mTempoFilter);
+                        return true;
+                    } else if (!query.equals("") && filter_array.size() > 0) {
+                        // Tenemos consulta y filtro
+                        query += "*";
+
+                        // Recuperamos el género
+                        if (!genre.equals("") && !genre.equals(getString(R.string.select_genre))) {
+                            query += " genre:" + genre;
+                        }
+
+                        // Recuperamos la fecha
+                        query += " year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
+
+                        // Recuperamos el tempo
+                        // mTempoFilter
+
+                        // Hacemos la búsqueda
+                        progressManualBar.setVisibility(View.VISIBLE);
+                        empty.setVisibility(View.GONE);
+                        mActionListener.search(query, mTempoFilter);
+                        return true;
                     }
                 }else{
                     Log.e("Connection", getString(R.string.no_connection));
@@ -482,6 +530,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                     offline.show();
                     return false;
                 }
+                return false;
             }
         });
 
@@ -639,7 +688,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                             UUID newId = UUID.randomUUID();
                             String user = CredentialsHandler.getUserId(getContext());
                             AttPlaylist newPlaylist = new AttPlaylist(newId.toString(), user, position,
-                                    name,tempo,duration,song_duration,"","",image,genre, Calendar.getInstance().getTime(),
+                                    name, tempo, duration, song_duration, image, genre, Calendar.getInstance().getTime(),
                                     acoustiness,danceability,energy,instrumentalness,liveness,
                                     loudness,popularity,speechiness,valence);
                             if(db.playlistNameExists(edit_name.getText().toString())){
@@ -666,7 +715,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                 .build();
 
         image = new_playlist_dialog.getView().findViewById(R.id.image_new_manual_playlist);
-        Glide.with(getContext())
+        Glide.with(Objects.requireNonNull(getContext()))
                 .load(R.drawable.baseline_add_photo_alternate_white_48)
                 .into(image);
 

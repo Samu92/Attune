@@ -2,13 +2,9 @@ package es.app.attune.attune.classes;
 
 import android.util.Log;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,6 +14,7 @@ import es.app.attune.attune.activity.MainActivity;
 import es.app.attune.attune.database.AttPlaylist;
 import es.app.attune.attune.database.Song;
 import es.app.attune.attune.fragments.AdvancedParameters;
+import es.app.attune.attune.fragments.ManualMode;
 import es.app.attune.attune.fragments.NewPlayList;
 import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.SpotifyError;
@@ -98,8 +95,6 @@ public class SearchSpotify {
             mSize = size;
             mTempo = playlist.getTempo();
             mDuration = playlist.getDuration();
-            mYear_start = playlist.getPlaylist_start_date();
-            mYear_end = playlist.getPlaylist_end_date();
             mGenre = playlist.getGenre();
             mAcousticness = playlist.getAcousticness();
             mDanceability = playlist.getDanceability();
@@ -117,8 +112,6 @@ public class SearchSpotify {
             mSize = size;
             mTempo = NewPlayList.getTempo();
             mDuration = NewPlayList.getDuration();
-            mYear_start = NewPlayList.getYearStart();
-            mYear_end = NewPlayList.getYearEnd();
             mGenre = NewPlayList.getCategory();
             mAcousticness = AdvancedParameters.getAcousticness();
             mDanceability = AdvancedParameters.getDanceability();
@@ -202,6 +195,7 @@ public class SearchSpotify {
             @Override
             public void failure(SpotifyError spotifyError) {
                 listener.onError(spotifyError);
+                ManualMode.stopSearch();
             }
         });
     }
@@ -257,19 +251,6 @@ public class SearchSpotify {
                             }
                         }
                     }
-
-                    // Como tenemos una duración fijada de la playlist no podemos pasarnos de ella
-                    // seleccionaremos canciones hasta que se llegue al límite establecido en milisegundos.
-                    /*List<Track> result = new ArrayList<>();
-                    int temp_duration = 0;
-                    for (Track track: tracks) {
-                        if(temp_duration <= (mDuration*60000)){
-                            temp_duration += track.duration_ms;
-                            result.add(track);
-                        }
-                    }*/
-
-                    //getAutomaticModeDates(result, audioFeaturesTracks, listener);
                     getAutomaticModeDates(tracks, audioFeaturesTracks, listener);
                 }
 
@@ -356,6 +337,8 @@ public class SearchSpotify {
             });
         }else{
             // Eliminamos aquellas canciones que no están dentro de los años indicados
+
+            /*
             Map<String, String> dates_temp = new HashMap<String, String>(dates);
 
             List<Track> result_temp = new ArrayList<>(tracks);
@@ -380,18 +363,19 @@ public class SearchSpotify {
                     }
                 }
             }
+            */
 
             // Como tenemos una duración fijada de la playlist no podemos pasarnos de ella
             // seleccionaremos canciones hasta que se llegue al límite establecido en milisegundos.
             List<Track> result_finish = new ArrayList<>();
             int temp_duration = 0;
-            for (Track track: result_temp) {
+            for (Track track : tracks) {
                 if(temp_duration <= (mDuration*60000)){
                     temp_duration += track.duration_ms;
                     result_finish.add(track);
                 }
             }
-            listener.onComplete(result_finish,features,dates_temp);
+            listener.onComplete(result_finish, features, dates);
         }
     }
 

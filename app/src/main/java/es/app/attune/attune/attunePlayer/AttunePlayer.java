@@ -11,6 +11,7 @@ import com.spotify.sdk.android.player.Error;
 import com.spotify.sdk.android.player.PlaybackState;
 import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.Spotify;
+import com.spotify.sdk.android.player.SpotifyPlayer;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -206,19 +207,19 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
     }
 
     @Override
-    public void createMediaPlayer(String token, final Context context){
+    public void createMediaPlayer(final String token, final Context context) {
         try {
             // Init Player
             Config playerConfig;
             playerConfig = new Config(context, token, CLIENT_ID);
-            Spotify.getPlayer(playerConfig, this, new com.spotify.sdk.android.player.SpotifyPlayer.InitializationObserver() {
+            Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver() {
                 @Override
                 public void onInitialized(com.spotify.sdk.android.player.SpotifyPlayer spotifyPlayer) {
                     Log.i("CreateMediaPlayer", "Player initialized");
                     mSpotifyPlayer = spotifyPlayer;
                     mSpotifyPlayer.addConnectionStateCallback(AttunePlayer.this);
                     mSpotifyPlayer.addNotificationCallback(AttunePlayer.this);
-                    MainActivity.showProgressPlayer();
+                    MainActivity.disablePlayerState();
                 }
 
                 @Override
@@ -235,7 +236,7 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
     public void onLoggedIn() {
         Log.d("PlayBackEvent","");
         Toast.makeText(App.getContext(), "Player logged", Toast.LENGTH_SHORT).show();
-        MainActivity.dismissPlayerProgress();
+        MainActivity.enablePlayerStatus();
     }
 
     @Override
@@ -313,6 +314,7 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
     @Override
     public void onPlaybackError(Error error) {
         Log.d("PlayBackEvent","");
+        Toast.makeText(App.getContext(), error.name(), Toast.LENGTH_SHORT).show();
     }
 
     public boolean isInitialized(){

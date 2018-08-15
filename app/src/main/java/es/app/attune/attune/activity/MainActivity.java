@@ -109,7 +109,6 @@ public class MainActivity extends AppCompatActivity
     private static LinearLayout playerControlsShort;
     private static CircleImageView song_cover_image;
     private MaterialDialog progress;
-    private static MaterialDialog player_progress;
     private static MaterialDialog result;
     private static TextView txt_result;
     private static TextView numeric_progress;
@@ -119,6 +118,7 @@ public class MainActivity extends AppCompatActivity
     private Handler handler;
     private static MaterialDialog error;
     private static TextView txt_error;
+    private static ImageView player_state;
     private MaterialDialog offline;
     private TextView txt_offline;
     private ImageView repetition_button_expand;
@@ -473,13 +473,14 @@ public class MainActivity extends AppCompatActivity
 
         playerUI.setTouchEnabled(false);
 
-
-        player_progress = new MaterialDialog.Builder(this)
-                .customView(R.layout.loading_layout, false)
-                .cancelable(false)
-                .build();
-        TextView txt_player_loading = player_progress.getView().findViewById(R.id.txt_loading);
-        txt_player_loading.setText(R.string.logging_player);
+        player_state = (ImageView) findViewById(R.id.player_status);
+        if (mService != null) {
+            if (mService.isLogged()) {
+                player_state.setImageResource(R.drawable.ic_music_note_green_24dp);
+            } else {
+                player_state.setImageResource(R.drawable.ic_music_note_gray_24dp);
+            }
+        }
     }
 
     private void initialize() {
@@ -635,11 +636,11 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         if(mBound){
             unbindService(mConnection);
             mBound = false;
         }
+        super.onDestroy();
     }
 
     @Override
@@ -655,11 +656,11 @@ public class MainActivity extends AppCompatActivity
         }
 
         if (CredentialsHandler.getUserProduct(getContext()).equals("premium")) {
-            TextView txt_loading = player_progress.getView().findViewById(R.id.txt_loading);
-            txt_loading.setText(R.string.logging_player);
+
             if (mService != null) {
                 if (!mService.isLogged()) {
-                    player_progress.show();
+                    player_state = (ImageView) findViewById(R.id.player_status);
+                    player_state.setImageResource(R.drawable.ic_music_note_gray_24dp);
                 }
             }
 
@@ -673,7 +674,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onStart() {
-        super.onStart();
         // Bind to LocalService
         Intent intent = new Intent(this, PlayerService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
@@ -682,24 +682,23 @@ public class MainActivity extends AppCompatActivity
         bindService(renewService, mRenewConnection, Context.BIND_AUTO_CREATE);
 
         if (CredentialsHandler.getUserProduct(getContext()).equals("premium")) {
-            TextView txt_loading = player_progress.getView().findViewById(R.id.txt_loading);
-            txt_loading.setText(R.string.logging_player);
             if (mService != null) {
                 if (!mService.isLogged()) {
-                    player_progress.show();
+                    player_state.setImageResource(R.drawable.ic_music_note_gray_24dp);
                 }
             }
         }
+        super.onStart();
     }
 
     @Override
     protected void onStop() {
-        super.onStop();
         // Unbind from the service
         if (mBound) {
             unbindService(mConnection);
             mBound = false;
         }
+        super.onStop();
     }
 
     /** Defines callbacks for service binding, passed to bindService() */
@@ -1043,14 +1042,6 @@ public class MainActivity extends AppCompatActivity
         song_cover.setMaxProgress(mCurrentSong.getDuration()/1000);
     }
 
-    public static boolean getSlideVisible() {
-        if(playerUI.getPanelState() == SlidingUpPanelLayout.PanelState.HIDDEN){
-            return false;
-        }else{
-            return true;
-        }
-    }
-
     public static void showPlayer() {
         if(mService != null){
             if(mService.isPlaying()){
@@ -1085,17 +1076,11 @@ public class MainActivity extends AppCompatActivity
         error.show();
     }
 
-    public static void dismissPlayerProgress() {
-        if (player_progress != null) {
-            player_progress.dismiss();
-        }
+    public static void enablePlayerStatus() {
+        player_state.setImageResource(R.drawable.ic_music_note_green_24dp);
     }
 
-    public static void showProgressPlayer() {
-        if (CredentialsHandler.getUserProduct(getContext()).equals("premium")) {
-            if (player_progress != null) {
-                player_progress.show();
-            }
-        }
+    public static void disablePlayerState() {
+        player_state.setImageResource(R.drawable.ic_music_note_gray_24dp);
     }
 }

@@ -141,14 +141,6 @@ public class AutomaticModeTabs extends Fragment {
         return AdvancedParameters.getValence();
     }
 
-    public String getYearStart() {
-        return NewPlayList.getYearStart();
-    }
-
-    public String getYearEnd() {
-        return NewPlayList.getYearEnd();
-    }
-
     public void dismissProgress() {
         fragmentNewPlaylist.dismissProgress();
     }

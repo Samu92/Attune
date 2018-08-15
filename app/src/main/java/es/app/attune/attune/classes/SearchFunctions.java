@@ -312,7 +312,9 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                 @Override
                 public void onError(Throwable error) {
                     logError(error.getMessage());
-                    mResultPlaylist.showError(error);
+                    if (!error.getMessage().equals("502 Bad gateway.")) {
+                        mResultPlaylist.showError(error);
+                    }
                 }
             };
             mSearchPager.getFirstPage(searchQuery, PAGE_SIZE, mManualSearchListener);

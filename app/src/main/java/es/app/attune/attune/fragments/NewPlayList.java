@@ -69,9 +69,6 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     private static final int PICK_IMAGE_REQUEST = 100;
     private static List<String> genres_list;
     private TextView empty_genre_list;
-    private static CheckBox date_checkbox;
-    private static EditText date_start;
-    private static EditText date_end;
     private TextView txt_loading;
     private TextView txt_error;
     private MaterialDialog playlist_list_dialog;
@@ -130,22 +127,6 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
             return song_duration.getProgressFloat();
         }else{
             return 0;
-        }
-    }
-
-    public static String getYearStart() {
-        if(date_checkbox.isChecked()){
-            return date_start.getText().toString();
-        }else{
-            return "";
-        }
-    }
-
-    public static String getYearEnd() {
-        if(date_checkbox.isChecked()){
-            return date_end.getText().toString();
-        }else{
-            return "";
         }
     }
 
@@ -312,26 +293,6 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
             }
         });
 
-        date_checkbox = (CheckBox) getView().findViewById(R.id.check_new_playlist_date);
-        date_start = (EditText) getView().findViewById(R.id.txt_start_date);
-        date_start.setEnabled(false);
-        date_start.setText(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
-        date_end = (EditText) getView().findViewById(R.id.txt_end_date);
-        date_end.setEnabled(false);
-        date_end.setText(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
-        date_checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(b){
-                    date_start.setEnabled(true);
-                    date_end.setEnabled(true);
-                }else{
-                    date_start.setEnabled(false);
-                    date_end.setEnabled(false);
-                }
-            }
-        });
-
         playlist_list_dialog = new MaterialDialog.Builder(getContext())
                 .title(R.string.select_playlist)
                 .customView(R.layout.playlist_list_short,false)
@@ -428,15 +389,11 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
 
                                                     float valence = AdvancedParameters.getValence();
 
-                                                    String date_start = getYearStart();
-
-                                                    String date_end = getYearEnd();
-
                                                     // Procedemos a llamar a la API para obtener las canciones
                                                     UUID newId = java.util.UUID.randomUUID();
                                                     String user = CredentialsHandler.getUserId(getContext());
                                                     AttPlaylist newPlaylist = new AttPlaylist(newId.toString(), user, position,
-                                                            name,tempo,duration,song_duration, date_start, date_end, image,genre, Calendar.getInstance().getTime(),
+                                                            name, tempo, duration, song_duration, image, genre, Calendar.getInstance().getTime(),
                                                             acoustiness,danceability,energy,instrumentalness,liveness,
                                                             loudness,popularity,speechiness,valence);
 

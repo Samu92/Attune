@@ -186,4 +186,6 @@
     <string name="logout">Cerrar sesión</string>
     <string name="lost_permission">La reproducción se ha detenido por que se está reproduciendo en otro dispositivo.</string>
     <string name="logging_player">Iniciando sesión en el reproductor...</string>
+    <string name="player_state">Player state</string>
+    <string name="set_playlist_name">Nombre de la playlist</string>
 </resources>
