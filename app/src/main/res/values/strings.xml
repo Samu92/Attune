@@ -188,4 +188,6 @@
     <string name="logging_player">Iniciando sesión en el reproductor...</string>
     <string name="player_state">Player state</string>
     <string name="set_playlist_name">Nombre de la playlist</string>
+    <string name="spotify">Spotify</string>
+    <string name="twitter">Twitter</string>
 </resources>

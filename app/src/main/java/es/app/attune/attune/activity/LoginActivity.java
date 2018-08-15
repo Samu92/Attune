@@ -4,11 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -68,6 +70,29 @@ public class LoginActivity extends AppCompatActivity {
             txt_offline.setText(R.string.txt_no_connection);
             offline.show();
         }
+
+        ImageView imgSpt = (ImageView) findViewById(R.id.spotify_button);
+        imgSpt.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_VIEW);
+                intent.addCategory(Intent.CATEGORY_BROWSABLE);
+                intent.setData(Uri.parse("https://play.google.com/store/apps/details?id=com.spotify.music&hl=es"));
+                startActivity(intent);
+            }
+        });
+
+
+        ImageView imgTwitter = (ImageView) findViewById(R.id.twitter_button);
+        imgTwitter.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_VIEW);
+                intent.addCategory(Intent.CATEGORY_BROWSABLE);
+                intent.setData(Uri.parse("https://play.google.com/store/apps/details?id=com.twitter.android&hl=es"));
+                startActivity(intent);
+            }
+        });
     }
 
     @Override

@@ -465,7 +465,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
 
             @Override
             public boolean onQueryTextChange(String query) {
-                if (isOnline(Objects.requireNonNull(getContext()))) {
+                /*if (isOnline(Objects.requireNonNull(getContext()))) {
                     reset();
                     if (query.equals("") && filter_array.size() == 0) {
                         // No hay consulta ni filtro
@@ -531,15 +531,18 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                     return false;
                 }
                 return false;
+            }*/
+                return false;
             }
         });
 
+        assert material.getCustomView() != null;
         genresSpinner = material.getCustomView().findViewById(R.id.category_filter_spinner);
 
         genresSpinner.setTitle(getString(R.string.add_genre));
         genresSpinner.setPositiveButton(getString(R.string.accept));
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, db.getManualGenres());
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(Objects.requireNonNull(getContext()), android.R.layout.simple_spinner_item, db.getManualGenres());
 
         // Apply the adapter to the spinner
         genresSpinner.setAdapter(adapter);
