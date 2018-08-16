@@ -128,6 +128,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -288,14 +293,14 @@ public class MainActivity extends AppCompatActivity
         play_pause_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    if(mService != null){
-                        if(mService.playPauseState()){
-                            play_pause_button.setImageResource(R.drawable.ic_pause_green_36dp);
-                        }else{
-                            play_pause_button.setImageResource(R.drawable.ic_play_arrow_green_36dp);
-                        }
+                if(mService != null){
+                    if(mService.playPauseState()){
+                        play_pause_button.setImageResource(R.drawable.ic_pause_green_36dp);
+                    }else{
+                        play_pause_button.setImageResource(R.drawable.ic_play_arrow_green_36dp);
                     }
                 }
+            }
         });
 
         ImageView previous_song_button = (ImageView) findViewById(R.id.previous_song);
@@ -481,6 +486,21 @@ public class MainActivity extends AppCompatActivity
                 player_state.setImageResource(R.drawable.ic_music_note_gray_24dp);
             }
         }
+
+        // AUDIO PLAYER
+        // Playback controls configuration:
+        // Initialize service player
+        Intent player = new Intent(this, PlayerService.class);
+        player.setAction(Constants.ACTION.MAIN_ACTION);
+        player.putExtra("token", token);
+        startService(player);
+
+        // Bind to LocalService
+        Intent intent = new Intent(this, PlayerService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+
+        Intent renewService = new Intent(this, RenewService.class);
+        bindService(renewService, mRenewConnection, Context.BIND_AUTO_CREATE);
     }
 
     private void initialize() {
@@ -531,13 +551,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        // AUDIO PLAYER
-        // Playback controls configuration:
-        // Initialize service player
-        Intent player = new Intent(getApplicationContext(), PlayerService.class);
-        player.setAction(Constants.ACTION.MAIN_ACTION);
-        player.putExtra("token",token);
-        startService(player);
     }
 
     @Override
@@ -578,7 +591,6 @@ public class MainActivity extends AppCompatActivity
             if (CredentialsHandler.getUserProduct(getContext()).equals("premium")) {
                 mService.playPauseState();
             }
-            mService.logout();
             CredentialsHandler.removeCredentials(this);
             finish();
         }
@@ -636,10 +648,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
-        if(mBound){
-            unbindService(mConnection);
-            mBound = false;
-        }
+        mService.onDestroy();
         super.onDestroy();
     }
 
@@ -656,7 +665,6 @@ public class MainActivity extends AppCompatActivity
         }
 
         if (CredentialsHandler.getUserProduct(getContext()).equals("premium")) {
-
             if (mService != null) {
                 if (!mService.isLogged()) {
                     player_state = (ImageView) findViewById(R.id.player_status);
@@ -674,13 +682,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onStart() {
-        // Bind to LocalService
-        Intent intent = new Intent(this, PlayerService.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-
-        Intent renewService = new Intent(this, RenewService.class);
-        bindService(renewService, mRenewConnection, Context.BIND_AUTO_CREATE);
-
         if (CredentialsHandler.getUserProduct(getContext()).equals("premium")) {
             if (mService != null) {
                 if (!mService.isLogged()) {
@@ -693,11 +694,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onStop() {
-        // Unbind from the service
-        if (mBound) {
-            unbindService(mConnection);
-            mBound = false;
-        }
         super.onStop();
     }
 
@@ -710,7 +706,6 @@ public class MainActivity extends AppCompatActivity
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             PlayerService.PlayerBinder binder = (PlayerService.PlayerBinder) service;
             mService = binder.getService();
-            mBound = true;
             if(mService.getCurrentSong() != null){
                 notifyPlayer(mService.getCurrentSong());
             }
@@ -718,7 +713,6 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
         }
     };
 
@@ -727,12 +721,11 @@ public class MainActivity extends AppCompatActivity
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             RenewService.RenewBinder binder = (RenewService.RenewBinder) service;
             mRenewService = binder.getService();
-            mRenewBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            mRenewBound = false;
+
         }
     };
 

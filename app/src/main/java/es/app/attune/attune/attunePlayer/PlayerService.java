@@ -47,16 +47,16 @@ public class PlayerService extends Service {
         return new Intent(context, PlayerService.class);
     }
 
-    public void logout() {
-        mPlayer.logout();
-    }
-
     public void login() {
         mPlayer.login();
     }
 
     public boolean isLogged() {
         return mPlayer.isLogged();
+    }
+
+    public void logout() {
+        mPlayer.logout();
     }
 
     /**
@@ -260,9 +260,30 @@ public class PlayerService extends Service {
         if(MainActivity.isAuthorized()) {
             if (mPlayer.isPlaying()) {
                 mPlayer.pause();
+                views.setImageViewResource(R.id.status_bar_play,
+                        R.drawable.ic_play_arrow_black_36dp);
+                bigViews.setImageViewResource(R.id.status_bar_play,
+                        R.drawable.ic_play_arrow_white_36dp);
+                status = new Notification.Builder(App.getContext()).build();
+                status.contentView = views;
+                status.bigContentView = bigViews;
+                status.flags = Notification.FLAG_ONGOING_EVENT;
+                status.icon = R.mipmap.ic_launcher;
+                startForeground(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE, status);
                 return false;
             } else {
                 mPlayer.resume();
+                views.setImageViewResource(R.id.status_bar_play,
+                        R.drawable.ic_pause_black_36dp);
+                bigViews.setImageViewResource(R.id.status_bar_play,
+                        R.drawable.ic_pause_white_36dp);
+
+                status = new Notification.Builder(App.getContext()).build();
+                status.contentView = views;
+                status.bigContentView = bigViews;
+                status.flags = Notification.FLAG_ONGOING_EVENT;
+                status.icon = R.mipmap.ic_launcher;
+                startForeground(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE, status);
                 return true;
             }
         }else{
@@ -408,10 +429,8 @@ public class PlayerService extends Service {
         return mBinder;
     }
 
-
     @Override
     public void onDestroy() {
-        mPlayer.release();
         super.onDestroy();
     }
 }

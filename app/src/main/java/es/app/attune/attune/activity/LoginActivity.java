@@ -52,14 +52,62 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if(isOnline(this)){
             if(CredentialsHandler.hasAccess(this)){
                 startMainActivity();
             }else{
                 setContentView(R.layout.activity_login);
+
+                ImageView imgSpt = (ImageView) findViewById(R.id.spotify_button);
+                imgSpt.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_VIEW);
+                        intent.addCategory(Intent.CATEGORY_BROWSABLE);
+                        intent.setData(Uri.parse("https://play.google.com/store/apps/details?id=com.spotify.music&hl=es"));
+                        startActivity(intent);
+                    }
+                });
+
+
+                ImageView imgTwitter = (ImageView) findViewById(R.id.twitter_button);
+                imgTwitter.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_VIEW);
+                        intent.addCategory(Intent.CATEGORY_BROWSABLE);
+                        intent.setData(Uri.parse("https://play.google.com/store/apps/details?id=com.twitter.android&hl=es"));
+                        startActivity(intent);
+                    }
+                });
             }
         }else{
             setContentView(R.layout.activity_login);
+
+            ImageView imgSpt = (ImageView) findViewById(R.id.spotify_button);
+            imgSpt.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_VIEW);
+                    intent.addCategory(Intent.CATEGORY_BROWSABLE);
+                    intent.setData(Uri.parse("https://play.google.com/store/apps/details?id=com.spotify.music&hl=es"));
+                    startActivity(intent);
+                }
+            });
+
+
+            ImageView imgTwitter = (ImageView) findViewById(R.id.twitter_button);
+            imgTwitter.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_VIEW);
+                    intent.addCategory(Intent.CATEGORY_BROWSABLE);
+                    intent.setData(Uri.parse("https://play.google.com/store/apps/details?id=com.twitter.android&hl=es"));
+                    startActivity(intent);
+                }
+            });
+
             offline = new MaterialDialog.Builder(this)
                     .customView(R.layout.error_layout, false)
                     .cancelable(true)
@@ -70,29 +118,6 @@ public class LoginActivity extends AppCompatActivity {
             txt_offline.setText(R.string.txt_no_connection);
             offline.show();
         }
-
-        ImageView imgSpt = (ImageView) findViewById(R.id.spotify_button);
-        imgSpt.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_VIEW);
-                intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                intent.setData(Uri.parse("https://play.google.com/store/apps/details?id=com.spotify.music&hl=es"));
-                startActivity(intent);
-            }
-        });
-
-
-        ImageView imgTwitter = (ImageView) findViewById(R.id.twitter_button);
-        imgTwitter.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_VIEW);
-                intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                intent.setData(Uri.parse("https://play.google.com/store/apps/details?id=com.twitter.android&hl=es"));
-                startActivity(intent);
-            }
-        });
     }
 
     @Override

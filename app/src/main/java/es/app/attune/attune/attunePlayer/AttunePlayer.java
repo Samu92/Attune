@@ -286,8 +286,6 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
             MainActivity.notifyPlayer(currentSongs.get(mCurrentSong));
         }
 
-        //if(playerEvent.equals(PlayerEvent.kSpPlaybackEventAudioFlush))
-
         if(playerEvent.equals(PlayerEvent.kSpPlaybackNotifyTrackChanged)){
             if (mSpotifyPlayer != null) {
                 if (!mSpotifyPlayer.isLoggedIn()) {
@@ -303,8 +301,6 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
                 }
             }
         }
-
-        //if(playerEvent.equals(PlayerEvent.kSpPlaybackNotifyTrackDelivered))
 
         if (playerEvent.equals(PlayerEvent.kSpPlaybackNotifyLostPermission)) {
             MainActivity.LostPermissionMessage();
@@ -387,12 +383,6 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
         repetitionState = state;
     }
 
-    public void logout() {
-        if (mSpotifyPlayer != null) {
-            mSpotifyPlayer.logout();
-        }
-    }
-
     public void login() {
         if (mSpotifyPlayer != null) {
             mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
@@ -402,5 +392,9 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
 
     public boolean isLogged() {
         return mSpotifyPlayer.isLoggedIn();
+    }
+
+    public void logout() {
+        mSpotifyPlayer.logout();
     }
 }
