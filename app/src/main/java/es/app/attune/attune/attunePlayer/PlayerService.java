@@ -47,8 +47,8 @@ public class PlayerService extends Service {
         return new Intent(context, PlayerService.class);
     }
 
-    public void login() {
-        mPlayer.login();
+    public void login(String newToken) {
+        mPlayer.login(newToken);
     }
 
     public boolean isLogged() {

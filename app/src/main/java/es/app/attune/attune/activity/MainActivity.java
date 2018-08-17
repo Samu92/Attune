@@ -452,7 +452,9 @@ public class MainActivity extends AppCompatActivity
                     if(mService.isInitialized()){
                         PlaybackState state = mService.getPlaybackState();
                         if(!mService.currentsSongEmpty()){
-                            MainActivity.sendCurrentPosition(mService.getCurrentSong(),state.positionMs);
+                            if (state != null) {
+                                MainActivity.sendCurrentPosition(mService.getCurrentSong(), state.positionMs);
+                            }
                         }
                     }
                 }
@@ -587,11 +589,11 @@ public class MainActivity extends AppCompatActivity
             Spotify.destroyPlayer(this);
             Intent intent = LoginActivity.createIntent(this);
             intent.putExtra("logout",true);
-            startActivity(intent);
-            if (CredentialsHandler.getUserProduct(getContext()).equals("premium")) {
-                mService.playPauseState();
-            }
             CredentialsHandler.removeCredentials(this);
+            mService.logout();
+            unbindService(mConnection);
+            unbindService(mRenewConnection);
+            startActivity(intent);
             finish();
         }
 
@@ -1015,11 +1017,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public static boolean songFinishing(long positionMs, long totalMs){
-        if(positionMs >= (totalMs - 20000)){
-            return true;
-        }else{
-            return false;
-        }
+        return positionMs >= (totalMs - 20000);
     }
 
     public static void initializeEffect(int effect_type){

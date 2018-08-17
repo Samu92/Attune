@@ -49,6 +49,14 @@
             android:visibility="gone"/>
     </LinearLayout>
 
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:id="@+id/search_manual_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:indeterminate="true" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/search_results"
         android:layout_width="match_parent"
@@ -66,14 +74,4 @@
         android:text="@string/no_manual_data_available"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:visibility="gone" />
-
-    <ProgressBar
-        style="?android:attr/progressBarStyleHorizontal"
-        android:id="@+id/search_manual_progress"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:indeterminate="true"
-        />
-
 </LinearLayout>

@@ -36,6 +36,7 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
     private static final String CLIENT_ID = "8bcf4a1c62f64325a456b1bee9e857d9";
     private List<Song> currentSongs;
     private boolean repetitionState;
+    private String token;
 
     AttunePlayer() {
         currentSongs = new ArrayList<Song>();
@@ -235,7 +236,6 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
     @Override
     public void onLoggedIn() {
         Log.d("PlayBackEvent","");
-        Toast.makeText(App.getContext(), "Player logged", Toast.LENGTH_SHORT).show();
         MainActivity.enablePlayerStatus();
     }
 
@@ -383,10 +383,10 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
         repetitionState = state;
     }
 
-    public void login() {
+    public void login(String newToken) {
         if (mSpotifyPlayer != null) {
-            mSpotifyPlayer.login(CredentialsHandler.getToken(App.getContext()));
-            Toast.makeText(App.getContext(), "Player relogged", Toast.LENGTH_SHORT).show();
+            token = newToken;
+            mSpotifyPlayer.logout();
         }
     }
 

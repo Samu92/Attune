@@ -121,7 +121,6 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                 resultsList.setVisibility(View.VISIBLE);
                 empty.setVisibility(View.GONE);
             }
-            //progressManualBar.setVisibility(View.GONE);
         }
     }
 
@@ -465,73 +464,6 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
 
             @Override
             public boolean onQueryTextChange(String query) {
-                /*if (isOnline(Objects.requireNonNull(getContext()))) {
-                    reset();
-                    if (query.equals("") && filter_array.size() == 0) {
-                        // No hay consulta ni filtro
-                        return false;
-                    } else if (query.equals("") && filter_array.size() > 0) {
-                        // No hay consulta pero hay filtro
-
-                        // Recuperamos el género
-                        if (!genre.equals("") && !genre.equals(getString(R.string.select_genre))) {
-                            query += " genre:" + genre;
-                        }
-
-                        // Recuperamos la fecha
-                        query += " year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
-
-                        // Recuperamos el tempo
-                        // mTempoFilter
-
-                        // Hacemos la búsqueda
-                        progressManualBar.setVisibility(View.VISIBLE);
-                        empty.setVisibility(View.GONE);
-                        mActionListener.search(query, mTempoFilter);
-                        return true;
-                    } else if (!query.equals("") && filter_array.size() == 0) {
-                        query += "*";
-                        // Tenemos consulta pero no filtro
-                        progressManualBar.setVisibility(View.VISIBLE);
-                        empty.setVisibility(View.GONE);
-                        mActionListener.search(query, mTempoFilter);
-                        return true;
-                    } else if (!query.equals("") && filter_array.size() > 0) {
-                        // Tenemos consulta y filtro
-                        query += "*";
-
-                        // Recuperamos el género
-                        if (!genre.equals("") && !genre.equals(getString(R.string.select_genre))) {
-                            query += " genre:" + genre;
-                        }
-
-                        // Recuperamos la fecha
-                        query += " year:" + String.valueOf(year_start) + "-" + String.valueOf(year_end);
-
-                        // Recuperamos el tempo
-                        // mTempoFilter
-
-                        // Hacemos la búsqueda
-                        progressManualBar.setVisibility(View.VISIBLE);
-                        empty.setVisibility(View.GONE);
-                        mActionListener.search(query, mTempoFilter);
-                        return true;
-                    }
-                }else{
-                    Log.e("Connection", getString(R.string.no_connection));
-                    offline = new MaterialDialog.Builder(getContext())
-                            .customView(R.layout.error_layout, false)
-                            .cancelable(true)
-                            .positiveText(R.string.agree)
-                            .build();
-
-                    txt_offline = offline.getView().findViewById(R.id.txt_error);
-                    txt_offline.setText(R.string.txt_no_connection);
-                    offline.show();
-                    return false;
-                }
-                return false;
-            }*/
                 return false;
             }
         });

@@ -47,9 +47,9 @@ public class RenewService extends Service {
         renewHandler.postDelayed(new Runnable() {
             public void run() {
                 renewToken();
-                renewHandler.postDelayed(this,600000);
+                renewHandler.postDelayed(this, 1800000);
             }
-        }, 600000);
+        }, 1800000);
     }
 
     @Override
@@ -95,7 +95,7 @@ public class RenewService extends Service {
             }
 
             @Override
-            public void onFailure(Call<String> call, Throwable t) {
+            public void onFailure(@NonNull Call<String> call, Throwable t) {
                 Log.e("ERROR","ERROR");
             }
         });

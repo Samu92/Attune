@@ -83,7 +83,7 @@ public class SearchSpotify {
         void onError(Throwable error);
     }
 
-    public SearchSpotify(SpotifyService spotifyApi) {
+    SearchSpotify(SpotifyService spotifyApi) {
         mSpotifyApi = spotifyApi;
         dates = new HashMap<String,String>();
     }
@@ -181,23 +181,25 @@ public class SearchSpotify {
     }
 
     private void getSearchData(String query, int offset, final int limit, final ManualSearchListener listener) {
-        Map<String, Object> options = new HashMap<>();
-        options.put(SpotifyService.OFFSET, offset);
-        options.put(SpotifyService.LIMIT, limit);
+        if (!query.equals("")) {
+            Map<String, Object> options = new HashMap<>();
+            options.put(SpotifyService.OFFSET, offset);
+            options.put(SpotifyService.LIMIT, limit);
 
-        mSpotifyApi.searchTracks(query, options, new SpotifyCallback<TracksPager>() {
-            @Override
-            public void success(TracksPager tracksPager, Response response) {
-                // Hemos obtenido las canciones pero necesitamos consultar los bpm de cada una
-                getAudioSearchFeaturesTracks(tracksPager.tracks.items,listener);
-            }
+            mSpotifyApi.searchTracks(query, options, new SpotifyCallback<TracksPager>() {
+                @Override
+                public void success(TracksPager tracksPager, Response response) {
+                    // Hemos obtenido las canciones pero necesitamos consultar los bpm de cada una
+                    getAudioSearchFeaturesTracks(tracksPager.tracks.items, listener);
+                }
 
-            @Override
-            public void failure(SpotifyError spotifyError) {
-                listener.onError(spotifyError);
-                ManualMode.stopSearch();
-            }
-        });
+                @Override
+                public void failure(SpotifyError spotifyError) {
+                    listener.onError(spotifyError);
+                    ManualMode.stopSearch();
+                }
+            });
+        }
     }
 
 
