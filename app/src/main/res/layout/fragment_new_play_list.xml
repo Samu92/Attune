@@ -102,20 +102,17 @@
         <com.jaygoo.widget.RangeSeekBar
             android:id="@+id/tempo_range_seek"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_below="@id/txt_tempo"
-            android:clickable="true"
-            android:focusable="true"
             app:rsb_mode="range"
             app:rsb_min="20"
             app:rsb_max="200"
             app:rsb_indicator_background_color="@android:color/transparent"
             app:rsb_progress_color="@color/colorPrimary"
-            app:rsb_thumb_size="12dp"
+            app:rsb_thumb_size="14dp"
             app:rsb_indicator_show_mode="alwaysShow"
             app:rsb_indicator_height="12dp"
-            app:rsb_thumb_scale_ratio="2.0"
-            app:rsb_tick_mark_mode="number" />
+            app:rsb_thumb_scale_ratio="1.2" />
 
         <TextView
             android:id="@+id/txt_duration"
