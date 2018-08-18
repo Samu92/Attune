@@ -286,7 +286,7 @@ public class AdvancedParameters extends Fragment {
                     acousticness.setProgress(0);
                     acousticness.setEnabled(b);
                 }else{
-                    acousticness.setThumbColor(ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.colorAccent));
+                    acousticness.setThumbColor(ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.white));
                     acousticness.setSecondTrackColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
                     acousticness.setEnabled(b);
                 }
@@ -302,7 +302,7 @@ public class AdvancedParameters extends Fragment {
                     danceability.setProgress(0);
                     danceability.setEnabled(false);
                 }else{
-                    danceability.setThumbColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                    danceability.setThumbColor(ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.white));
                     danceability.setSecondTrackColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
                     danceability.setEnabled(true);
                 }
@@ -318,7 +318,7 @@ public class AdvancedParameters extends Fragment {
                     energy.setProgress(0);
                     energy.setEnabled(false);
                 }else{
-                    energy.setThumbColor(ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.colorAccent));
+                    energy.setThumbColor(ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.white));
                     energy.setSecondTrackColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
                     energy.setEnabled(true);
                 }
@@ -334,7 +334,7 @@ public class AdvancedParameters extends Fragment {
                     instrumentalness.setProgress(0);
                     instrumentalness.setEnabled(false);
                 }else{
-                    instrumentalness.setThumbColor(ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.colorAccent));
+                    instrumentalness.setThumbColor(ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.white));
                     instrumentalness.setSecondTrackColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
                     instrumentalness.setEnabled(true);
                 }
@@ -350,7 +350,7 @@ public class AdvancedParameters extends Fragment {
                     liveness.setProgress(0);
                     liveness.setEnabled(false);
                 }else{
-                    liveness.setThumbColor(ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.colorAccent));
+                    liveness.setThumbColor(ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.white));
                     liveness.setSecondTrackColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
                     liveness.setEnabled(true);
                 }
@@ -366,7 +366,7 @@ public class AdvancedParameters extends Fragment {
                     loudness.setProgress(0);
                     loudness.setEnabled(false);
                 }else{
-                    loudness.setThumbColor(ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.colorAccent));
+                    loudness.setThumbColor(ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.white));
                     loudness.setSecondTrackColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
                     loudness.setEnabled(true);
                 }
@@ -382,7 +382,7 @@ public class AdvancedParameters extends Fragment {
                     popularity.setProgress(0);
                     popularity.setEnabled(false);
                 }else{
-                    popularity.setThumbColor(ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.colorAccent));
+                    popularity.setThumbColor(ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.white));
                     popularity.setSecondTrackColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
                     popularity.setEnabled(true);
                 }
@@ -398,7 +398,7 @@ public class AdvancedParameters extends Fragment {
                     speechiness.setProgress(0);
                     speechiness.setEnabled(false);
                 }else{
-                    speechiness.setThumbColor(ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.colorAccent));
+                    speechiness.setThumbColor(ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.white));
                     speechiness.setSecondTrackColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
                     speechiness.setEnabled(true);
                 }
@@ -414,7 +414,7 @@ public class AdvancedParameters extends Fragment {
                     valence.setProgress(0);
                     valence.setEnabled(false);
                 }else{
-                    valence.setThumbColor(ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.colorAccent));
+                    valence.setThumbColor(ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.white));
                     valence.setSecondTrackColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
                     valence.setEnabled(true);
                 }

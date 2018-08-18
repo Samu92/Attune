@@ -35,6 +35,8 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.jaygoo.widget.OnRangeChangedListener;
+import com.jaygoo.widget.RangeSeekBar;
 import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
 import com.xw.repo.BubbleSeekBar;
 
@@ -60,7 +62,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     private static ConnectivityManager manager;
     private ImageView image;
     private EditText name;
-    private static BubbleSeekBar tempo;
+    private static RangeSeekBar tempo;
     private static BubbleSeekBar playlist_duration;
     private BubbleSeekBar song_duration;
     private CheckBox check_song_duration;
@@ -77,14 +79,17 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     private ArrayAdapter<String> adapter_playlist_list;
     private ListView playlist_list_view;
     private static SearchInterfaces.ActionListener mLocalActionListener;
-    private AdvancedParameters advancedParameterFragment;
     private MaterialDialog progress;
     private MaterialDialog error;
     private ListView genres_list_view;
     private ArrayAdapter<String> genres_list_adapter;
+    private static float mMinTempo;
+    private static float mMaxTempo;
 
     public NewPlayList() {
         // Required empty public constructor
+        mMinTempo = 0;
+        mMaxTempo = 0;
     }
 
     // TODO: Rename and change types and number of parameters
@@ -106,8 +111,12 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
         return name.getText().toString();
     }
 
-    public static int getTempo() {
-        return tempo.getProgress();
+    public static float getMinTempo() {
+        return mMinTempo;
+    }
+
+    public static float getMaxTempo() {
+        return mMaxTempo;
     }
 
     public static String getCategory() {
@@ -177,7 +186,27 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
 
         name = getView().findViewById(R.id.name_playlist);
 
-        tempo = getView().findViewById(R.id.bmp_seekbar);
+        tempo = getView().findViewById(R.id.tempo_range_seek);
+        tempo.setOnRangeChangedListener(new OnRangeChangedListener() {
+            @Override
+            public void onRangeChanged(RangeSeekBar view, float leftValue, float rightValue, boolean isFromUser) {
+                //leftValue is left seekbar value, rightValue is right seekbar value
+                mMinTempo = leftValue;
+                mMaxTempo = rightValue;
+            }
+
+            @Override
+            public void onStartTrackingTouch(RangeSeekBar view, boolean isLeft) {
+                //start tracking touch
+            }
+
+            @Override
+            public void onStopTrackingTouch(RangeSeekBar view, boolean isLeft) {
+                //stop tracking touch
+            }
+        });
+        tempo.setIndicatorTextDecimalFormat("0");
+        tempo.setValue(20, 200);
 
         searchableSpinner = getView().findViewById(R.id.category_spinner);
 
@@ -198,7 +227,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
                     song_duration.setSecondTrackColor(Color.GRAY);
                     song_duration.setProgress(1);
                 }else{
-                    song_duration.setThumbColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
+                    song_duration.setThumbColor(ContextCompat.getColor(getContext(), R.color.white));
                     song_duration.setSecondTrackColor(ContextCompat.getColor(getContext() ,R.color.colorAccent));
                 }
             }
@@ -287,7 +316,6 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
         mContainer.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
             @Override
             public void onScrollChanged() {
-                tempo.correctOffsetWhenContainerOnScrolling();
                 playlist_duration.correctOffsetWhenContainerOnScrolling();
                 song_duration.correctOffsetWhenContainerOnScrolling();
             }
@@ -360,7 +388,9 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
                                                     String name = getName();
 
                                                     // Obtenemos el tempo seleccionado
-                                                    int tempo = getTempo();
+                                                    float min_tempo = Math.round(getMinTempo());
+
+                                                    float max_tempo = Math.round(getMaxTempo());
 
                                                     // Obtenemos las categorías seleccionadas
                                                     String genre = getCategory();
@@ -393,7 +423,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
                                                     UUID newId = java.util.UUID.randomUUID();
                                                     String user = CredentialsHandler.getUserId(getContext());
                                                     AttPlaylist newPlaylist = new AttPlaylist(newId.toString(), user, position,
-                                                            name, tempo, duration, song_duration, image, genre, Calendar.getInstance().getTime(),
+                                                            name, (int) min_tempo, (int) max_tempo, duration, song_duration, image, genre, Calendar.getInstance().getTime(),
                                                             acoustiness,danceability,energy,instrumentalness,liveness,
                                                             loudness,popularity,speechiness,valence);
 
@@ -468,7 +498,6 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     }
 
     public void setAdvancedParametersFragment(AdvancedParameters fragmentAdvancedParameters) {
-        this.advancedParameterFragment = fragmentAdvancedParameters;
     }
 
     @Override

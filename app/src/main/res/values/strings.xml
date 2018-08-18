@@ -190,4 +190,5 @@
     <string name="set_playlist_name">Nombre de la playlist</string>
     <string name="spotify">Spotify</string>
     <string name="twitter">Twitter</string>
+    <string name="set_image_playlist">Imagen de la nueva playlist</string>
 </resources>

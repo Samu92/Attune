@@ -69,17 +69,13 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
 
     @Override
     public void searchRecomendations(final AttPlaylist playlist, final int mode) {
-        float mTempo;
-        String mGenre;
         SearchSpotify.CompleteListener mSearchListener;
         if(mode == 0){
-            final float tempo  = playlist.getTempo();
+            final float min_tempo = playlist.getMin_tempo();
+            final float max_tempo = playlist.getMax_tempo();
             String genre = playlist.getGenre();
 
-            if (tempo != 0 && !genre.isEmpty()) {
-                mTempo = tempo;
-                mGenre = genre;
-
+            if (min_tempo != 0 && max_tempo != 0 && !genre.isEmpty()) {
                 mResultPlaylist.reset();
                 mSearchListener = new SearchSpotify.CompleteListener() {
                     @Override
@@ -152,13 +148,11 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                 mSearchPager.getRecomendationPlaylist(playlist, SIZE, mSearchListener, 0);
             }
         }else if(mode == 1){
-            final float tempo  = NewPlayList.getTempo();
+            final float min_tempo = NewPlayList.getMinTempo();
+            final float max_tempo = NewPlayList.getMaxTempo();
             String genre = NewPlayList.getCategory();
 
-            if (tempo != 0 && !genre.isEmpty()) {
-                mTempo = tempo;
-                mGenre = genre;
-
+            if (min_tempo != 0 && max_tempo != 0 && !genre.isEmpty()) {
                 mResultPlaylist.reset();
                 mSearchListener = new SearchSpotify.CompleteListener() {
                     @Override

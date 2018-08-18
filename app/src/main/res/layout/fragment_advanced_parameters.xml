@@ -46,6 +46,7 @@
             app:bsb_show_thumb_text="true"
             app:bsb_thumb_text_size="18sp"
             app:bsb_touch_to_seek="true"
+            app:bsb_thumb_color="@color/white"
             app:bsb_min="0"
             app:bsb_max="1"
             app:bsb_progress="0"/>
@@ -83,6 +84,7 @@
             app:bsb_show_thumb_text="true"
             app:bsb_thumb_text_size="18sp"
             app:bsb_touch_to_seek="true"
+            app:bsb_thumb_color="@color/white"
             app:bsb_min="0"
             app:bsb_max="1"
             app:bsb_progress="0"/>
@@ -119,6 +121,7 @@
             app:bsb_show_thumb_text="true"
             app:bsb_thumb_text_size="18sp"
             app:bsb_touch_to_seek="true"
+            app:bsb_thumb_color="@color/white"
             app:bsb_min="0"
             app:bsb_max="1"
             app:bsb_progress="0"/>
@@ -155,6 +158,7 @@
             app:bsb_show_thumb_text="true"
             app:bsb_thumb_text_size="18sp"
             app:bsb_touch_to_seek="true"
+            app:bsb_thumb_color="@color/white"
             app:bsb_min="0"
             app:bsb_max="1"
             app:bsb_progress="0"/>
@@ -191,6 +195,7 @@
             app:bsb_show_thumb_text="true"
             app:bsb_thumb_text_size="18sp"
             app:bsb_touch_to_seek="true"
+            app:bsb_thumb_color="@color/white"
             app:bsb_min="0"
             app:bsb_max="1"
             app:bsb_progress="0"/>
@@ -227,6 +232,7 @@
             app:bsb_show_thumb_text="true"
             app:bsb_thumb_text_size="18sp"
             app:bsb_touch_to_seek="true"
+            app:bsb_thumb_color="@color/white"
             app:bsb_min="-60"
             app:bsb_max="0"
             app:bsb_progress="0"/>
@@ -263,6 +269,7 @@
             app:bsb_show_thumb_text="true"
             app:bsb_thumb_text_size="18sp"
             app:bsb_touch_to_seek="true"
+            app:bsb_thumb_color="@color/white"
             app:bsb_min="0"
             app:bsb_max="100"
             app:bsb_progress="0"/>
@@ -300,6 +307,7 @@
             app:bsb_show_thumb_text="true"
             app:bsb_thumb_text_size="18sp"
             app:bsb_touch_to_seek="true"
+            app:bsb_thumb_color="@color/white"
             app:bsb_min="0"
             app:bsb_max="1"
             app:bsb_progress="0"/>
@@ -336,6 +344,7 @@
             app:bsb_show_thumb_text="true"
             app:bsb_thumb_text_size="18sp"
             app:bsb_touch_to_seek="true"
+            app:bsb_thumb_color="@color/white"
             app:bsb_min="0"
             app:bsb_max="1"
             app:bsb_progress="0"/>

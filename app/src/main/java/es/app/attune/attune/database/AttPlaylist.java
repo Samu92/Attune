@@ -34,7 +34,10 @@ public class AttPlaylist {
     private String name;
 
     @NotNull
-    private float tempo;
+    private float min_tempo;
+
+    @NotNull
+    private float max_tempo;
 
     @NotNull
     private int duration;
@@ -77,18 +80,19 @@ public class AttPlaylist {
     @Generated(hash = 1939289955)
     private transient AttPlaylistDao myDao;
 
-    @Generated(hash = 2093870195)
+    @Generated(hash = 1973681413)
     public AttPlaylist(@NotNull String id, @NotNull String userId, int position,
-            @NotNull String name, float tempo, int duration, float song_duration,
-            @NotNull byte[] image, @NotNull String genre,
-            @NotNull Date creation_date, float acousticness, float danceability,
-            float energy, float instrumentalness, float liveness, float loudness,
-            int popularity, float speechiness, float valence) {
+                       @NotNull String name, float min_tempo, float max_tempo, int duration,
+                       float song_duration, @NotNull byte[] image, @NotNull String genre,
+                       @NotNull Date creation_date, float acousticness, float danceability,
+                       float energy, float instrumentalness, float liveness, float loudness,
+                       int popularity, float speechiness, float valence) {
         this.id = id;
         this.userId = userId;
         this.position = position;
         this.name = name;
-        this.tempo = tempo;
+        this.min_tempo = min_tempo;
+        this.max_tempo = max_tempo;
         this.duration = duration;
         this.song_duration = song_duration;
         this.image = image;
@@ -141,12 +145,20 @@ public class AttPlaylist {
         this.name = name;
     }
 
-    public float getTempo() {
-        return this.tempo;
+    public float getMin_tempo() {
+        return this.min_tempo;
     }
 
-    public void setTempo(float tempo) {
-        this.tempo = tempo;
+    public void setMin_tempo(float min_tempo) {
+        this.min_tempo = min_tempo;
+    }
+
+    public float getMax_tempo() {
+        return this.max_tempo;
+    }
+
+    public void setMax_tempo(float max_tempo) {
+        this.max_tempo = max_tempo;
     }
 
     public int getDuration() {
@@ -331,5 +343,4 @@ public class AttPlaylist {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getAttPlaylistDao() : null;
     }
-
 }

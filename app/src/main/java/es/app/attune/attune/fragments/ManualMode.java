@@ -113,6 +113,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
     public void setAdapter(List<Song> items) {
         if(mAdapter != null){
             mAdapter.addData(items);
+            mAdapter.notifyDataSetChanged();
 
             if(mAdapter.getItemCount() == 0){
                 resultsList.setVisibility(View.GONE);
@@ -623,7 +624,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                             UUID newId = UUID.randomUUID();
                             String user = CredentialsHandler.getUserId(getContext());
                             AttPlaylist newPlaylist = new AttPlaylist(newId.toString(), user, position,
-                                    name, tempo, duration, song_duration, image, genre, Calendar.getInstance().getTime(),
+                                    name, tempo, tempo, duration, song_duration, image, genre, Calendar.getInstance().getTime(),
                                     acoustiness,danceability,energy,instrumentalness,liveness,
                                     loudness,popularity,speechiness,valence);
                             if(db.playlistNameExists(edit_name.getText().toString())){
@@ -728,6 +729,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
     private static void reset() {
         mScrollListener.reset();
         mAdapter.clearData();
+        mAdapter.notifyDataSetChanged();
 
         if(mAdapter.getItemCount() == 0){
             resultsList.setVisibility(View.GONE);
@@ -767,7 +769,7 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                 if(resultCode == RESULT_OK){
                     Uri selectedImage = data.getData();
                     try {
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), selectedImage);
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(Objects.requireNonNull(getContext()).getContentResolver(), selectedImage);
                         Glide.with(getContext())
                                 .load(bitmap)
                                 .apply(new RequestOptions()

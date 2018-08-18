@@ -21,7 +21,6 @@ import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.Albums;
-import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTracks;
 import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.Playlist;
@@ -43,7 +42,8 @@ public class SearchSpotify {
 
     private final SpotifyService mSpotifyApi;
     private int mCurrentOffset;
-    private float mTempo;
+    private float mMinTempo;
+    private float mMaxTempo;
     private float mDuration;
     private String mCurrentQuery;
     private int mPageSize;
@@ -93,7 +93,8 @@ public class SearchSpotify {
         if(mode == 0){
             mCurrentOffset = 0;
             mSize = size;
-            mTempo = playlist.getTempo();
+            mMinTempo = playlist.getMin_tempo();
+            mMaxTempo = playlist.getMax_tempo();
             mDuration = playlist.getDuration();
             mGenre = playlist.getGenre();
             mAcousticness = playlist.getAcousticness();
@@ -110,7 +111,8 @@ public class SearchSpotify {
         }else if (mode == 1){
             mCurrentOffset = 0;
             mSize = size;
-            mTempo = NewPlayList.getTempo();
+            mMinTempo = NewPlayList.getMinTempo();
+            mMaxTempo = NewPlayList.getMaxTempo();
             mDuration = NewPlayList.getDuration();
             mGenre = NewPlayList.getCategory();
             mAcousticness = AdvancedParameters.getAcousticness();
@@ -142,7 +144,12 @@ public class SearchSpotify {
         options.put(SpotifyService.LIMIT, limit);
         options.put(SpotifyService.MARKET, "ES");
         options.put("seed_genres",mGenre);
-        options.put("target_tempo",mTempo);
+        if (mMinTempo != mMaxTempo) {
+            options.put("min_tempo", mMinTempo);
+            options.put("max_tempo", mMaxTempo);
+        } else {
+            options.put("target_tempo", mMinTempo);
+        }
         if(playlist.getSong_duration() > 0) options.put("target_duration_ms",((int) mDuration*60000));
         if(playlist.getAcousticness() != -1) options.put("target_acousticness",mAcousticness);
         if(playlist.getDanceability() != -1) options.put("target_danceability",mDanceability);
@@ -177,11 +184,15 @@ public class SearchSpotify {
 
     public void getNextPage(ManualSearchListener mSearchListener) {
         mCurrentOffset += mPageSize;
-        getSearchData(mCurrentQuery, mCurrentOffset, mPageSize, mSearchListener);
+        if (mCurrentQuery != null && !mCurrentQuery.equals("")) {
+            getSearchData(mCurrentQuery, mCurrentOffset, mPageSize, mSearchListener);
+        } else {
+            ManualMode.stopSearch();
+        }
     }
 
     private void getSearchData(String query, int offset, final int limit, final ManualSearchListener listener) {
-        if (!query.equals("")) {
+        if (query != null && !query.equals("")) {
             Map<String, Object> options = new HashMap<>();
             options.put(SpotifyService.OFFSET, offset);
             options.put(SpotifyService.LIMIT, limit);
@@ -244,7 +255,7 @@ public class SearchSpotify {
                 public void success(AudioFeaturesTracks audioFeaturesTracks, Response response) {
 
                     // Eliminamos aquellas canciones que no cumplan el rango de BPM
-                    for (AudioFeaturesTrack feature: audioFeaturesTracks.audio_features) {
+                    /*for (AudioFeaturesTrack feature: audioFeaturesTracks.audio_features) {
                         if (!((feature.tempo > mTempo - 10.0) && (feature.tempo < mTempo + 10.0))){
                             for(int i = 0; i < tracks.size(); i++){
                                 if(tracks.get(i).id.equals(feature.id)){
@@ -252,7 +263,7 @@ public class SearchSpotify {
                                 }
                             }
                         }
-                    }
+                    }*/
                     getAutomaticModeDates(tracks, audioFeaturesTracks, listener);
                 }
 

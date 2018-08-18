@@ -24,7 +24,7 @@ android {
 // If you don't know about schema version you can go through the documentation. In simple terms it defines
 // the structure of database and if there are any changes in the structure, Schema version is upgraded to commence
 greendao {
-    schemaVersion 14
+    schemaVersion 15
     targetGenDir "src/main/java/"
 }
 
@@ -82,6 +82,8 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
 
     implementation 'com.github.woxingxiao:BubbleSeekBar:3.17-lite'
+
+    implementation 'com.github.Jay-Goo:RangeSeekBar:v2.0.4'
 
     implementation 'com.google.guava:guava:18.0'
 

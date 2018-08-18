@@ -23,7 +23,8 @@
             android:scaleType="fitCenter"
             android:adjustViewBounds="true"
             android:layout_marginBottom="30dp"
-            android:background="@drawable/border_shape" />
+            android:background="@drawable/border_shape"
+            android:contentDescription="@string/set_image_playlist" />
 
         <TextView
             android:id="@+id/txt_name"
@@ -95,34 +96,31 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/genres_list_relative"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="15dp"
+            android:layout_marginBottom="10dp"
             android:text="@string/tempo" />
 
-        <com.xw.repo.BubbleSeekBar
-            android:id="@+id/bmp_seekbar"
+        <com.jaygoo.widget.RangeSeekBar
+            android:id="@+id/tempo_range_seek"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_tempo"
-            android:layout_marginBottom="15dp"
-            app:bsb_track_color="@color/gray"
-            app:bsb_section_text_color="@color/colorPrimary"
-            app:bsb_second_track_color="@color/colorAccent"
-            app:bsb_section_count="5"
-            app:bsb_section_text_position="below_section_mark"
-            app:bsb_show_section_mark="true"
-            app:bsb_show_section_text="true"
-            app:bsb_show_thumb_text="true"
-            app:bsb_thumb_text_size="18sp"
-            app:bsb_touch_to_seek="true"
-            app:bsb_min="20"
-            app:bsb_max="200"
-            app:bsb_progress="1"/>
+            android:clickable="true"
+            android:focusable="true"
+            app:rsb_mode="range"
+            app:rsb_min="20"
+            app:rsb_max="200"
+            app:rsb_indicator_background_color="@android:color/transparent"
+            app:rsb_progress_color="@color/colorPrimary"
+            app:rsb_thumb_size="12dp"
+            app:rsb_indicator_show_mode="alwaysShow"
+            app:rsb_indicator_height="@dimen/text_size_small"
+            app:rsb_thumb_scale_ratio="1.8" />
 
         <TextView
             android:id="@+id/txt_duration"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/bmp_seekbar"
+            android:layout_below="@id/tempo_range_seek"
             android:layout_marginBottom="15dp"
             android:text="@string/playlist_duration" />
 
@@ -142,6 +140,7 @@
             app:bsb_show_thumb_text="true"
             app:bsb_thumb_text_size="18sp"
             app:bsb_touch_to_seek="true"
+            app:bsb_thumb_color="@color/white"
             app:bsb_min="1"
             app:bsb_max="120"
             app:bsb_progress="1"/>
@@ -180,6 +179,7 @@
             app:bsb_show_thumb_text="true"
             app:bsb_thumb_text_size="18sp"
             app:bsb_touch_to_seek="true"
+            app:bsb_thumb_color="@color/white"
             app:bsb_min="1"
             app:bsb_max="10"
             app:bsb_progress="1"/>

@@ -89,8 +89,12 @@ public class AutomaticModeTabs extends Fragment {
         return fragmentNewPlaylist.getName();
     }
 
-    public int getTempo() {
-        return NewPlayList.getTempo();
+    public float getMinTempo() {
+        return NewPlayList.getMinTempo();
+    }
+
+    public float getMaxTempo() {
+        return NewPlayList.getMaxTempo();
     }
 
     public String getCategory() {

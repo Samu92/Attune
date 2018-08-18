@@ -49,7 +49,7 @@ public class PlayListRecyclerViewAdapter extends RecyclerView.Adapter<PlayListRe
         holder.mItem = mValues.get(position);
         //holder.mIdView.setText(mValues.get(position).getId());
         holder.mNameView.setText(mValues.get(position).getName());
-        holder.mTempoView.setText(context.getResources().getString(R.string.txt_tempo) + String.valueOf(mValues.get(position).getTempo()));
+        holder.mTempoView.setText(context.getResources().getString(R.string.txt_tempo) + String.valueOf(mValues.get(position).getMin_tempo()) + " - " + String.valueOf(mValues.get(position).getMax_tempo()));
         holder.mGenreView.setText(context.getResources().getString(R.string.txt_genre) + mValues.get(position).getGenre());
         holder.mSongsView.setText(context.getResources().getString(R.string.txt_songs) + String.valueOf(mValues.get(position).getSongs().size()));
         int duration = mValues.get(position).getDuration()/1000;
