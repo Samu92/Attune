@@ -79,7 +79,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     private ArrayAdapter<String> adapter_playlist_list;
     private ListView playlist_list_view;
     private static SearchInterfaces.ActionListener mLocalActionListener;
-    private MaterialDialog progress;
+    private static MaterialDialog progress;
     private MaterialDialog error;
     private ListView genres_list_view;
     private ArrayAdapter<String> genres_list_adapter;
@@ -502,6 +502,10 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
 
     @Override
     public void dismissProgress() {
+        progress.dismiss();
+    }
+
+    public static void stopProgress() {
         progress.dismiss();
     }
 

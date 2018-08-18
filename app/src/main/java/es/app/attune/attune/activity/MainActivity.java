@@ -1074,4 +1074,9 @@ public class MainActivity extends AppCompatActivity
     public static void disablePlayerState() {
         player_state.setImageResource(R.drawable.ic_music_note_gray_24dp);
     }
+
+    public static void showNoTracks() {
+        txt_error.setText(R.string.no_song_found);
+        error.show();
+    }
 }

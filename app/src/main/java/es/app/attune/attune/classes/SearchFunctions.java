@@ -143,6 +143,7 @@ public class SearchFunctions implements SearchInterfaces.ActionListener {
                     public void onError(Throwable error) {
                         logError(error.getMessage());
                         mResultPlaylist.showError(error);
+                        mResultNewPlaylist.dismissProgress();
                     }
                 };
                 mSearchPager.getRecomendationPlaylist(playlist, SIZE, mSearchListener, 0);

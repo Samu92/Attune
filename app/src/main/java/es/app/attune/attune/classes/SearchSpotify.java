@@ -170,6 +170,7 @@ public class SearchSpotify {
             @Override
             public void failure(RetrofitError error) {
                 listener.onError(error);
+                NewPlayList.stopProgress();
             }
         });
     }
@@ -270,8 +271,12 @@ public class SearchSpotify {
                 @Override
                 public void failure(RetrofitError error) {
                     listener.onError(error);
+                    NewPlayList.stopProgress();
                 }
             });
+        } else {
+            MainActivity.showNoTracks();
+            NewPlayList.stopProgress();
         }
     }
 
@@ -346,6 +351,7 @@ public class SearchSpotify {
                 @Override
                 public void failure(RetrofitError error) {
                     listener.onError(error);
+                    NewPlayList.stopProgress();
                 }
             });
         }else{
