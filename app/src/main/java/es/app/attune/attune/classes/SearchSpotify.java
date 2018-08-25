@@ -254,17 +254,6 @@ public class SearchSpotify {
             mSpotifyApi.getTracksAudioFeatures(ids, new Callback<AudioFeaturesTracks>() {
                 @Override
                 public void success(AudioFeaturesTracks audioFeaturesTracks, Response response) {
-
-                    // Eliminamos aquellas canciones que no cumplan el rango de BPM
-                    /*for (AudioFeaturesTrack feature: audioFeaturesTracks.audio_features) {
-                        if (!((feature.tempo > mTempo - 10.0) && (feature.tempo < mTempo + 10.0))){
-                            for(int i = 0; i < tracks.size(); i++){
-                                if(tracks.get(i).id.equals(feature.id)){
-                                    tracks.remove(i);
-                                }
-                            }
-                        }
-                    }*/
                     getAutomaticModeDates(tracks, audioFeaturesTracks, listener);
                 }
 
@@ -355,35 +344,6 @@ public class SearchSpotify {
                 }
             });
         }else{
-            // Eliminamos aquellas canciones que no están dentro de los años indicados
-
-            /*
-            Map<String, String> dates_temp = new HashMap<String, String>(dates);
-
-            List<Track> result_temp = new ArrayList<>(tracks);
-            if (!mYear_start.equals("") & !mYear_end.equals("")) {
-                for (Track track: tracks) {
-                    for (Map.Entry<String,String> entry: dates.entrySet()) {
-                        if(entry.getKey() == track.id){
-                            Date release = null;
-                            try {
-                                release = new SimpleDateFormat("yyyy").parse(entry.getValue());
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
-                            Calendar cal = Calendar.getInstance();
-                            cal.setTime(release);
-                            String release_year = Integer.valueOf(cal.get(Calendar.YEAR)).toString();
-                            if(!(Integer.valueOf(release_year) >= Integer.valueOf(mYear_start) & Integer.valueOf(release_year) <= Integer.valueOf(mYear_end))) {
-                                result_temp.remove(track);
-                                dates_temp.remove(entry.getKey());
-                            }
-                        }
-                    }
-                }
-            }
-            */
-
             // Como tenemos una duración fijada de la playlist no podemos pasarnos de ella
             // seleccionaremos canciones hasta que se llegue al límite establecido en milisegundos.
             List<Track> result_finish = new ArrayList<>();

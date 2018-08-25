@@ -90,8 +90,6 @@ public class MainActivity extends AppCompatActivity
     private static SearchInterfaces.ActionListener mActionListener;
     static PlayerService mService;
     static RenewService mRenewService;
-    boolean mBound = false;
-    boolean mRenewBound = false;
     private String token;
     TextView navEmail;
     TextView navUserName;
@@ -122,6 +120,8 @@ public class MainActivity extends AppCompatActivity
     private MaterialDialog offline;
     private TextView txt_offline;
     private ImageView repetition_button_expand;
+    private boolean mServicePlayerBound = false;
+    private boolean mRenewServiceBound = false;
 
     public static Intent createIntent(Context context) {
         return new Intent(context, MainActivity.class);
@@ -493,15 +493,17 @@ public class MainActivity extends AppCompatActivity
         // Playback controls configuration:
         // Initialize service player
         Intent player = new Intent(this, PlayerService.class);
+        Intent renewService = new Intent(this, RenewService.class);
+
         player.setAction(Constants.ACTION.MAIN_ACTION);
         player.putExtra("token", token);
         startService(player);
+        startService(renewService);
 
-        // Bind to LocalService
-        Intent intent = new Intent(this, PlayerService.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        player.setAction("");
+        renewService.setAction("");
 
-        Intent renewService = new Intent(this, RenewService.class);
+        bindService(player, mConnection, Context.BIND_AUTO_CREATE);
         bindService(renewService, mRenewConnection, Context.BIND_AUTO_CREATE);
     }
 
@@ -591,8 +593,6 @@ public class MainActivity extends AppCompatActivity
             intent.putExtra("logout",true);
             CredentialsHandler.removeCredentials(this);
             mService.logout();
-            unbindService(mConnection);
-            unbindService(mRenewConnection);
             startActivity(intent);
             finish();
         }
@@ -684,6 +684,24 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onStart() {
+        if (!mServicePlayerBound) {
+            Intent player = new Intent(this, PlayerService.class);
+            player.setAction("");
+            bindService(player, mConnection, BIND_AUTO_CREATE);
+            mServicePlayerBound = true;
+        } else {
+            if (!mService.isLogged()) {
+                mService.login(token);
+            }
+        }
+
+        if (!mRenewServiceBound) {
+            Intent renewService = new Intent(this, RenewService.class);
+            renewService.setAction("");
+            bindService(renewService, mRenewConnection, BIND_AUTO_CREATE);
+            mRenewServiceBound = true;
+        }
+
         if (CredentialsHandler.getUserProduct(getContext()).equals("premium")) {
             if (mService != null) {
                 if (!mService.isLogged()) {
@@ -696,6 +714,15 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onStop() {
+        if (mServicePlayerBound) {
+            unbindService(mConnection);
+            mServicePlayerBound = false;
+        }
+
+        if (mRenewServiceBound) {
+            unbindService(mRenewConnection);
+            mRenewServiceBound = false;
+        }
         super.onStop();
     }
 
@@ -711,10 +738,12 @@ public class MainActivity extends AppCompatActivity
             if(mService.getCurrentSong() != null){
                 notifyPlayer(mService.getCurrentSong());
             }
+            mServicePlayerBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
+
         }
     };
 
@@ -723,6 +752,7 @@ public class MainActivity extends AppCompatActivity
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             RenewService.RenewBinder binder = (RenewService.RenewBinder) service;
             mRenewService = binder.getService();
+            mRenewServiceBound = true;
         }
 
         @Override

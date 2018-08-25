@@ -1,7 +1,6 @@
 package es.app.attune.attune.attunePlayer;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -40,7 +39,6 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
 
     AttunePlayer() {
         currentSongs = new ArrayList<Song>();
-        Intent switchIntent = new Intent("es.app.attune.ACTION_PLAY");
         repetitionState = false;
     }
 
@@ -386,7 +384,7 @@ public class AttunePlayer implements Player, com.spotify.sdk.android.player.Spot
     public void login(String newToken) {
         if (mSpotifyPlayer != null) {
             token = newToken;
-            mSpotifyPlayer.logout();
+            mSpotifyPlayer.login(token);
         }
     }
 

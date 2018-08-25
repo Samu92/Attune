@@ -63,10 +63,6 @@ public class CredentialsHandler {
         String token = sharedPref.getString(ACCESS_TOKEN, null);
         long expiresAt = sharedPref.getLong(EXPIRES_AT, 0L);
 
-        if (token == null || expiresAt < System.currentTimeMillis()) {
-            return null;
-        }
-
         return token;
     }
 
@@ -74,13 +70,7 @@ public class CredentialsHandler {
         Context appContext = context.getApplicationContext();
         SharedPreferences sharedPref = getSharedPreferences(appContext);
 
-        String refresh_token = sharedPref.getString(REFRESH_TOKEN, null);
-
-        if (refresh_token == null) {
-            return null;
-        }
-
-        return refresh_token;
+        return sharedPref.getString(REFRESH_TOKEN, null);
     }
 
     public static String getCode(Context context){
