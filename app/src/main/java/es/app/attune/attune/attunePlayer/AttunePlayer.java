@@ -29,10 +29,9 @@ import es.app.attune.attune.database.Song;
 
 public class AttunePlayer implements Player, com.spotify.sdk.android.player.SpotifyPlayer.NotificationCallback, ConnectionStateCallback {
     private static final String TAG = AttunePlayer.class.getSimpleName();
-
+    private static final String CLIENT_ID = "8bcf4a1c62f64325a456b1bee9e857d9";
     private com.spotify.sdk.android.player.SpotifyPlayer mSpotifyPlayer;
     private int mCurrentSong;
-    private static final String CLIENT_ID = "8bcf4a1c62f64325a456b1bee9e857d9";
     private List<Song> currentSongs;
     private boolean repetitionState;
     private String token;

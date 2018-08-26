@@ -42,12 +42,22 @@ public class LoginActivity extends AppCompatActivity {
     @SuppressWarnings("SpellCheckingInspection")
     private static final String REDIRECT_URI = "attune://callback";
     private static final int REQUEST_CODE = 1337;
+    private static final String[] scopes = new String[]{"user-read-private", "user-read-email", "playlist-read", "streaming", "user-read-playback-state", "user-read-currently-playing",
+            "user-modify-playback-state", "user-library-read", "playlist-read-private",
+            "user-library-modify", "playlist-modify-public", "playlist-modify-private"};
     private static ConnectivityManager manager;
     private MaterialDialog offline;
     private MaterialDialog progress;
-    private static final String[] scopes = new String[]{"user-read-private","user-read-email","playlist-read","streaming","user-read-playback-state","user-read-currently-playing",
-            "user-modify-playback-state","user-library-read","playlist-read-private",
-            "user-library-modify","playlist-modify-public","playlist-modify-private"};
+
+    public static Intent createIntent(Context context) {
+        return new Intent(context, LoginActivity.class);
+    }
+
+    public static boolean isOnline(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +69,7 @@ public class LoginActivity extends AppCompatActivity {
             }else{
                 setContentView(R.layout.activity_login);
 
-                ImageView imgSpt = (ImageView) findViewById(R.id.spotify_button);
+                ImageView imgSpt = findViewById(R.id.spotify_button);
                 imgSpt.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         Intent intent = new Intent();
@@ -71,7 +81,7 @@ public class LoginActivity extends AppCompatActivity {
                 });
 
 
-                ImageView imgTwitter = (ImageView) findViewById(R.id.twitter_button);
+                ImageView imgTwitter = findViewById(R.id.twitter_button);
                 imgTwitter.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         Intent intent = new Intent();
@@ -85,7 +95,7 @@ public class LoginActivity extends AppCompatActivity {
         }else{
             setContentView(R.layout.activity_login);
 
-            ImageView imgSpt = (ImageView) findViewById(R.id.spotify_button);
+            ImageView imgSpt = findViewById(R.id.spotify_button);
             imgSpt.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     Intent intent = new Intent();
@@ -97,7 +107,7 @@ public class LoginActivity extends AppCompatActivity {
             });
 
 
-            ImageView imgTwitter = (ImageView) findViewById(R.id.twitter_button);
+            ImageView imgTwitter = findViewById(R.id.twitter_button);
             imgTwitter.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     Intent intent = new Intent();
@@ -124,12 +134,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
     }
-
-
-    public static Intent createIntent(Context context) {
-        return new Intent(context, LoginActivity.class);
-    }
-
 
     public void onLoginButtonClicked(View view) {
         if(isOnline(this)){
@@ -203,12 +207,6 @@ public class LoginActivity extends AppCompatActivity {
                     logError("Auth result: " + response.getType());
             }
         }
-    }
-
-    public static boolean isOnline(Context context) {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
     }
 
     private void startMainActivity() {

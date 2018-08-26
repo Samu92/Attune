@@ -80,23 +80,13 @@ public class MainActivity extends AppCompatActivity
     private static final int REQUEST_CODE = 1337;
     private static final int MY_PERMISSIONS_REQUEST_READ_MEDIA = 10 ;
     private static final int PICK_IMAGE_REQUEST = 100;
-    private static ConnectivityManager manager;
-    private PlayListFragment playListFragment;
-    private SongsListFragment songsListFragment;
-    private static AutomaticModeTabs automaticModeTabs;
-    private static ManualMode manualMode;
-    private DaoSession daoSession;
-    private static DatabaseFunctions db;
-    private static SearchInterfaces.ActionListener mActionListener;
     static PlayerService mService;
     static RenewService mRenewService;
-    private String token;
-    TextView navEmail;
-    TextView navUserName;
-    CircleImageView navImageView;
-    private ImageView image;
-    private MaterialDialog edit_playlist_dialog;
-    private AttPlaylist selected_playlist;
+    private static ConnectivityManager manager;
+    private static AutomaticModeTabs automaticModeTabs;
+    private static ManualMode manualMode;
+    private static DatabaseFunctions db;
+    private static SearchInterfaces.ActionListener mActionListener;
     private static SlidingUpPanelLayout playerUI;
     private static ImageView play_pause_button;
     private static ImageView play_pause_button_expand;
@@ -106,25 +96,205 @@ public class MainActivity extends AppCompatActivity
     private static TextView song_artist;
     private static LinearLayout playerControlsShort;
     private static CircleImageView song_cover_image;
-    private MaterialDialog progress;
     private static MaterialDialog result;
     private static TextView txt_result;
     private static TextView numeric_progress;
     private static TextView numeric_total_progress;
     private static TextView numeric_progress_short;
     private static TextView numeric_total_progress_short;
-    private Handler handler;
     private static MaterialDialog error;
     private static TextView txt_error;
     private static ImageView player_state;
+    TextView navEmail;
+    TextView navUserName;
+    CircleImageView navImageView;
+    private PlayListFragment playListFragment;
+    private SongsListFragment songsListFragment;
+    private DaoSession daoSession;
+    private String token;
+    private ImageView image;
+    private MaterialDialog edit_playlist_dialog;
+    private AttPlaylist selected_playlist;
+    private MaterialDialog progress;
+    private Handler handler;
     private MaterialDialog offline;
     private TextView txt_offline;
     private ImageView repetition_button_expand;
     private boolean mServicePlayerBound = false;
     private boolean mRenewServiceBound = false;
+    /**
+     * Defines callbacks for service binding, passed to bindService()
+     */
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            PlayerService.PlayerBinder binder = (PlayerService.PlayerBinder) service;
+            mService = binder.getService();
+            if (mService.getCurrentSong() != null) {
+                notifyPlayer(mService.getCurrentSong());
+            }
+            mServicePlayerBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+
+        }
+    };
+    private ServiceConnection mRenewConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            RenewService.RenewBinder binder = (RenewService.RenewBinder) service;
+            mRenewService = binder.getService();
+            mRenewServiceBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+
+        }
+    };
 
     public static Intent createIntent(Context context) {
         return new Intent(context, MainActivity.class);
+    }
+
+    public static boolean isOnline(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        assert connectivityManager != null;
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
+    }
+
+    public static void pause() {
+        play_pause_button.setImageResource(R.drawable.ic_play_arrow_green_36dp);
+        play_pause_button_expand.setImageResource(R.drawable.ic_play_circle_outline_white_64dp);
+    }
+
+    public static void play() {
+        play_pause_button.setImageResource(R.drawable.ic_pause_green_36dp);
+        play_pause_button_expand.setImageResource(R.drawable.ic_pause_circle_outline_white_64dp);
+    }
+
+    public static void notifyPlayer(Song currentSong) {
+        Glide.with(getContext())
+                .load(currentSong.getImage())
+                .apply(RequestOptions.noAnimation())
+                .into(song_cover_image);
+        String name = db.getPlaylistNameById(currentSong.getIdPlaylist());
+        song_playlist_name.setText(name);
+        song_title.setText(currentSong.getName());
+        song_artist.setText(currentSong.getArtist());
+    }
+
+    public static void closePanel() {
+        if (mService != null) {
+            if (mService.isPlaying()) {
+                playerControlsShort.setVisibility(View.VISIBLE);
+                playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            } else if (playerUI.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
+                playerControlsShort.setVisibility(View.VISIBLE);
+                playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            }
+        }
+    }
+
+    public static void enableSlidingPanel() {
+        playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+    }
+
+    public static void disableSlidingPanel() {
+        playerUI.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+    }
+
+    public static void sendCurrentPosition(Song mCurrentSong, long positionMs) {
+        if (positionMs != 0) {
+            Log.i("CURRENT POSITION", "TOTAL: " + String.valueOf(mCurrentSong.getDuration() / 1000) + " - CURRENT:" + String.valueOf(positionMs / 1000));
+            song_cover.setProgress(positionMs / 1000);
+
+            long minutes = (positionMs / 1000) / 60;
+            long seconds = (positionMs / 1000) % 60;
+            numeric_progress.setText(String.format("%02d", minutes) + ":" + String.format("%02d", seconds));
+
+            long minutes_total = (mCurrentSong.getDuration() / 1000) / 60;
+            long seconds_total = (mCurrentSong.getDuration() / 1000) % 60;
+            numeric_total_progress.setText(String.format("%02d", minutes_total) + ":" + String.format("%02d", seconds_total));
+
+
+            numeric_progress_short.setText(String.format("%02d", minutes) + ":" + String.format("%02d", seconds));
+            numeric_total_progress_short.setText(String.format("%02d", minutes_total) + ":" + String.format("%02d", seconds_total));
+
+            if (songFinishing(positionMs, mCurrentSong.getDuration())) {
+                initializeEffect(mCurrentSong.getEffect_type());
+            }
+        }
+    }
+
+    public static boolean songFinishing(long positionMs, long totalMs) {
+        return positionMs >= (totalMs - 20000);
+    }
+
+    public static void initializeEffect(int effect_type) {
+        if (effect_type == 1) {
+            // Iniciamos efecto fade in - fade out
+            mService.doEffect(effect_type);
+        } else {
+            mService.doEffect(effect_type);
+        }
+    }
+
+    public static void initializeProgressCircle(Song mCurrentSong) {
+        song_cover.setMaxProgress(mCurrentSong.getDuration() / 1000);
+    }
+
+    public static void showPlayer() {
+        if (mService != null) {
+            if (mService.isPlaying()) {
+                if (playerUI.getPanelState() != SlidingUpPanelLayout.PanelState.EXPANDED) {
+                    playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                }
+            }
+        }
+    }
+
+    public static void createPlaylistSuccess() {
+        txt_result.setText(R.string.playlist_exported);
+        result.show();
+    }
+
+    public static boolean isAuthorized() {
+        if (CredentialsHandler.getUserProduct(getContext()).equals("premium")) {
+            return true;
+        } else {
+            txt_error.setText(R.string.premium_needed);
+            error.show();
+            return false;
+        }
+    }
+
+    public static void initToken(String newToken) {
+        mActionListener.init(newToken);
+    }
+
+    public static void LostPermissionMessage() {
+        txt_error.setText(R.string.lost_permission);
+        error.show();
+    }
+
+    public static void enablePlayerStatus() {
+        player_state.setImageResource(R.drawable.ic_music_note_green_24dp);
+    }
+
+    public static void disablePlayerState() {
+        player_state.setImageResource(R.drawable.ic_music_note_gray_24dp);
+    }
+
+    public static void showNoTracks() {
+        txt_error.setText(R.string.no_song_found);
+        error.show();
     }
 
     @Override
@@ -261,8 +431,8 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        playerUI = (SlidingUpPanelLayout) findViewById(R.id.sliding_panel);
-        playerControlsShort = (LinearLayout) findViewById(R.id.playback_controls);
+        playerUI = findViewById(R.id.sliding_panel);
+        playerControlsShort = findViewById(R.id.playback_controls);
         playerUI.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
             public void onPanelSlide(View panel, float slideOffset) {
@@ -289,7 +459,7 @@ public class MainActivity extends AppCompatActivity
         playerControlsShort.setClickable(false);
 
         /* Controles del reproductor */
-        play_pause_button = (ImageView) findViewById(R.id.play_pause_button_slide);
+        play_pause_button = findViewById(R.id.play_pause_button_slide);
         play_pause_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -303,7 +473,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        ImageView previous_song_button = (ImageView) findViewById(R.id.previous_song);
+        ImageView previous_song_button = findViewById(R.id.previous_song);
         previous_song_button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -318,7 +488,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        ImageView next_song_button = (ImageView) findViewById(R.id.next_song);
+        ImageView next_song_button = findViewById(R.id.next_song);
         next_song_button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -333,7 +503,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        ImageView previous_song_button_expand = (ImageView) findViewById(R.id.previous_song_expand);
+        ImageView previous_song_button_expand = findViewById(R.id.previous_song_expand);
         previous_song_button_expand.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -348,7 +518,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        ImageView next_song_button_expand = (ImageView) findViewById(R.id.next_song_expand);
+        ImageView next_song_button_expand = findViewById(R.id.next_song_expand);
         next_song_button_expand.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -363,7 +533,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        play_pause_button_expand = (ImageView) findViewById(R.id.play_pause_button_slide_expand);
+        play_pause_button_expand = findViewById(R.id.play_pause_button_slide_expand);
         play_pause_button_expand.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -377,7 +547,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        repetition_button_expand = (ImageView) findViewById(R.id.repetition_mode);
+        repetition_button_expand = findViewById(R.id.repetition_mode);
         repetition_button_expand.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -393,7 +563,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        ImageView slide_button = (ImageView) findViewById(R.id.slide_button);
+        ImageView slide_button = findViewById(R.id.slide_button);
         slide_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -404,7 +574,7 @@ public class MainActivity extends AppCompatActivity
         });
         /* ****************************** */
 
-        song_cover = (CircleProgressbar) findViewById(R.id.circle_progress_player);
+        song_cover = findViewById(R.id.circle_progress_player);
         song_cover.setOnProgressbarChangeListener(new CircleProgressbar.OnProgressbarChangeListener() {
             @Override
             public void onProgressChanged(CircleProgressbar circleSeekbar, float progress, boolean fromUser) {
@@ -432,14 +602,14 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        song_cover_image = (CircleImageView) findViewById(R.id.image_player_center);
-        song_playlist_name = (TextView) findViewById(R.id.song_playlist_player);
-        song_title = (TextView) findViewById(R.id.song_title_player);
-        song_artist = (TextView) findViewById(R.id.song_artist_player);
-        numeric_progress = (TextView) findViewById(R.id.numeric_progress);
-        numeric_total_progress = (TextView) findViewById(R.id.total_progress);
-        numeric_progress_short = (TextView) findViewById(R.id.numeric_progress_short);
-        numeric_total_progress_short = (TextView) findViewById(R.id.total_progress_short);
+        song_cover_image = findViewById(R.id.image_player_center);
+        song_playlist_name = findViewById(R.id.song_playlist_player);
+        song_title = findViewById(R.id.song_title_player);
+        song_artist = findViewById(R.id.song_artist_player);
+        numeric_progress = findViewById(R.id.numeric_progress);
+        numeric_total_progress = findViewById(R.id.total_progress);
+        numeric_progress_short = findViewById(R.id.numeric_progress_short);
+        numeric_total_progress_short = findViewById(R.id.total_progress_short);
 
         numeric_progress_short.setText(String.format("%02d",0) + ":" + String.format("%02d",0));
         numeric_total_progress_short.setText(String.format("%02d",0) + ":" + String.format("%02d",0));
@@ -480,7 +650,7 @@ public class MainActivity extends AppCompatActivity
 
         playerUI.setTouchEnabled(false);
 
-        player_state = (ImageView) findViewById(R.id.player_status);
+        player_state = findViewById(R.id.player_status);
         if (mService != null) {
             if (mService.isLogged()) {
                 player_state.setImageResource(R.drawable.ic_music_note_green_24dp);
@@ -518,13 +688,6 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
-    }
-
-    public static boolean isOnline(Context context) {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        assert connectivityManager != null;
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
     }
 
     @Override
@@ -575,7 +738,6 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -669,7 +831,7 @@ public class MainActivity extends AppCompatActivity
         if (CredentialsHandler.getUserProduct(getContext()).equals("premium")) {
             if (mService != null) {
                 if (!mService.isLogged()) {
-                    player_state = (ImageView) findViewById(R.id.player_status);
+                    player_state = findViewById(R.id.player_status);
                     player_state.setImageResource(R.drawable.ic_music_note_gray_24dp);
                 }
             }
@@ -725,41 +887,6 @@ public class MainActivity extends AppCompatActivity
         }
         super.onStop();
     }
-
-    /** Defines callbacks for service binding, passed to bindService() */
-    private ServiceConnection mConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            PlayerService.PlayerBinder binder = (PlayerService.PlayerBinder) service;
-            mService = binder.getService();
-            if(mService.getCurrentSong() != null){
-                notifyPlayer(mService.getCurrentSong());
-            }
-            mServicePlayerBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-
-        }
-    };
-
-    private ServiceConnection mRenewConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder service) {
-            RenewService.RenewBinder binder = (RenewService.RenewBinder) service;
-            mRenewService = binder.getService();
-            mRenewServiceBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-
-        }
-    };
 
     @Override
     public void onFragmentInteraction(Uri uri) {
@@ -976,137 +1103,8 @@ public class MainActivity extends AppCompatActivity
         initialize();
     }
 
-
     @Override
     public void dismissProgress() {
         automaticModeTabs.dismissProgress();
-    }
-
-    public static void pause(){
-        play_pause_button.setImageResource(R.drawable.ic_play_arrow_green_36dp);
-        play_pause_button_expand.setImageResource(R.drawable.ic_play_circle_outline_white_64dp);
-    }
-
-    public static void play(){
-        play_pause_button.setImageResource(R.drawable.ic_pause_green_36dp);
-        play_pause_button_expand.setImageResource(R.drawable.ic_pause_circle_outline_white_64dp);
-    }
-
-    public static void notifyPlayer(Song currentSong){
-        Glide.with(getContext())
-                .load(currentSong.getImage())
-                .apply(RequestOptions.noAnimation())
-                .into(song_cover_image);
-        String name = db.getPlaylistNameById(currentSong.getIdPlaylist());
-        song_playlist_name.setText(name);
-        song_title.setText(currentSong.getName());
-        song_artist.setText(currentSong.getArtist());
-    }
-
-    public static void closePanel(){
-        if (mService != null) {
-            if (mService.isPlaying()) {
-                playerControlsShort.setVisibility(View.VISIBLE);
-                playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-            } else if (playerUI.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
-                playerControlsShort.setVisibility(View.VISIBLE);
-                playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-            }
-        }
-    }
-
-    public static void enableSlidingPanel() {
-        playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-    }
-
-    public static void disableSlidingPanel() {
-        playerUI.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-    }
-
-    public static void sendCurrentPosition(Song mCurrentSong, long positionMs) {
-        if(positionMs != 0){
-            Log.i("CURRENT POSITION", "TOTAL: " + String.valueOf(mCurrentSong.getDuration()/1000) + " - CURRENT:" +  String.valueOf(positionMs/1000));
-            song_cover.setProgress(positionMs/1000);
-
-            long minutes = (positionMs / 1000) / 60;
-            long seconds = (positionMs / 1000) % 60;
-            numeric_progress.setText(String.format("%02d",minutes) + ":" + String.format("%02d",seconds));
-
-            long minutes_total = (mCurrentSong.getDuration() / 1000) / 60;
-            long seconds_total = (mCurrentSong.getDuration() / 1000) % 60;
-            numeric_total_progress.setText(String.format("%02d",minutes_total) + ":" + String.format("%02d",seconds_total));
-
-
-            numeric_progress_short.setText(String.format("%02d",minutes) + ":" + String.format("%02d",seconds));
-            numeric_total_progress_short.setText(String.format("%02d",minutes_total) + ":" + String.format("%02d",seconds_total));
-
-            if(songFinishing(positionMs,mCurrentSong.getDuration())){
-                initializeEffect(mCurrentSong.getEffect_type());
-            }
-        }
-    }
-
-    public static boolean songFinishing(long positionMs, long totalMs){
-        return positionMs >= (totalMs - 20000);
-    }
-
-    public static void initializeEffect(int effect_type){
-        if(effect_type == 1){
-            // Iniciamos efecto fade in - fade out
-            mService.doEffect(effect_type);
-        }else{
-            mService.doEffect(effect_type);
-        }
-    }
-
-    public static void initializeProgressCircle(Song mCurrentSong){
-        song_cover.setMaxProgress(mCurrentSong.getDuration()/1000);
-    }
-
-    public static void showPlayer() {
-        if(mService != null){
-            if(mService.isPlaying()){
-                if(playerUI.getPanelState() != SlidingUpPanelLayout.PanelState.EXPANDED){
-                    playerUI.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                }
-            }
-        }
-    }
-
-    public static void createPlaylistSuccess() {
-        txt_result.setText(R.string.playlist_exported);
-        result.show();
-    }
-
-    public static boolean isAuthorized() {
-        if(CredentialsHandler.getUserProduct(getContext()).equals("premium")){
-            return true;
-        }else{
-            txt_error.setText(R.string.premium_needed);
-            error.show();
-            return false;
-        }
-    }
-
-    public static void initToken(String newToken) {
-        mActionListener.init(newToken);
-    }
-
-    public static void LostPermissionMessage() {
-        txt_error.setText(R.string.lost_permission);
-        error.show();
-    }
-
-    public static void enablePlayerStatus() {
-        player_state.setImageResource(R.drawable.ic_music_note_green_24dp);
-    }
-
-    public static void disablePlayerState() {
-        player_state.setImageResource(R.drawable.ic_music_note_gray_24dp);
-    }
-
-    public static void showNoTracks() {
-        txt_error.setText(R.string.no_song_found);
-        error.show();
     }
 }

@@ -7,10 +7,8 @@ import android.util.Log;
 public abstract class ResultListScrollListener extends RecyclerView.OnScrollListener {
 
     private static final String TAG = ResultListScrollListener.class.getSimpleName();
-
-    private final LinearLayoutManager mLayoutManager;
-
     private static final int SCROLL_BUFFER = 3;
+    private final LinearLayoutManager mLayoutManager;
     private int mCurrentItemCount = 0;
 
     private boolean mAwaitingItems = true;

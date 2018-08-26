@@ -36,12 +36,12 @@ public class PlayListFragment extends Fragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
-    // TODO: Customize parameters
-    private int mColumnCount = 1;
-    private OnListFragmentInteractionListener mListener;
     private static DatabaseFunctions db;
     private static RecyclerView recyclerView;
     private static PlayListRecyclerViewAdapter adapter;
+    // TODO: Customize parameters
+    private int mColumnCount = 1;
+    private OnListFragmentInteractionListener mListener;
     private TextView empty;
     private MaterialDialog question;
     private TextView txt_question;
@@ -56,6 +56,14 @@ public class PlayListFragment extends Fragment {
         PlayListFragment fragment = new PlayListFragment();
         db = database;
         return fragment;
+    }
+
+    public static void update() {
+        adapter.notifyDataSetChanged();
+    }
+
+    public static void scrollToLastPosition() {
+        recyclerView.scrollToPosition(adapter.getItemCount() - 1);
     }
 
     @Override
@@ -194,14 +202,6 @@ public class PlayListFragment extends Fragment {
 
     private void recountSongsAndDuration() {
         adapter.notifyDataSetChanged();
-    }
-
-    public static void update() {
-        adapter.notifyDataSetChanged();
-    }
-
-    public static void scrollToLastPosition() {
-        recyclerView.scrollToPosition(adapter.getItemCount() - 1);
     }
 
     public interface OnListFragmentInteractionListener {

@@ -68,15 +68,18 @@ import static android.app.Activity.RESULT_OK;
  */
 public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetListener {
 
+    private static final String KEY_CURRENT_QUERY = "CURRENT_QUERY";
+    private static final int PICK_IMAGE_REQUEST = 100;
     private static ConnectivityManager manager;
     private static DatabaseFunctions db;
-    private SearchView searchView;
     private static SearchInterfaces.ActionListener mActionListener;
-    private static final String KEY_CURRENT_QUERY = "CURRENT_QUERY";
     private static ScrollListener mScrollListener;
-    private ManualMode.OnListFragmentInteractionListener mListener;
     private static SearchResultsAdapter mAdapter;
     private static RecyclerView resultsList;
+    private static TextView empty;
+    private static ProgressBar progressManualBar;
+    private SearchView searchView;
+    private ManualMode.OnListFragmentInteractionListener mListener;
     private MaterialDialog material;
     private SearchableSpinner genresSpinner;
     private EditText editText_start;
@@ -85,8 +88,6 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
     private int year_end;
     private String genre;
     private float mTempoFilter;
-    private static TextView empty;
-    private static ProgressBar progressManualBar;
     private ListView playlist_list_view;
     private MaterialDialog playlist_list_dialog;
     private MaterialDialog new_playlist_dialog;
@@ -97,7 +98,6 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
     private FilterAdapter filterAdapter;
     private TextView empty_filter_list;
     private Song selected_song;
-    private static final int PICK_IMAGE_REQUEST = 100;
     private ImageView image;
     private TextView txt_result;
     private ArrayAdapter<String> adapter_playlist_list;
@@ -108,6 +108,57 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
 
     public ManualMode() {
         // Required empty public constructor
+    }
+
+    public static boolean isOnline(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
+    }
+
+    public static void stopProgressBar() {
+        progressManualBar.setVisibility(View.GONE);
+    }
+
+    public static ManualMode newInstance(DatabaseFunctions database, SearchInterfaces.ActionListener mActionListenerArg) {
+        ManualMode fragment = new ManualMode();
+        db = database;
+        mActionListener = mActionListenerArg;
+        return fragment;
+    }
+
+    public static void stopSearch() {
+        reset();
+    }
+
+    private static void reset() {
+        mScrollListener.reset();
+        mAdapter.clearData();
+        mAdapter.notifyDataSetChanged();
+
+        if (mAdapter.getItemCount() == 0) {
+            resultsList.setVisibility(View.GONE);
+            empty.setVisibility(View.VISIBLE);
+        } else {
+            resultsList.setVisibility(View.VISIBLE);
+            empty.setVisibility(View.GONE);
+        }
+    }
+
+    public static void setMarginBottomList(int mode) {
+        if (resultsList != null) {
+            ViewGroup.MarginLayoutParams marginLayoutParams =
+                    (ViewGroup.MarginLayoutParams) resultsList.getLayoutParams();
+            if (mode == 0) {
+                marginLayoutParams.setMargins(0, 0, 0, 0);
+                resultsList.setLayoutParams(marginLayoutParams);
+                resultsList.requestLayout();
+            } else if (mode == 1) {
+                marginLayoutParams.setMargins(0, 0, 0, 200);
+                resultsList.setLayoutParams(marginLayoutParams);
+                resultsList.requestLayout();
+            }
+        }
     }
 
     public void setAdapter(List<Song> items) {
@@ -129,50 +180,6 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
     public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
         year_start = i;
         editText_start.setText(String.valueOf(i));
-    }
-
-    public static boolean isOnline(Context context) {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
-    }
-
-    public static void stopProgressBar() {
-        progressManualBar.setVisibility(View.GONE);
-    }
-
-    private class ScrollListener extends ResultListScrollListener {
-
-        ScrollListener(LinearLayoutManager layoutManager) {
-            super(layoutManager);
-        }
-
-        @Override
-        public void onLoadMore() {
-            if (isOnline(Objects.requireNonNull(getContext()))) {
-                progressManualBar.setVisibility(View.VISIBLE);
-                empty.setVisibility(View.GONE);
-                mActionListener.loadMoreResults();
-            }else{
-                Log.e("Connection", getString(R.string.no_connection));
-                offline = new MaterialDialog.Builder(getContext())
-                        .customView(R.layout.error_layout, false)
-                        .cancelable(true)
-                        .positiveText(R.string.agree)
-                        .build();
-
-                txt_offline = offline.getView().findViewById(R.id.txt_error);
-                txt_offline.setText(R.string.txt_no_connection);
-                offline.show();
-            }
-        }
-    }
-
-    public static ManualMode newInstance(DatabaseFunctions database, SearchInterfaces.ActionListener mActionListenerArg) {
-        ManualMode fragment = new ManualMode();
-        db = database;
-        mActionListener = mActionListenerArg;
-        return fragment;
     }
 
     @Override
@@ -722,45 +729,6 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
         }
     }
 
-    public static void stopSearch() {
-        reset();
-    }
-
-    private static void reset() {
-        mScrollListener.reset();
-        mAdapter.clearData();
-        mAdapter.notifyDataSetChanged();
-
-        if(mAdapter.getItemCount() == 0){
-            resultsList.setVisibility(View.GONE);
-            empty.setVisibility(View.VISIBLE);
-        }else{
-            resultsList.setVisibility(View.VISIBLE);
-            empty.setVisibility(View.GONE);
-        }
-    }
-
-    public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onListFragmentInteraction(Song item, boolean b);
-    }
-
-    public static void setMarginBottomList(int mode){
-        if(resultsList != null){
-            ViewGroup.MarginLayoutParams marginLayoutParams =
-                    (ViewGroup.MarginLayoutParams) resultsList.getLayoutParams();
-            if(mode == 0){
-                marginLayoutParams.setMargins(0, 0, 0, 0);
-                resultsList.setLayoutParams(marginLayoutParams);
-                resultsList.requestLayout();
-            }else if(mode == 1){
-                marginLayoutParams.setMargins(0, 0, 0, 200);
-                resultsList.setLayoutParams(marginLayoutParams);
-                resultsList.requestLayout();
-            }
-        }
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -781,6 +749,38 @@ public class ManualMode extends Fragment implements DatePickerDialog.OnDateSetLi
                     }
                 }
                 break;
+        }
+    }
+
+    public interface OnListFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onListFragmentInteraction(Song item, boolean b);
+    }
+
+    private class ScrollListener extends ResultListScrollListener {
+
+        ScrollListener(LinearLayoutManager layoutManager) {
+            super(layoutManager);
+        }
+
+        @Override
+        public void onLoadMore() {
+            if (isOnline(Objects.requireNonNull(getContext()))) {
+                progressManualBar.setVisibility(View.VISIBLE);
+                empty.setVisibility(View.GONE);
+                mActionListener.loadMoreResults();
+            } else {
+                Log.e("Connection", getString(R.string.no_connection));
+                offline = new MaterialDialog.Builder(getContext())
+                        .customView(R.layout.error_layout, false)
+                        .cancelable(true)
+                        .positiveText(R.string.agree)
+                        .build();
+
+                txt_offline = offline.getView().findViewById(R.id.txt_error);
+                txt_offline.setText(R.string.txt_no_connection);
+                offline.show();
+            }
         }
     }
 }

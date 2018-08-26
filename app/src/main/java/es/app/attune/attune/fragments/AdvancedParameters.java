@@ -38,6 +38,10 @@ public class AdvancedParameters extends Fragment {
     private static BubbleSeekBar speechiness;
     private static BubbleSeekBar valence;
 
+    public AdvancedParameters() {
+        // Required empty public constructor
+    }
+
     public static float getAcousticness() {
         if(acousticness.isEnabled()) {
             return acousticness.getProgressFloat();
@@ -110,10 +114,6 @@ public class AdvancedParameters extends Fragment {
         }else{
             return -1;
         }
-    }
-
-    public AdvancedParameters() {
-        // Required empty public constructor
     }
 
     public static AdvancedParameters newInstance(DatabaseFunctions database) {

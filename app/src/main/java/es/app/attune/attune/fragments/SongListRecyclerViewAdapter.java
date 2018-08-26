@@ -117,12 +117,12 @@ public class SongListRecyclerViewAdapter extends RecyclerView.Adapter<SongListRe
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
+        public final ImageView image;
         final View mView;
         final TextView mNameView;
         final TextView mArtistView;
         final TextView mTempoView;
         final TextView mDurationView;
-        public final ImageView image;
         final TextView mDateView;
         final TextView mEffectView;
         public Song mItem;

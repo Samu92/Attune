@@ -25,37 +25,6 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
     private final Context mContext;
     private final ItemSelectedListener mListener;
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-        public final TextView title;
-        public final TextView subtitle;
-        public final ImageView image;
-        public final TextView tempo;
-        public final TextView date;
-        public final TextView duration;
-
-        ViewHolder(View itemView) {
-            super(itemView);
-            title = itemView.findViewById(R.id.entity_title);
-            subtitle = itemView.findViewById(R.id.entity_subtitle);
-            image = itemView.findViewById(R.id.entity_image);
-            tempo = itemView.findViewById(R.id.entity_tempo);
-            date = itemView.findViewById(R.id.entity_date);
-            duration = itemView.findViewById(R.id.entity_duration);
-            itemView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            notifyItemChanged(getLayoutPosition());
-            mListener.onItemSelected(v, mItems.get(getAdapterPosition()));
-        }
-    }
-
-    public interface ItemSelectedListener {
-        void onItemSelected(View itemView, Song item);
-    }
-
     public SearchResultsAdapter(Context context, ItemSelectedListener listener) {
         mContext = context;
         mListener = listener;
@@ -84,7 +53,7 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
         holder.title.setText(item.getName());
 
         String artists = item.getArtist();
-        
+
         Joiner joiner = Joiner.on(", ");
         holder.subtitle.setText(artists);
 
@@ -102,5 +71,36 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
     @Override
     public int getItemCount() {
         return mItems.size();
+    }
+
+    public interface ItemSelectedListener {
+        void onItemSelected(View itemView, Song item);
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+        public final TextView title;
+        public final TextView subtitle;
+        public final ImageView image;
+        public final TextView tempo;
+        public final TextView date;
+        public final TextView duration;
+
+        ViewHolder(View itemView) {
+            super(itemView);
+            title = itemView.findViewById(R.id.entity_title);
+            subtitle = itemView.findViewById(R.id.entity_subtitle);
+            image = itemView.findViewById(R.id.entity_image);
+            tempo = itemView.findViewById(R.id.entity_tempo);
+            date = itemView.findViewById(R.id.entity_date);
+            duration = itemView.findViewById(R.id.entity_duration);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            notifyItemChanged(getLayoutPosition());
+            mListener.onItemSelected(v, mItems.get(getAdapterPosition()));
+        }
     }
 }

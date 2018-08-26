@@ -32,11 +32,12 @@ import es.app.attune.attune.database.Song;
 
 import static es.app.attune.attune.activity.MainActivity.isOnline;
 
+
 public class PlayerService extends Service {
 
-    Notification status;
     private static final String TAG = "PlayerService";
     private final IBinder mBinder = new PlayerBinder();
+    Notification status;
     private AttunePlayer mPlayer = new AttunePlayer();
     private RemoteViews bigViews;
     private RemoteViews views;
@@ -59,17 +60,6 @@ public class PlayerService extends Service {
         mPlayer.logout();
     }
 
-    /**
-     * Class used for the client Binder.  Because we know this service always
-     * runs in the same process as its clients, we don't need to deal with IPC.
-     */
-    public class PlayerBinder extends Binder {
-        public PlayerService getService() {
-            // Return this instance of LocalService so clients can call public methods
-            return PlayerService.this;
-        }
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -79,10 +69,10 @@ public class PlayerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if(null == intent) {
+        if (null == intent) {
             String source = null == intent ? "intent" : "action";
             Log.e(TAG, source + " was null, flags=" + flags + " bits=" + Integer.toBinaryString(flags));
-        }else{
+        } else {
             if (intent.getAction().equals(Constants.ACTION.STARTFOREGROUND_ACTION)) {
 
             } else if (intent.getAction().equals(Constants.ACTION.PREV_ACTION)) {
@@ -90,13 +80,13 @@ public class PlayerService extends Service {
                 skipToPreviousSong();
             } else if (intent.getAction().equals(Constants.ACTION.PLAY_ACTION)) {
                 Log.i(TAG, "Clicked Play");
-                if(mPlayer.isPlaying()){
+                if (mPlayer.isPlaying()) {
                     mPlayer.pause();
                     views.setImageViewResource(R.id.status_bar_play,
                             R.drawable.ic_play_arrow_black_36dp);
                     bigViews.setImageViewResource(R.id.status_bar_play,
                             R.drawable.ic_play_arrow_white_36dp);
-                }else{
+                } else {
                     mPlayer.resume();
                     views.setImageViewResource(R.id.status_bar_play,
                             R.drawable.ic_pause_black_36dp);
@@ -119,8 +109,8 @@ public class PlayerService extends Service {
                 Log.i(TAG, "Received Stop Foreground Intent");
                 stopForeground(true);
                 mPlayer.pause();
-            } else if(intent.getAction().equals(Constants.ACTION.MAIN_ACTION)){
-                if(CredentialsHandler.getToken(getApplicationContext()) != null ){
+            } else if (intent.getAction().equals(Constants.ACTION.MAIN_ACTION)) {
+                if (CredentialsHandler.getToken(getApplicationContext()) != null) {
                     if (!mPlayer.isInitialized()) {
                         mPlayer.createMediaPlayer(CredentialsHandler.getToken(getApplicationContext()), PlayerService.this);
                     }
@@ -201,8 +191,8 @@ public class PlayerService extends Service {
                             @Override
                             public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
                                 bigViews.setImageViewBitmap(R.id.status_bar_album_art, resource);
-                                views.setImageViewBitmap(R.id.status_bar_album_art,resource);
-                                views.setImageViewBitmap(R.id.status_bar_icon,resource);
+                                views.setImageViewBitmap(R.id.status_bar_album_art, resource);
+                                views.setImageViewBitmap(R.id.status_bar_icon, resource);
                                 status = new Notification.Builder(App.getContext()).build();
                                 status.contentView = views;
                                 status.bigContentView = bigViews;
@@ -224,8 +214,8 @@ public class PlayerService extends Service {
         return mPlayer.isPlaying();
     }
 
-    public void playSong(Song item){
-        if(MainActivity.isAuthorized()){
+    public void playSong(Song item) {
+        if (MainActivity.isAuthorized()) {
             mPlayer.play(item);
             Song currentSong = getCurrentSong();
             if (currentSong != null) {
@@ -235,7 +225,7 @@ public class PlayerService extends Service {
     }
 
     public void playPlaylist(AttPlaylist item) {
-        if(MainActivity.isAuthorized()){
+        if (MainActivity.isAuthorized()) {
             Log.i("PlayPlaylist", "Authorized, setting queue...");
             mPlayer.setQueue(item);
             Song currentSong = getCurrentSong();
@@ -246,8 +236,8 @@ public class PlayerService extends Service {
     }
 
     public void playSongFromPlaylist(AttPlaylist selected_playlist, Song item) {
-        if(MainActivity.isAuthorized()){
-            mPlayer.setQueue(selected_playlist,item);
+        if (MainActivity.isAuthorized()) {
+            mPlayer.setQueue(selected_playlist, item);
             Song currentSong = getCurrentSong();
             if (currentSong != null) {
                 showNotification(currentSong);
@@ -255,9 +245,8 @@ public class PlayerService extends Service {
         }
     }
 
-
-    public boolean playPauseState(){
-        if(MainActivity.isAuthorized()) {
+    public boolean playPauseState() {
+        if (MainActivity.isAuthorized()) {
             if (mPlayer.isPlaying()) {
                 mPlayer.pause();
                 views.setImageViewResource(R.id.status_bar_play,
@@ -286,7 +275,7 @@ public class PlayerService extends Service {
                 startForeground(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE, status);
                 return true;
             }
-        }else{
+        } else {
             return false;
         }
     }
@@ -295,7 +284,7 @@ public class PlayerService extends Service {
         return mPlayer.getRepetition();
     }
 
-    public void setRepetitionState(boolean state){
+    public void setRepetitionState(boolean state) {
         mPlayer.setRepetitionState(state);
     }
 
@@ -312,21 +301,21 @@ public class PlayerService extends Service {
     }
 
     public void skipToPreviousSong() {
-        if(isOnline(App.getContext())){
+        if (isOnline(App.getContext())) {
             mPlayer.skipToPreviousSong();
             showNotification(getCurrentSong());
         }
     }
 
     public void skipToNextSong() {
-        if(isOnline(App.getContext())){
+        if (isOnline(App.getContext())) {
             mPlayer.skipToNextSong();
             showNotification(getCurrentSong());
         }
     }
 
     public PlaybackState getPlaybackState() {
-       return  mPlayer.getPlaybackState();
+        return mPlayer.getPlaybackState();
     }
 
     public boolean currentsSongEmpty() {
@@ -338,20 +327,19 @@ public class PlayerService extends Service {
         return getCurrentSong().equals(lastSong);
     }
 
-
     public Song getCurrentSong() {
         return mPlayer.getCurrentSong();
     }
 
     public void doEffect(int effect_type) {
-        if(mPlayer.isPlaying()){
-            if(effect_type == 1){
-                if(!doingEffect){
+        if (mPlayer.isPlaying()) {
+            if (effect_type == 1) {
+                if (!doingEffect) {
                     doingEffect = true;
                     crossfade();
                 }
-            }else if(effect_type == 2){
-                if(!doingEffect){
+            } else if (effect_type == 2) {
+                if (!doingEffect) {
                     doingEffect = true;
                     overlap();
                 }
@@ -377,17 +365,17 @@ public class PlayerService extends Service {
                 // can call h again after work!
                 time -= 100;
                 volume = (deviceVolume * time) / 2000;
-                audio.setStreamVolume(AudioManager.STREAM_MUSIC, volume,0);
+                audio.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
                 if (time > 0)
                     h.postDelayed(this, 100);
-                else{
-                    if(!isLastSong()){
+                else {
+                    if (!isLastSong()) {
                         skipToNextSong();
                         fadeIn(deviceVolume);
-                    }else{
+                    } else {
                         playPauseState();
                         doingEffect = false;
-                        audio.setStreamVolume(AudioManager.STREAM_MUSIC, deviceVolume,0);
+                        audio.setStreamVolume(AudioManager.STREAM_MUSIC, deviceVolume, 0);
                         mPlayer.seekToPosition(0);
                     }
                 }
@@ -406,7 +394,7 @@ public class PlayerService extends Service {
             public void run() {
                 time += 100;
                 volume = (deviceVolume * time) / 2000;
-                audio.setStreamVolume(AudioManager.STREAM_MUSIC, volume,0);
+                audio.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
                 if (time < 2000)
                     h.postDelayed(this, 100);
                 else
@@ -419,7 +407,7 @@ public class PlayerService extends Service {
         return audio.getStreamVolume(AudioManager.STREAM_MUSIC);
     }
 
-    public int getDeviceMaxVolume(){
+    public int getDeviceMaxVolume() {
         return audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
     }
 
@@ -432,5 +420,16 @@ public class PlayerService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+    }
+
+    /**
+     * Class used for the client Binder.  Because we know this service always
+     * runs in the same process as its clients, we don't need to deal with IPC.
+     */
+    public class PlayerBinder extends Binder {
+        public PlayerService getService() {
+            // Return this instance of LocalService so clients can call public methods
+            return PlayerService.this;
+        }
     }
 }

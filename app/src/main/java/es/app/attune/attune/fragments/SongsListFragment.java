@@ -32,13 +32,13 @@ public class SongsListFragment extends Fragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
-    // TODO: Customize parameters
-    private int mColumnCount = 1;
-    private SongsListFragment.OnListFragmentInteractionListener mListener;
     private static DatabaseFunctions db;
     private static RecyclerView recyclerView;
     private static SongListRecyclerViewAdapter adapter;
     private static String playlistId;
+    // TODO: Customize parameters
+    private int mColumnCount = 1;
+    private SongsListFragment.OnListFragmentInteractionListener mListener;
     private TextView empty;
     private MaterialDialog question;
     private TextView txt_question;
@@ -56,11 +56,14 @@ public class SongsListFragment extends Fragment {
         return fragment;
     }
 
+    public static void updateAdapter() {
+        adapter.notifyDataSetChanged();
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
-
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -162,10 +165,6 @@ public class SongsListFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
-
-    public static void updateAdapter() {
-        adapter.notifyDataSetChanged();
     }
 
     public interface OnListFragmentInteractionListener {

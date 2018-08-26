@@ -58,18 +58,22 @@ import static android.app.Activity.RESULT_OK;
 
 public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedListener, SearchInterfaces.ResultNewPlaylist {
 
-    private OnFragmentInteractionListener mListener;
+    private static final int PICK_IMAGE_REQUEST = 100;
     private static ConnectivityManager manager;
-    private ImageView image;
-    private EditText name;
     private static RangeSeekBar tempo;
     private static BubbleSeekBar playlist_duration;
+    private static DatabaseFunctions db;
+    private static List<String> genres_list;
+    private static SearchInterfaces.ActionListener mLocalActionListener;
+    private static MaterialDialog progress;
+    private static float mMinTempo;
+    private static float mMaxTempo;
+    private OnFragmentInteractionListener mListener;
+    private ImageView image;
+    private EditText name;
     private BubbleSeekBar song_duration;
     private CheckBox check_song_duration;
     private SearchableSpinner searchableSpinner;
-    private static DatabaseFunctions db;
-    private static final int PICK_IMAGE_REQUEST = 100;
-    private static List<String> genres_list;
     private TextView empty_genre_list;
     private TextView txt_loading;
     private TextView txt_error;
@@ -78,13 +82,9 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
     private TextView txt_offline;
     private ArrayAdapter<String> adapter_playlist_list;
     private ListView playlist_list_view;
-    private static SearchInterfaces.ActionListener mLocalActionListener;
-    private static MaterialDialog progress;
     private MaterialDialog error;
     private ListView genres_list_view;
     private ArrayAdapter<String> genres_list_adapter;
-    private static float mMinTempo;
-    private static float mMaxTempo;
 
     public NewPlayList() {
         // Required empty public constructor
@@ -98,17 +98,6 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
         db = database;
         mLocalActionListener = mActionListener;
         return fragment;
-    }
-
-    public Bitmap getImage() {
-        BitmapDrawable drawable = (BitmapDrawable) image.getDrawable();
-        Bitmap bitmap = drawable.getBitmap();
-        bitmap = bitmap.copy(bitmap.getConfig(),false);
-        return bitmap;
-    }
-
-    public String getName() {
-        return name.getText().toString();
     }
 
     public static float getMinTempo() {
@@ -131,19 +120,34 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
 
     public static int getDuration(){ return playlist_duration.getProgress();}
 
+    public static boolean isOnline(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        assert connectivityManager != null;
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
+    }
+
+    public static void stopProgress() {
+        progress.dismiss();
+    }
+
+    public Bitmap getImage() {
+        BitmapDrawable drawable = (BitmapDrawable) image.getDrawable();
+        Bitmap bitmap = drawable.getBitmap();
+        bitmap = bitmap.copy(bitmap.getConfig(), false);
+        return bitmap;
+    }
+
+    public String getName() {
+        return name.getText().toString();
+    }
+
     public float getSongDuration() {
         if(check_song_duration.isChecked()){
             return song_duration.getProgressFloat();
         }else{
             return 0;
         }
-    }
-
-    public static boolean isOnline(Context context) {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        assert connectivityManager != null;
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
     }
 
     @Override
@@ -365,7 +369,7 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
             empty_playlist_list.setVisibility(View.GONE);
         }
 
-        Button create_playlist_button = (Button) getView().findViewById(R.id.create_playlist_button);
+        Button create_playlist_button = getView().findViewById(R.id.create_playlist_button);
         create_playlist_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -505,15 +509,6 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
         progress.dismiss();
     }
 
-    public static void stopProgress() {
-        progress.dismiss();
-    }
-
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
-
     /*
         Función que valida el formulario de creación de la playlist
      */
@@ -569,5 +564,10 @@ public class NewPlayList extends Fragment implements AdapterView.OnItemSelectedL
                 }
                 break;
         }
+    }
+
+    public interface OnFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onFragmentInteraction(Uri uri);
     }
 }

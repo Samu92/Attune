@@ -7,20 +7,6 @@ import android.graphics.BitmapFactory;
 import es.app.attune.attune.R;
 
 public class Constants {
-    public interface ACTION {
-        public static String MAIN_ACTION = "es.attune.customnotification.action.main";
-        public static String INIT_ACTION = "es.attune.customnotification.action.init";
-        public static String PREV_ACTION = "es.attune.customnotification.action.prev";
-        public static String PLAY_ACTION = "es.attune.customnotification.action.play";
-        public static String NEXT_ACTION = "es.attune.customnotification.action.next";
-        public static String STARTFOREGROUND_ACTION = "es.attune.customnotification.action.startforeground";
-        public static String STOPFOREGROUND_ACTION = "es.attune.customnotification.action.stopforeground";
-    }
-
-    public interface NOTIFICATION_ID {
-        public static int FOREGROUND_SERVICE = 101;
-    }
-
     public static Bitmap getDefaultAlbumArt(Context context) {
         Bitmap bm = null;
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -30,6 +16,20 @@ public class Constants {
         } catch (Error | Exception ignored) {
         }
         return bm;
+    }
+
+    public interface ACTION {
+        String MAIN_ACTION = "es.attune.customnotification.action.main";
+        String INIT_ACTION = "es.attune.customnotification.action.init";
+        String PREV_ACTION = "es.attune.customnotification.action.prev";
+        String PLAY_ACTION = "es.attune.customnotification.action.play";
+        String NEXT_ACTION = "es.attune.customnotification.action.next";
+        String STARTFOREGROUND_ACTION = "es.attune.customnotification.action.startforeground";
+        String STOPFOREGROUND_ACTION = "es.attune.customnotification.action.stopforeground";
+    }
+
+    public interface NOTIFICATION_ID {
+        int FOREGROUND_SERVICE = 101;
     }
 
 }

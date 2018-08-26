@@ -27,19 +27,6 @@ public class RenewService extends Service {
     private final IBinder mRenewBinder = new RenewBinder();
     private Handler renewHandler;
 
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mRenewBinder;
-    }
-
-    public class RenewBinder extends Binder {
-        public RenewService getService() {
-            // Return this instance of LocalService so clients can call public methods
-            return RenewService.this;
-        }
-    }
-
     public RenewService() {
         super();
         renewHandler = new Handler();
@@ -50,6 +37,12 @@ public class RenewService extends Service {
                 renewHandler.postDelayed(this, 1800000);
             }
         }, 1800000);
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mRenewBinder;
     }
 
     @Override
@@ -99,5 +92,12 @@ public class RenewService extends Service {
                 Log.e("ERROR","ERROR");
             }
         });
+    }
+
+    public class RenewBinder extends Binder {
+        public RenewService getService() {
+            // Return this instance of LocalService so clients can call public methods
+            return RenewService.this;
+        }
     }
 }
