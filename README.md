@@ -31,10 +31,10 @@ Please read [CONTRIBUTING.md] for details on our code of conduct, and the proces
 
 ## Authors
 
-* **Samuel Hern·ndez** - *Initial work* -
+* **Samuel Hern√°ndez** - *Initial work* -
 
 See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE.md](LICENSE.md) file for details
