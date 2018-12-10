@@ -25,15 +25,9 @@ When there is a first version of the app, it will indicate how to install it.
 * [Spotify API](https://beta.developer.spotify.com/documentation/android-sdk/) - Used to search songs.
 * [GreenDao] (http://greenrobot.org/greendao/) - SqlLite ORM
 
-## Contributing
-
-Please read [CONTRIBUTING.md] for details on our code of conduct, and the process for submitting pull requests to us. 
-
 ## Authors
 
-* **Samuel Hernández** - *Initial work* -
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+* **Samuel Hernández** 
 
 ## License
 
